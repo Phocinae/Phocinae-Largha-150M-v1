@@ -166,7 +166,7 @@ PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155</code>
 <ul>
   <li><strong>JevBench public-231：0.5455（126/231），未达 58.4% 验收门槛。</strong>数字按实测发布，且从未在评测行上训练；tool_selection（k≤10）为 12/12。</li>
   <li>中文成绩来自机翻用例，没有中文原生训练行。</li>
-  <li>翻转率按选项重排协议测量（越低越好）：CPU fp32 0.0200 / 0.0217（flip150 / flip400 反向）· random-mean 0.0144 · any-of-3 0.0283。GPU fp16 0.0200 / 0.0217 与 1k 行 0.0187 / 0.0205 / 0.0431 系不同协议的备注值（1k 为 v1.0 参考口径）。</li>
+  <li>翻转率按选项重排协议测量（越低越好）：CPU fp32 0.0200 / 0.0217（flip150 / flip400 反向）· random-mean 0.0144 · any-of-3 0.0283。GPU fp16 0.0200 / 0.0217 与 1k 行（r4 复测）0.0181 / 0.0150 / 0.0331 系不同协议的备注值。</li>
   <li>标定：出厂列 en ECE <strong>0.2519</strong>（zh 0.1941）；随包发布的<strong>可选校准列（calib/）</strong>应用后 ECE 可降至 0.0168 / 0.0152。</li>
 </ul>
 
