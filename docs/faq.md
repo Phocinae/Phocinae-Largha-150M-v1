@@ -40,7 +40,7 @@ Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB 
 
 ## 6. What do the "flip" numbers mean?
 
-We reorder a decision's options and check whether the answer changes ("flip", lower is better). CPU fp32, idle machine: reversed **0.0200** (flip150) / **0.0217** (flip400) · random-mean **0.0144** · any-of-3 **0.0283**. That is roughly one changed answer per ~46 reorders — a 1.5 pp gap vs Laya in-domain (3.7%), vs Jev ~9% and Laya out-of-domain 19.4%. GPU 0.0200/0.0217 and 1k-row 0.0187/0.0205/0.0431 are note-only values (different protocols).
+We reorder a decision's options and check whether the answer changes ("flip", lower is better). CPU fp32, idle machine: reversed **0.0200** (flip150) / **0.0217** (flip400) · random-mean **0.0144** · any-of-3 **0.0283**. That is roughly one changed answer per ~46 reorders — a 1.5 pp gap vs Laya in-domain (3.7%), vs Jev ~9% and Laya out-of-domain 19.4%. GPU 0.0200/0.0217 and 1k-row 0.0181/0.0150/0.0331 are note-only values (different protocols).
 
 ## 7. How is the model calibrated?
 
