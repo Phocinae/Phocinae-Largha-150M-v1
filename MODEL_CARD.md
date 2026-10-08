@@ -52,7 +52,7 @@ Full contract: [docs/protocol.md](./docs/protocol.md).
 | E1 escalate (τ=0.6) | acc 0.789 → 0.7948, **−82% LLM calls** |
 | latency | GPU fp16 p50 18.6 ms; CPU 1-thread p50 1.51 s; CPU 8-thread batch 8–21 dec/s |
 
-Full tables, charts and methodology: [BENCHMARKS.md](./BENCHMARKS.md).
+Full tables, charts and methodology: [BENCHMARKS.md](./BENCHMARKS.md). Full technical report: [docs/technical-report.md](./docs/technical-report.md).
 
 ## Calibration
 
