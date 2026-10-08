@@ -66,6 +66,8 @@ Endpoint: `POST /v1/systemone` (also `/v1/systemone/permute`, `/v1/systemone/bat
 - GitHub (docs, reproduction, 27 scenario demos): https://github.com/Phocinae/Phocinae-Largha-150M-v1
 - Hugging Face: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1
 - ModelScope (China mirror): https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1
+- Landing page (structured data / FAQ): https://phocinae.github.io/Phocinae-Largha-150M-v1/
+- Pinned release for citation: tag **`v1.0.0`** on the model repository (resolves to commit `9ea45b46`)
 - Runtime: https://github.com/Phocinae/phocinae-server (PyPI `phocinae-server`)
 - Guard: https://github.com/Phocinae/phocinae-guard · MCP: https://github.com/Phocinae/phocinae-mcp
 
