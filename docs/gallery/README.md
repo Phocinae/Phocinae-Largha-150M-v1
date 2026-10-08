@@ -1,6 +1,6 @@
 # Gallery — application scenarios
 
-Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 24 demos: 800×450, loop forever, first frame = conclusion card with key numbers, last frame = one-line takeaway. All in-frame numbers match [BENCHMARKS.md](../../BENCHMARKS.md) and [MODEL_CARD.md](../../MODEL_CARD.md).
+Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 demos: 800×450, loop forever, first frame = conclusion card with key numbers, last frame = one-line takeaway. All in-frame numbers match [BENCHMARKS.md](../../BENCHMARKS.md) and [MODEL_CARD.md](../../MODEL_CARD.md).
 
 ## Highlights
 
@@ -69,6 +69,15 @@ Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 24 dem
 | S22 | option-order invariance | [S22_flip_invariance.gif](./S22_flip_invariance.gif) | flip rate 0.0300 — same verdict after option shuffle |
 | S23 | bilingual decision | [S23_bilingual.gif](./S23_bilingual.gif) | typed acc en 0.797 / zh 0.789 · zh = translated cases |
 | S24 | quickstart in three lines | [S24_quickstart.gif](./S24_quickstart.gif) | pip install → serve → POST · hardware tiers: 4 GB no-GPU 1.5–1.7 s / 3060-class 30–60 ms / 4090-class 18.6 ms |
+
+
+### Head-to-head & reliability
+
+| # | scenario | demo | key numbers |
+|---|---|---|---|
+| G25 | local vs API race | [G25_race_local_vs_api.gif](./G25_race_local_vs_api.gif) | 18.6 ms local vs 1.51 s API round-trip (81×) |
+| G26 | token savings | [G26_token_savings.gif](./G26_token_savings.gif) | 100 decisions: 82 local / 18 escalated · −82% LLM calls |
+| G27 | fail-closed gate | [G27_failclosed.gif](./G27_failclosed.gif) | server unreachable → DENY by default, no silent pass |
 
 ## Honest notes
 

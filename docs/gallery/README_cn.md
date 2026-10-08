@@ -70,6 +70,15 @@
 | 双语并排 | [S23_bilingual.gif](./S23_bilingual.gif) | 同一判定中英并排，en 0.84 / zh 0.83 |
 | 三行上手 | [S24_quickstart.gif](./S24_quickstart.gif) | pip install → 启动 → POST 判定，全流程演示 |
 
+
+### 对照与可靠性
+
+| 场景 | 文件 | 一句话 |
+|---|---|---|
+| 本地 vs API 竞速 | [G25_race_local_vs_api.gif](./G25_race_local_vs_api.gif) | 同一决策：本地 18.6ms vs API 往返 1.51s（81×） |
+| token 省费 | [G26_token_savings.gif](./G26_token_savings.gif) | 100 个决策：82 本地 / 18 升级 · 大模型调用 −82% |
+| 服务不可达默认不放行 | [G27_failclosed.gif](./G27_failclosed.gif) | 服务挂掉 → 默认拒绝，绝不静默放行 |
+
 ## 诚实标注
 
 - 所有 GIF 为**合成演示**（虚构场景数据），仅用于展示模型能力与用法，非真实用户数据
