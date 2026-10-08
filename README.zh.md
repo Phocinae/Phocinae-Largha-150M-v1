@@ -63,7 +63,7 @@ widget:
 | typed-decisions 英文（400 用例 / 2000 决策） | **0.797** — Laya 0.766 · JEV 0.727 · meraGPT 0.768（同一协议） |
 | typed-decisions 中文（机器翻译用例，无中文训练行） | **0.789** |
 | 选项顺序翻转鲁棒性（越低越好） | CPU fp32：flip150/400 **0.0300** · random-mean **0.0233** · any **0.0433** |
-| 推理延迟 | GPU fp16 p50 **18.6 ms** · CPU 单线程 **1.51 s/case**（1 case = 1 状态 + 5 题一次前向） · CPU 8 线程批量 **8–21 决策/s** |
+| 推理延迟 | GPU fp16 p50 **18.6 ms** · CPU 单线程 **1.51 s/case**（1 case = 1 状态 + 5 题一次前向） · CPU 8 线程批量 **8–21 决策/s** · CPU warm、20 线程、1 状态 + 3 题 **≈51 ms/次（≈17 ms/决策）**——单独实测，详见 BENCHMARKS |
 | 升级路由（E1 门，τ=0.6） | 保留集 acc **0.797→0.886**，LLM 调用 **−54.4%**（τ=0.5 档 −82.8%） |
 | 校准 | 发货列 ECE **0.1313**；标定温度 0.7698/0.7879/0.7560 |
 
@@ -77,11 +77,19 @@ widget:
 
 ## 快速开始
 
+> `phocinae-server` 提供的是**运行时**，不含权重——请先按第 1 步取权重。
+
 官方运行时 [phocinae-server](https://github.com/Phocinae/phocinae-server)：本地 FastAPI 服务（仅监听 127.0.0.1），纯 PyTorch 前向加载权重，无需额外运行时。协议规范：[docs/protocol.md](./docs/protocol.md)。硬件档位：[docs/deployment.md](./docs/deployment.md)。
 
 ```bash
+# 1) 取权重（两个 CLI 都可用，hf 是较新的一个）
+hf download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./largha
+#   旧版 huggingface_hub：
+#   huggingface-cli download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./largha
+
+# 2) 安装运行时并指向该目录
 pip install phocinae-server
-PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http://127.0.0.1:8155
+PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155
 ```
 
 一次决策（curl）：
@@ -110,6 +118,27 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 `answers` 取值：`noul` = 布尔 · `choice` = 0 起始选项下标 · `score` = 2–10 整数。输出 token 恒为 **0**（只出决策，不出文本）。
 
+上面下载得到的目录，正是 `PHOC_MODEL_DIR` 需要的布局
+（`model.safetensors`、`encoder/`、`tokenizer/`、`rl_agent_config.json`）。
+
+Python 用法（与服务端同一个引擎）：
+
+```python
+from phocinae.engine import Engine
+
+eng = Engine("./largha", device="cpu")   # device="auto" 时优先用 CUDA
+answers, confidence, action, usage = eng.run(
+    "The agent restarted nginx after checking the logs and the health endpoint is green.",
+    [{"id": "ok",   "type": "noul"},
+     {"id": "act",  "type": "choice", "options": ["allow", "ask", "deny"]},
+     {"id": "risk", "type": "score"}],
+)
+# answers    -> {'ok': False, 'act': 2, 'risk': 2}
+# confidence -> {'ok': 0.7486, 'act': 0.4343, 'risk': 0.1786}
+# usage      -> {'input_tokens': 146, 'output_tokens': 0}
+# 传 with_scores=True 会多返回第 5 个值（逐选项分数）
+```
+
 ## 它适合 / 不适合
 
 - **适合**：结构化决策——审批门、工具路由、升级判定、文档分级、步骤检查、输出筛查；任何需要「快、便宜、本地」决策层的场景。
@@ -133,7 +162,9 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 ## 版本与机器可读源
 
-- **本版本**：`v1.0.0`——模型仓上的固定 tag（指向提交 `9ea45b46`），便于可复现引用。
+- **本版本**：`v1.0.0`——模型仓上的固定 tag，便于可复现引用。
+  用 `git ls-remote --tags https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1` 解析其提交。
+  （**刻意不在此文件写死提交散列**：任何散列都会在下一次提交后过期。）
 - **机器可读事实**（与本卡数字一致，供 AI 与检索系统使用）：[llms.txt](./llms.txt)
 - **引用元数据**：[CITATION.cff](./CITATION.cff)
 - **官网**（镜像本卡，含结构化数据）：https://phocinae.github.io/Phocinae-Largha-150M-v1/
