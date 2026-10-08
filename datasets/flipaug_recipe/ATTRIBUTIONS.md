@@ -19,9 +19,9 @@
 
 选项序增广算法与种子方案出自本项目（Phocinae contributors）训练侧构建器：
 
-- `exp/pt2_v2_prep_20261006/build_flipaug_mix.py`
+- `build_flipaug_mix.py`
   （π = randperm(k, seed=1000003*42+i)）
-- `exp/pt2_v2_prep_20261006/build_pt2v2_flipaug_mix.py`
+- `build_pt2v2_flipaug_mix.py`
   （π = randperm(k, seed=1000003*42+i*101+o)，o3/o5 臂）
 
 本包 `flipaug.py` 为上述构建器的行件级等价实现（同公式；随机流为 Python 标准库 random，

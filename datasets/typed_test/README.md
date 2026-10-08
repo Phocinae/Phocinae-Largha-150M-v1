@@ -61,7 +61,7 @@
 
 ## revision 说明
 
-- **v1.0（2026-10-08）**：初版发布。取自上游 test 集（400 用例），按评测协议做字段归一化（见「修改声明」）；行集内容与本地评测（`exp/eval_local.py` 协议）所用行件同源同内容。
+- **v1.0（2026-10-08）**：初版发布。取自上游 test 集（400 用例），按评测协议做字段归一化（见「修改声明」）；行集内容与项目评测协议所用行件同源同内容。
 - 行件 sha256：`03cdab9296345a93e20dc416755c84bfdc86e2f4ba8e6529e7f27ba30022d436`。
 
 ## 修改声明
@@ -100,7 +100,7 @@
 
 ## 与模型 0.797 评测的关系
 
-- Phocinae-Largha-150M-v1 的对外主数 **typed-decisions en acc 0.797（400 用例，n=2000 决策）** 即在本行集上测得（定案口径表 2026-10-08）。
-- 评测协议：对每用例的 `state` + `questions` 做单遍前向，每题取 argmax 决策——choice/noul 按候选概率 argmax 判标签，score 按等级概率 argmax 判 0-based 等级；正确性对照本行集 `gold.label`。与项目内 `exp/eval_local.py` 协议一致。
-- 本行集与评测所用行件（`exp/typed_decisions_test.jsonl`）同源同内容；经 `normalize.py` 归一化后，评测器按 `questions` / `gold` 结构的读取方式不变，可直接复现。
-- 附属指标口径（软准确率 / Brier / ECE / 翻转率 / 延迟）见模型卡与定案口径表，不在此数据卡展开。
+- Phocinae-Largha-150M-v1 的对外主数 **typed-decisions en acc 0.797（400 用例，n=2000 决策）** 即在本行集上测得。
+- 评测协议：对每用例的 `state` + `questions` 做单遍前向，每题取 argmax 决策——choice/noul 按候选概率 argmax 判标签，score 按等级概率 argmax 判 0-based 等级；正确性对照本行集 `gold.label`。与项目评测协议一致。
+- 本行集与评测所用行件同源同内容；经 `normalize.py` 归一化后，评测器按 `questions` / `gold` 结构的读取方式不变，可直接复现。
+- 附属指标口径（软准确率 / Brier / ECE / 翻转率 / 延迟）见模型卡与 BENCHMARKS，不在此数据卡展开。
