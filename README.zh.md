@@ -73,7 +73,7 @@ widget:
 
 **54.4% 的 LLM 调用节省、18.6 ms 一次决策。** 斑海豹把智能体会话中的重复决策——命令审批、工具选择、步骤检查、输出筛查——路由到本地单前向引擎，替代每次 500–4,000 token 的 API 调用。τ=0.6 置信门在**组合准确率不降反升**（0.797→0.886，保留子集）的同时砍掉一半以上 LLM 流量；确定性推理意味着决策可审计、可复现，数据不出本机。约合每 1 万次路由决策/月 **≈$326/年** LLM 费用节省（Claude Sonnet 5 公开价目，2026-10）。完整成本模型：[docs/cost-savings.md](./docs/cost-savings.md)。
 
-**📽️ 27 个场景动画演示：[docs/gallery/](./docs/gallery/)**（中文版 [gallery/README_cn.md](./docs/gallery/README_cn.md)）——审批安全 · 路由省费 · 实时分级 · 办公文档 · 流程工程 · 对照与可靠性。
+**📽️ 27 个场景动画演示：[docs/gallery/](./docs/gallery/README.md)**（中文版 [gallery/README_cn.md](./docs/gallery/README_cn.md)）——审批安全 · 路由省费 · 实时分级 · 办公文档 · 流程工程 · 对照与可靠性。
 
 ## 快速开始
 
