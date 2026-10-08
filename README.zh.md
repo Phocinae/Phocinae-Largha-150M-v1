@@ -131,6 +131,13 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 - [MODEL_CARD.md](./MODEL_CARD.md) — 详细模型卡 · [BENCHMARKS.md](./BENCHMARKS.md) — 基准 · [docs/deployment.md](./docs/deployment.md) — 部署 · [docs/protocol.md](./docs/protocol.md) — 协议 · [docs/reproduce.md](./docs/reproduce.md) — 复现 · [docs/cost-savings.md](./docs/cost-savings.md) — 省费测算 · [docs/faq.zh.md](./docs/faq.zh.md) — 常见问题 · [docs/technical-report.md](./docs/technical-report.md) — 技术报告
 
+## 版本与机器可读源
+
+- **本版本**：`v1.0.0`——模型仓上的固定 tag（指向提交 `9ea45b46`），便于可复现引用。
+- **机器可读事实**（与本卡数字一致，供 AI 与检索系统使用）：[llms.txt](./llms.txt)
+- **引用元数据**：[CITATION.cff](./CITATION.cff)
+- **官网**（镜像本卡，含结构化数据）：https://phocinae.github.io/Phocinae-Largha-150M-v1/
+
 ## 致谢
 
 - [typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions)（Apache-2.0，LocalLLaMA HF 组织）— 协议与测试数据
