@@ -57,7 +57,7 @@ Protocol: each case = a `state` + typed questions; every question is judged as a
 
 Methodology notes:
 
-- The main flip table is CPU fp32, idle machine, **double-reproduced** (2026-10-07); GPU fp16 0.0200/0.0217 and 1k-row 0.0187/0.0205/0.0431 are note-only (different protocols). GPU/CPU differences of ≤2 decisions are fp16↔fp32 noise.
+- The main flip table is CPU fp32, idle machine, **double-reproduced** (2026-10-09); GPU fp16 0.0200/0.0217 and 1k-row 0.0181/0.0150/0.0331 are note-only (different protocols). GPU/CPU differences of ≤2 decisions are fp16↔fp32 noise.
 - Competitor figures (Laya, JEV, meraGPT) come from public leaderboards/papers on the same typed protocol.
 - Charts live in `figures/`; full tables, disclosures, and evidence pointers: [BENCHMARKS.md](../BENCHMARKS.md) and [reproduce.md](./reproduce.md).
 
