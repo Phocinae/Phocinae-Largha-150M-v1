@@ -1,0 +1,30 @@
+{
+  "encoder": "encoder",
+  "head_layers": 2,
+  "max_len": 512,
+  "head_max_len": 192,
+  "act_costs": {
+    "escalate": 0.5
+  },
+  "amp_dtype": "fp16",
+  "model_name": "Phocinae-Largha-150M-v1",
+  "temperature": [
+    0.8660205006599426,
+    0.8081192374229431,
+    0.6624661087989807
+  ],
+  "fine_tuned": true,
+  "local_training": {
+    "loss": "ce+brier",
+    "optimizer": "adafactor",
+    "epochs": 1,
+    "micro_batch": 8,
+    "grad_accum": 4,
+    "lr_encoder": 2e-05,
+    "lr_head": 0.0001,
+    "trainable_params_M": 144.29,
+    "updates": 300,
+    "hours": 0.044,
+    "tag": "n13_r4"
+  }
+}

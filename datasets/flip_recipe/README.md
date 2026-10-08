@@ -38,13 +38,13 @@ Phocinae-Largha-150M-v1 发布包 · 数据集发布
 
 | 口径 | 定义 | 发布值 | 计数（flip400） |
 |---|---|---|---|
-| **rev** | 原序 vs 全反序不一致率 | **0.0300** | 18 / 600 |
-| **random-mean** | 3 个随机排列种子的平均不一致率 | **0.0233** | (15+14+13) / (600×3) |
-| **any** | 任一随机排列与原序不一致（union 口径，按问题计） | **0.0433** | 26 / 600 |
+| **rev** | 原序 vs 全反序不一致率 | **0.0217** | 13 / 600 |
+| **random-mean** | 3 个随机排列种子的平均不一致率 | **0.0144** | (11+9+6) / (600×3) |
+| **any** | 任一随机排列与原序不一致（union 口径，按问题计） | **0.0283** | 17 / 600 |
 
-行集：`flip_rows_subset.jsonl` 全部 **400 行 / 600 个 choice 决策**（flip400）。flip150（前 150 行 / 300 个 choice 决策）同口径读数：rev **0.0300**（9/300）、random-mean **0.0278**、any **0.0467**（14/300）——发布值取 flip400。
+行集：`flip_rows_subset.jsonl` 全部 **400 行 / 600 个 choice 决策**（flip400）。flip150（前 150 行 / 300 个 choice 决策）同口径读数：rev **0.0200**（6/300）、random-mean **0.0144**、any **0.0300**（9/300）——发布值取 flip400。
 
-分种子读数（flip400，random_per_seed）：seed0 0.0250（15）、seed1 0.0233（14）、seed2 0.0217（13）。
+分种子读数（flip400，random_per_seed）：seed0 0.0183（11）、seed1 0.0150（9）、seed2 0.0100（6）。
 
 ## 三、计算方式
 
@@ -59,19 +59,19 @@ Phocinae-Largha-150M-v1 发布包 · 数据集发布
 
 ## 四、复现步骤
 
-1. 环境：PyTorch + 发布权重（`Phocinae/Phocinae-Largha-150M-v1`，`model.safetensors` sha256 `db79d5ee…`）。CPU fp32 空载（`CUDA_VISIBLE_DEVICES=''`，单线程 `OMP_NUM_THREADS=2`）。
+1. 环境：PyTorch + 发布权重（`Phocinae/Phocinae-Largha-150M-v1`，`model.safetensors` sha256 `b6472511…`）。CPU fp32 空载（`CUDA_VISIBLE_DEVICES=''`，单线程 `OMP_NUM_THREADS=2`）。
 2. flip400（发布主数）：
    ```bash
    CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 python eval_flip.py \
        <发布ckpt目录> flip_rows_subset.jsonl flip400_repro.json 400 3
    ```
-   期望：`n_choice_decisions=600`、`flip_rate_reversed=0.03`、`flip_rate_random_mean=0.0233`、`flip_rate_random_any=0.0433`。
+   期望：`n_choice_decisions=600`、`flip_rate_reversed=0.0217`、`flip_rate_random_mean=0.0144`、`flip_rate_random_any=0.0283`。
 3. flip150（抽查口径）：
    ```bash
    CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 python eval_flip.py \
        <发布ckpt目录> flip_rows_subset.jsonl flip150_repro.json 150 3
    ```
-   期望：`n_choice_decisions=300`、`flip_rate_reversed=0.03`、`flip_rate_random_mean=0.0278`、`flip_rate_random_any=0.0467`。
+   期望：`n_choice_decisions=300`、`flip_rate_reversed=0.0200`、`flip_rate_random_mean=0.0144`、`flip_rate_random_any=0.0300`。
 4. 复现判据：三口径与 `reshuffle_seeds.json` 的 `canonical_results` 逐位一致。
 
 ## 五、与 typed_test 包的行件映射

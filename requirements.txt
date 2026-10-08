@@ -1,0 +1,6 @@
+# 复现四件套 · 环境（评测级）
+# 行级脚本（datasets/）仅需 Python 3.10+ 标准库
+phocinae-server>=0.1.4   # 本地推理引擎：载入 model.safetensors 执行评测与推理
+# 可选（token 层重建 flipaug 训练混件）：
+# torch
+# transformers

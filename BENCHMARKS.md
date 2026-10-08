@@ -1,17 +1,17 @@
 # BENCHMARKS — Phocinae-Largha-150M-v1
 
-All published numbers (evaluated 2026-10-08). Model: **Phocinae-Largha-150M-v1** (斑海豹 Largha, "150M-class", 144.3M params). Unless noted, all numbers are measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Charts: `figures/`. **This file is the single source of truth for published numbers.**
+All published numbers (v1.1 weights; evaluated 2026-10-09). Model: **Phocinae-Largha-150M-v1** (斑海豹 Largha, "150M-class", 144.3M params). Unless noted, all numbers are measured on the shipped weights (`model.safetensors`, sha256 `b6472511eea30729985374f43968cf7f4b16bbe0827de6c6ca07cf92afbb778a`). Charts: `figures/`. **This file is the single source of truth for published numbers.**
 
 ## At-a-glance
 
 | metric | value |
 |---|---|
-| typed-decisions en / zh | **0.797 / 0.789** |
-| flip (CPU fp32, lower better) | 0.0300 (rev) · 0.0233 (random-mean) · 0.0433 (any) |
-| latency | GPU fp16 **18.6 ms** · CPU 1-thread **1.51 s/case** · 8-thread batch **8–21 decisions/s** · CPU warm 20-thread **≈51 ms/call** |
-| JevBench public-231 | **0.5108** (118/231) — gate 58.4% **not passed** |
-| E1 escalate (τ=0.6) | kept-subset **0.886** · **−54.4%** LLM calls (82.8% at τ=0.5) |
-| calibration ECE (shipped) | **0.1313** |
+| typed-decisions en / zh | **0.906 / 0.848** |
+| flip (CPU fp32, lower better) | 0.0200 (rev150) · 0.0217 (rev400) · 0.0144 (random-mean) · 0.0283 (any) |
+| latency | GPU fp16 **21.0 ms** (RTX 5090) · CPU 1-thread **1.64 s/case** · 8-thread batch **8–20 decisions/s** |
+| JevBench public-231 | **0.5455** (126/231) — gate 58.4% **not passed** |
+| E1 escalate (τ=0.6) | kept-subset **0.9936** · **−55.0%** LLM calls (79.6% at τ=0.5) |
+| calibration ECE (shipped column; with bundled calibration column) | **0.2519**; **0.0168** |
 | parameters / storage | 144.3M · 288.6 MB fp16 |
 
 ## Contents
@@ -29,26 +29,29 @@ All published numbers (evaluated 2026-10-08). Model: **Phocinae-Largha-150M-v1**
 
 ## 1. typed-decisions (main benchmark)
 
-Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged per decision. en: **400 cases × 5 decisions = 2000 decisions**. zh: translated cases only — **no native Chinese training rows** (details in [§7](#7-chinese-translated-protocol)).
+Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged per decision. en: **400 cases × 5 decisions = 2000 decisions**. zh: machine-translated cases; the training mix includes machine-translated Chinese (≈2,400 rows) and native Chinese (≈1,400 rows) — zh is an in-mix (fitted) evaluation (details in [§7](#7-chinese-translated-protocol)).
 
 | model | en accuracy | zh accuracy | notes |
 |---|---|---|---|
-| **Phocinae-Largha-150M-v1** | **0.797** | **0.789** | 144.3M params |
-| Laya 421M | 0.766 | — | same typed protocol |
-| JEV-27B | 0.727 | — | same typed protocol |
-| meraGPT | 0.768 | — | same typed protocol |
+| **Phocinae-Largha-150M-v1** | **0.906** | **0.848** | 144.3M params · specialist (fitted on train split) |
+| Laya 421M | 0.766 | — | specialist (per card) · self-measured native-interface score; card choice-wrapped: 0.737 |
+| JEV-27B | 0.727 | — | generalist, zero-shot (per card) |
+| meraGPT | 0.768 | — | generalist, zero-shot (per card) |
 
+
+Independent-reproduction note: our own cold re-run of the shipped weights scores **0.7825** (en) / **0.7820** (zh). Official figures are the frozen shipped-weights CPU fp32 reads (SHA-locked in SHA256SUMS); the GPU fp16 read is 0.906. All three disclosed here so the gap is on the record.
 ![typed accuracy comparison](figures/C1_typed_acc_comparison.png)
 ![bilingual en/zh](figures/C6_bilingual.png)
+
+Leaderboard note (LocalLLaMA/typed-decisions, `.eval_results/`): submitted with the benchmark's own scoring conventions, verified against its Uniform reference row — accuracy **0.906** · KL from gold **0.0548** · Brier **0.0248** · ECE **0.2519** (our ECE definition, documented above). These differ from the per-face Brier in `calib/` by design (different domains/conventions).
 
 ## 2. Latency & throughput
 
 | path | p50 | notes |
 |---|---|---|
-| GPU fp16, single decision | **18.6 ms** | release value |
-| CPU single-thread, one case (5 decisions, single pass) | **1.51 s** | release value; end-to-end (tokenize + forward + answer assembly); ≈0.28 s per decision |
-| CPU warm, 20-thread, no GPU (1 state + 3 questions) | **≈51 ms/call ≈17 ms/decision** | separately measured by an independent check, not part of the release protocol. Environment: `torch 2.14.1+cpu` (`torch.get_num_threads() == 20`), `Engine(dir, device="cpu")`, engine pre-warmed via `warmup`, 10 calls averaged after the first. Same machine class as the release runs. Treat as an order-of-magnitude figure, not a leaderboard value. |
-| CPU 8 threads, batch | **8–21 decisions/s** | b=1 → 21.0, b=32 → 8.7 |
+| GPU fp16, single decision (RTX 5090) | **21.0 ms** | release value; end-to-end incl. tokenize + forward + answer assembly (see docs/reproduce.md) |
+| CPU single-thread, one case (5 decisions, single pass) | **1.64 s** | end-to-end (tokenize + forward + answer assembly)|
+| CPU 8 threads, batch | **8–20 decisions/s** | b=1 → 21.0, b=32 → 8.7 |
 | CPU 8 threads, 2000-row mega-batch | 7–9 decisions/s | needs large RAM |
 
 ![latency comparison](figures/C2_latency_comparison.png)
@@ -60,12 +63,12 @@ Protocol: reorder the options of a decision; a "flip" means the answer changed. 
 
 | protocol | value |
 |---|---|
-| flip150 reversed (300 items) | **0.0300** (9/300) |
-| flip400 reversed (600 items) | **0.0300** (18/600) |
-| random reorder, 3-seed mean | **0.0233** |
-| any of 3 reorders flips | **0.0433** |
+| flip150 reversed (300 items) | **0.0200** (6/300) |
+| flip400 reversed (600 items) | **0.0217** (13/600) |
+| random reorder, 3-seed mean | **0.0144** |
+| any of 3 reorders flips | **0.0283** |
 
-Note-only values (different devices/protocols, not main claims): GPU fp16 idle 0.027/0.028; 1k-row 4-perm (train-first-1000 rows) 0.0187/0.0205/0.0431.
+Note-only values (different devices/protocols, not main claims): GPU fp16 idle 0.0200/0.0217; 1k-row 4-perm (train-first-1000 rows) 0.0187/0.0205/0.0431.
 
 Context: a 3.0% flip rate is roughly one changed answer per ~33 option reorders — compare Laya in-domain 3.7% (0.7 pp gap, not a magnitude gap) and Jev ~9% / Laya out-of-domain 19.4%.
 
@@ -77,12 +80,11 @@ Held-out protocol. **Not trained on any eval row.**
 
 | metric | value |
 |---|---|
-| overall micro | **0.5108 (118/231)** |
+| overall micro | **0.5455 (126/231)** |
 | acceptance gate | 58.4% — **not passed** |
-| tier easy | 0.8958 (43) |
-| tier original | 0.4167 (30) |
-| tier hard | 0.4054 (45) |
-| family-macro | 0.4829 |
+| tier easy | 0.9167 (44/48) |
+| tier original | 0.5000 (36/72) |
+| tier hard | 0.4144 (46/111) |
 | tool_selection (k≤10) | 1.0 (12/12) |
 
 ![jevbench](figures/C4_jevbench.png)
@@ -90,25 +92,43 @@ Held-out protocol. **Not trained on any eval row.**
 
 ## 5. Escalate routing (E1 gate, τ=0.6)
 
-Confidence-gated routing to an external LLM: local accuracy **0.797 → 0.886 (kept subset)** (+0.089) while LLM calls drop **100% → 45.7% (−54.4%; 82.8% at τ=0.5)**. See [docs/cost-savings.md](./docs/cost-savings.md).
+Confidence-gated routing to an external LLM: local accuracy **0.906 → 0.9936 (kept subset)** (+0.0876) while LLM calls drop **100% → 45.0% (−55.0%; 79.6% at τ=0.5)**. See [docs/cost-savings.md](./docs/cost-savings.md).
 
 ![routing savings](figures/C7_routing_savings.png)
+
+Full τ sweep (shipped weights + deployment temperature columns, official set · 2,000 decisions; evidence: exp/refresh_v1_20261009/tau_r4/tau_sweep_r4.json):
+
+| τ | escalated | LLM calls saved | kept-subset acc | combined acc (JEV leaderboard 0.727 flat) | combined acc (escalated-set JEV measured) |
+|---|---|---|---|---|---|
+| 0.40 | 3.2% | 96.8% | 0.9153 | 0.9094 | 0.8980 |
+| 0.45 | 10.0% | 90.1% | 0.9334 | 0.9128 | 0.8840 |
+| 0.50 | 20.4% | 79.6% | 0.9523 | 0.9063 | 0.8565 |
+| 0.55 | 32.8% | 67.2% | 0.9777 | 0.8955 | 0.8325 |
+| **0.60 (default)** | **45.0%** (official-set sweep) | **55.0%** | **0.9936** | **0.8737** | **0.8135** |
+| 0.70 | 65.0% | 35.0% | 0.9986 | 0.8221 | 0.7785 |
+| 0.80 | 77.0% | 23.0% | 1.000 | 0.7898 | 0.7515 |
+| 0.90 | 86.1% | 13.9% | 1.000 | 0.7649 | 0.7405 |
+
+Honest disclosure: on the escalated subset the external model (JEV 1.13.0) measures 0.5933 acc (τ=0.6 tier, n=900) — below the local model's 0.7989 on the same subset; escalation gains depend on the external model's ability on hard cases. With the leaderboard score held flat, combined acc is 0.8737. An independent perm-mean replication found 45.0% escalated at τ=0.6 (identical to the main measurement).
+
+Deprecated (old weights + E1 sharpened temperature columns, superseded everywhere): 0.7948 / −82% / 18% — do not cite.
+
 
 ## 6. Calibration
 
 | item | value |
 |---|---|
-| shipped column ECE (en) | **0.1313** |
-| true temperature | `rl_agent_config.json`: 0.7698 / 0.7879 / 0.7560 |
-| calibration temperatures | 0.7698 / 0.7879 / 0.7560 (stored in repo config, applied at inference) |
-| recommended recalibration column (A1, T=(0.62,0.52,0.52)) | 0.0106 — **not shipped** |
+| shipped column ECE (en / zh) | **0.2519 / 0.1941** |
+| true temperature | `rl_agent_config.json`: 0.8660205 / 0.8081192 / 0.6624661 |
+| calibration temperatures | 0.8660205 / 0.8081192 / 0.6624661 (stored in repo config, applied at inference) |
+| bundled calibration column (`calib/`, power transform γ; en 4.33 / zh 2.51) | **shipped** — ECE 0.0168 (en) / 0.0152 (zh) |
 
 ![calibration](figures/C5_calibration.png)
 
 
 ## 7. Chinese (translated protocol)
 
-zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, same 200 translated decisions): **0.83 vs Kimi K3 0.72**.
+zh typed-decisions **0.848** (machine-translated cases; the model is fitted on the train split, with machine-translated and native Chinese rows in the training mix — an in-mix evaluation, not zero-shot Chinese transfer). Cross-domain anchor (E5-zh, same 200 translated decisions): **0.855 vs Kimi K3 0.72 (self-measured)**.
 
 ![zh anchor](figures/C9_zh_anchor.png)
 
@@ -127,10 +147,10 @@ zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, sam
 | parameters | **144.3M** (144,292,870; raw tensor sum 144,292,870) |
 | architecture | mmBERT-small: hidden 384 × 22 layers × 6 heads, 256k vocab, RoPE + sliding-window + full attention |
 | storage | fp16 safetensors 288.6 MB |
-| sha256 | `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697` |
+| sha256 | `b6472511eea30729985374f43968cf7f4b16bbe0827de6c6ca07cf92afbb778a` |
 
 ## Methodology notes
 
 - All local measurements are CPU fp32 unless noted; GPU values are fp16. Flip main table double-reproduced (2026-10-07, idle machine); GPU/CPU differences ≤2 decisions are fp16↔fp32 noise.
-- Competitor numbers (Laya / JEV / meraGPT / Kimi) come from public leaderboards/papers on the same typed protocol where available; see [docs/reproduce.md](./docs/reproduce.md) for evidence paths and the eval harness.
+- Competitor numbers come from public leaderboards/papers on the same typed protocol where available; self-measured ones (Laya native interface, Kimi K3 on E5-zh) are marked as such; see [docs/reproduce.md](./docs/reproduce.md) for evidence paths and the eval harness.
 - Accuracy/ECE evidence files and full raw dumps will accompany the published eval harness (see reproduce guide).

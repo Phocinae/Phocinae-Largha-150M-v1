@@ -22,4 +22,4 @@
 
 ## 4. 发布读数溯源
 
-- 发布读数（rev 0.0300 / random-mean 0.0233 / any 0.0433）为 CPU fp32 空载复现值，复现判据见同包 `reshuffle_seeds.json` 的 `canonical_results` 与 [README.md](./README.md)。
+- 发布读数（rev 0.0217 / random-mean 0.0144 / any 0.0283）为 CPU fp32 空载复现值，复现判据见同包 `reshuffle_seeds.json` 的 `canonical_results` 与 [README.md](./README.md)。

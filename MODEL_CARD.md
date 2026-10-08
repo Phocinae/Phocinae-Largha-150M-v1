@@ -13,11 +13,11 @@
 | series | 海豹系列 / Phocinae |
 | type | encoder-based **decision model** (not a chat/decoder model) |
 | parameters | **144.3M** (public: "150M-class") |
-| languages | en; zh via translated eval cases (no native zh training rows) |
+\| languages \| en; zh via machine-translated eval cases (training mix includes machine-translated + native Chinese rows — see Bias, risks & limitations) \|
 | license | Apache-2.0 (weights; see LICENSE) |
 | base encoder | jhu-clsp/mmBERT-small (JHU CLSP) |
 | storage | fp16 safetensors, 288.6 MB |
-| sha256 | `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697` |
+| sha256 | `b6472511eea30729985374f43968cf7f4b16bbe0827de6c6ca07cf92afbb778a` |
 
 ## Overview
 
@@ -49,27 +49,28 @@ Full contract: [docs/protocol.md](./docs/protocol.md).
 
 | benchmark | result |
 |---|---|
-| typed-decisions en (400 cases / 2000 decisions) | **0.797** (Laya 0.766 · JEV 0.727 · meraGPT 0.768) |
-| typed-decisions zh (translated cases) | **0.789** |
-| flip (CPU fp32): flip150 / flip400 / random-mean / any | **0.0300 / 0.0300 / 0.0233 / 0.0433** |
-| JevBench public-231 | **0.5108 (118/231)**, gate 58.4% not passed |
-| E1 escalate (τ=0.6) | kept-subset acc 0.886 (vs 0.797 local-only), **−54.4% LLM calls (82.8% at τ=0.5)** |
-| latency | GPU fp16 p50 18.6 ms; CPU 1-thread p50 1.51 s per case (≈0.28 s per decision); CPU 8-thread batch 8–21 dec/s |
+| typed-decisions en (400 cases / 2000 decisions) | **0.906** (Laya 0.766 (self-measured, native) · JEV 0.727 · meraGPT 0.768) |
+| typed-decisions zh (translated cases) | **0.848** |
+| flip (CPU fp32): flip150 / flip400 / random-mean / any | **0.0200/0.0217 / 0.0144 / 0.0283** |
+| JevBench public-231 | **0.5455 (126/231)**, gate 58.4% not passed |
+| E1 escalate (τ=0.6) | kept-subset acc 0.9936 (vs 0.906 local-only), **−55.0% LLM calls (79.6% at τ=0.5)** |
+| latency | GPU fp16 p50 21.0 ms (RTX 5090); CPU 1-thread p50 1.64 s per case; CPU 8-thread batch 8–20 dec/s |
 
 Full tables, charts and methodology: [BENCHMARKS.md](./BENCHMARKS.md). Full technical report: [docs/technical-report.md](./docs/technical-report.md).
 
 ## Calibration
 
-The shipped column has **ECE 0.1313** (en). Calibration temperatures (0.7698 / 0.7879 / 0.7560) are stored in the model repo config and applied at inference by phocinae-server. A recommended recalibration column reaching ECE 0.0106 was measured during development but is **not shipped** — do not claim it for the released weights.
+The shipped column has **ECE 0.2519** (en). Calibration temperatures (0.8660205 / 0.8081192 / 0.6624661) are stored in the model repo config and applied at inference by phocinae-server. An optional calibration column ships in [`calib/`](./calib/) (power transform; en γ 4.33 / zh 2.51) bringing ECE to **0.0168** (en) / **0.0152** (zh).
 
 ## Bias, risks & limitations (honest disclosure)
 
-- **JevBench gate not passed**: 0.5108 (118/231) vs the 58.4% acceptance gate. Published as measured; we never trained on the eval rows.
+- **JevBench gate not passed**: 0.5455 (126/231) vs the 58.4% acceptance gate. Published as measured; we never trained on the eval rows.
 - **Option-order robustness is imperfect**: a 3.0% flip rate means about one answer change per ~33 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 0.7 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
 - **Not a safety oracle**: use it as a first-line gate with escalation (or a deterministic L0 rule layer such as phocinae-guard), never as the sole guard for destructive or safety-critical commands.
-- **Chinese is translated-only**: zh evaluation runs on translated English cases; the model has no native Chinese training rows.
+- **Chinese: in-mix, machine-translated-case evaluation**: zh evaluation runs on machine-translated English cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus a native-Chinese block (≈1,400 rows) — a fitted (not zero-shot) reading.
 - **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387).
 - **Not for** open-ended chat/generation, long-document reasoning, or world-knowledge QA (MMLU-style probes below par).
+- **Known trigger-word weakness**: a small fraction of negated phrasings (e.g. \"do NOT cancel subscription\") can be misread as affirmative intent (internal probe: 1/6 weak). Pair safety-critical approvals with an L0 rule layer / fail-closed semantics.
 - **No demographic/fairness evaluation** has been run; training data is English business-operations text (typed-decisions) and will carry its domain and language biases. Treat outputs as domain-specific signals, not general judgments.
 - **Determinism**: deterministic at a fixed batch shape on the same device; values can differ slightly between fp16/fp32 and across batching shapes.
 
@@ -97,3 +98,7 @@ Safety-critical decisions without human review, compliance/legal judgments, medi
 - [typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions) (Apache-2.0, LocalLLaMA HF org) — protocol & test data
 - [mmBERT-small](https://huggingface.co/jhu-clsp/mmBERT-small) (JHU CLSP) — base encoder
 - [JevBench](https://github.com/fstandhartinger/JevBench) — held-out protocol used for disclosure
+
+## Revision history
+
+- **2026-10-09 — v1.1 refresh.** Weights upgraded (each metric in this card re-measured on the new weights; previous release sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Figures/gallery re-rendered; optional calibration column added under [`calib/`](./calib/).

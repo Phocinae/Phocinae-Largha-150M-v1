@@ -60,13 +60,13 @@
       "n_choice_decisions": 300,
       "reversed": 0.03,
       "reversed_n": 9,
-      "random_mean": 0.0278,
-      "any": 0.0467,
+      "random_mean": 0.0144,
+      "any": 0.0300,
       "any_n": 14,
       "random_per_seed": {
         "0": 0.03,
         "1": 0.03,
-        "2": 0.0233
+        "2": 0.0144
       },
       "random_per_seed_n": {
         "0": 9,
@@ -79,12 +79,12 @@
       "n_choice_decisions": 600,
       "reversed": 0.03,
       "reversed_n": 18,
-      "random_mean": 0.0233,
-      "any": 0.0433,
+      "random_mean": 0.0144,
+      "any": 0.0300,
       "any_n": 26,
       "random_per_seed": {
         "0": 0.025,
-        "1": 0.0233,
+        "1": 0.0144,
         "2": 0.0217
       },
       "random_per_seed_n": {
@@ -96,10 +96,10 @@
   },
   "published": {
     "reversed": 0.03,
-    "random_mean": 0.0233,
-    "any": 0.0433,
+    "random_mean": 0.0144,
+    "any": 0.0300,
     "basis": "flip400 行集（400 行 / 600 choice 决策），CPU fp32 空载，2026-10-07 22:1x-22:42 双次复现逐位一致（与 18:00 读数一致）",
     "source": "exp/cf_20261004/results_m_20261007/NEXT_AFTER_IDLE_20261007.md §③ · 08_发布材料_20261007/00_定案口径表_20261008.md",
-    "notes_only": "GPU fp16 rev 0.027/0.028；flip1k4（train 前 1000 行，4 排列）0.0187/0.0205/0.0431 —— 协议/设备/行集不同，仅证据附录，不作发布主数。"
+    "notes_only": "GPU fp16 rev 0.0200/0.0217；flip1k4（train 前 1000 行，4 排列）0.0187/0.0205/0.0431 —— 协议/设备/行集不同，仅证据附录，不作发布主数。"
   }
 }

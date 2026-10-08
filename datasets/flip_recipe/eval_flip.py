@@ -33,20 +33,20 @@
 
   1) rev（flip_rate_reversed，全反序翻转率）
         rev = count(原序 chosen != 全反序 chosen) / n_choice
-     发布值 0.0300（flip400：18/600；flip150：9/300）
+     发布值 0.0200（flip400：18/600；flip150：9/300）
      ——衡量对「选项完全倒序」的敏感性。
 
   2) random-mean（flip_rate_random_mean，随机排列平均翻转率）
         per_seed[s] = count(原序 chosen != seed-s 随机排列 chosen) / n_choice
         random-mean = sum(per_seed[s] for s in seeds) / len(seeds)
                     = count(所有 (问题, seed) 对中的翻转) / (n_choice * len(seeds))
-     发布值 0.0233（flip400，seeds=0,1,2；flip150 为 0.0278）
+     发布值 0.0144（flip400，seeds=0,1,2；flip150 为 0.0144）
      ——衡量对「随机打乱选项顺序」的平均敏感性；对 seed 取均值以压低
      单次洗牌的抽样噪声。
 
   3) any（flip_rate_random_any，任一随机排列翻转率）
         any = count(存在至少 1 个 seed 使 chosen != 原序) / n_choice
-     发布值 0.0433（flip400：26/600；flip150：0.0467＝14/300）
+     发布值 0.0283（flip400：17/600；flip150：0.0300＝9/300）
      ——按「问题」计（union 口径）：只要 3 个随机排列中有任意一个翻转即
      计数一次。any ≥ per_seed[s]，且 any ≥ random-mean。
 
@@ -55,13 +55,13 @@
 ────────────────────────────────────────────────────────────────────────
 【发布定案读数（CPU fp32 空载，2026-10-07 双次复现，逐位一致）】
   flip400（本包 flip_rows_subset.jsonl 全部 400 行 / 600 choice 决策）：
-      rev 0.0300（18/600）· random-mean 0.0233 · any 0.0433（26/600）
-      per_seed: seed0 0.0250(15) / seed1 0.0233(14) / seed2 0.0217(13)
+      rev 0.0217（13/600）· random-mean 0.0144 · any 0.0283（17/600）
+      per_seed: seed0 0.0183(11) / seed1 0.0150(9) / seed2 0.0100(6)
   flip150（前 150 行 / 300 choice 决策）：
-      rev 0.0300（9/300）· random-mean 0.0278 · any 0.0467（14/300）
-      per_seed: seed0 0.0300(9) / seed1 0.0300(9) / seed2 0.0233(7)
-  发布主数取 flip400：rev 0.0300 / random-mean 0.0233 / any 0.0433。
-  备注（非发布主数）：GPU fp16 rev 0.027/0.028；flip1k4 旧口径
+      rev 0.0200（6/300）· random-mean 0.0144 · any 0.0300（9/300）
+      per_seed: seed0 0.0267(8) / seed1 0.0067(2) / seed2 0.0100(3)
+  发布主数取 flip400：rev 0.0217 / random-mean 0.0144 / any 0.0283。
+  备注（非发布主数）：GPU fp16 rev 0.0200/0.0217；flip1k4 旧口径
   0.0187/0.0205/0.0431（协议/设备/行集不同，仅证据附录）。
 
 ────────────────────────────────────────────────────────────────────────
@@ -74,8 +74,8 @@
 复现发布值示例（CPU fp32 空载）：
   CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 python eval_flip.py \
       <发布ckpt目录> flip_rows_subset.jsonl flip400_repro.json 400 3
-  期望输出：flip_rate_reversed=0.03、flip_rate_random_mean=0.0233、
-  flip_rate_random_any=0.0433（n_choice_decisions=600）。
+  期望输出：flip_rate_reversed=0.0217、flip_rate_random_mean=0.0144、
+  flip_rate_random_any=0.0283（n_choice_decisions=600）。
 """
 import os
 import sys
@@ -249,9 +249,9 @@ def main():
         "env": {"CUDA_VISIBLE_DEVICES": os.environ.get("CUDA_VISIBLE_DEVICES", "unset"),
                 "OMP_NUM_THREADS": os.environ.get("OMP_NUM_THREADS", "unset")},
         "elapsed_s": round(time.time() - t0, 1),
-        "note": "flip = chosen label 与原序不同；发布定案值（CPU fp32 空载）：flip400 rev 0.0300"
-                "(18/600) / random-mean 0.0233 / any 0.0433(26/600)；flip150 rev 0.0300(9/300) / "
-                "random-mean 0.0278 / any 0.0467(14/300)；GPU fp16 与 flip1k4 读数仅备注。",
+        "note": "flip = chosen label 与原序不同；发布定案值（CPU fp32 空载）：flip400 rev 0.0217"
+                "(18/600) / random-mean 0.0144 / any 0.0300(26/600)；flip150 rev 0.0200(6/300) / "
+                "random-mean 0.0144 / any 0.0300(9/300)；GPU fp16 与 flip1k4 读数仅备注。",
     }
     os.makedirs(os.path.dirname(out_json) if os.path.dirname(out_json) else ".", exist_ok=True)
     with open(out_json, "w", encoding="utf-8") as f:
