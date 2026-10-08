@@ -33,11 +33,15 @@ thumbnail: figures/C1_typed_acc_comparison.png
 | inference latency | GPU fp16 p50 **18.6 ms** · CPU single-thread p50 **1.51 s** per decision (end-to-end incl. tokenize + forward + answer assembly) · CPU 8-thread batch **8–21 decisions/s** |
 | JevBench public-231 | **0.5108** (118/231) — below the 58.4% gate, disclosed honestly; tool_selection 12/12 |
 | escalate routing (E1 gate, τ=0.6) | **+0.006 acc** (0.789→0.7948) while **−82% LLM cost** (18% escalate to LLM) |
-| calibration | shipped column ECE **0.1313**; true temperature in `rl_agent_config.json` (0.7698/0.7879/0.7559) |
+| calibration | shipped column ECE **0.1313**; calibration temperatures 0.7698/0.7879/0.7559 (applied at inference) |
 
 ![typed accuracy comparison](figures/C1_typed_acc_comparison.png)
 ![latency comparison](figures/C2_latency_comparison.png)
 ![option-order invariance](figures/S22_flip_invariance.gif)
+![routing savings](figures/C7_routing_savings.png)
+![local vs API race](docs/gallery/G25_race_local_vs_api.gif)
+![hardware tiers](figures/C10_hardware_tiers.png)
+![INT8 disclosure](figures/C11_int8_disclosure.png)
 
 ## Quick start — phocinae-server
 
@@ -103,7 +107,7 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 ## Weights & license
 
 - `model.safetensors` sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697` (fp16 storage, 144.3M params); trained from `jhu-clsp/mmBERT-small` on `LocalLLaMA/typed-decisions` (train split + flip-augmented reorderings), recipe in `rl_agent_config.json`.
-- **Apache-2.0** (see LICENSE). Base encoder license: check upstream `jhu-clsp/mmBERT-small`. · Repo layout: `model.safetensors` · `encoder/` · `tokenizer/` · `rl_agent_config.json` (true temperature) · `checkpoint_meta.json` · `figures/` · `docs/` · `push_script.sh`.
+- **Apache-2.0** (see LICENSE); base encoder `jhu-clsp/mmBERT-small` is MIT (see NOTICE). · Repo layout: `model.safetensors` · `encoder/` · `tokenizer/` · `rl_agent_config.json` · `checkpoint_meta.json` · `figures/` · `docs/`.
 
 ## Credits
 
