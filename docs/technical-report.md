@@ -36,7 +36,7 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 | micro batch / grad accum | 8 / 4 |
 | updates | 9228 |
 | wall time | ~1.36 h single GPU (tag `cf4`) |
-| checkpoint | epoch 1/1, avg_loss 0.9565 |
+| checkpoint | epoch 6/6, avg_loss 0.9565 |
 
 ## 4. Calibration
 
