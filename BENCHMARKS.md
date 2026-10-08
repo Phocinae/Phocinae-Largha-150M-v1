@@ -51,8 +51,9 @@ Leaderboard note (LocalLLaMA/typed-decisions, `.eval_results/`): submitted with 
 |---|---|---|
 | GPU fp16, single decision (RTX 5090) | **21.0 ms** | release value; end-to-end incl. tokenize + forward + answer assembly (see docs/reproduce.md) |
 | CPU single-thread, one case (5 decisions, single pass) | **1.64 s** | end-to-end (tokenize + forward + answer assembly)|
-| CPU 8 threads, batch | **8–20 decisions/s** | b=1 → 21.0, b=32 → 8.7 |
-| CPU 8 threads, 2000-row mega-batch | 7–9 decisions/s | needs large RAM |
+| CPU warm, 20-thread, no GPU (1 state + 3 questions) | **≈51 ms/call ≈17 ms/decision** | separately measured by an independent check, not part of the release protocol. Environment: `torch 2.14.1+cpu` (`torch.get_num_threads() == 20`), `Engine(dir, device="cpu")`, engine pre-warmed via `warmup`, 10 calls averaged after the first. Treat as an order-of-magnitude figure, not a leaderboard value. |
+| CPU 8 threads, batch | **8–20 decisions/s** | b=1 → 19.7, b=32 → 8.4 |
+| CPU 8 threads, 2000-row mega-batch | 6.8–8.5 decisions/s | needs large RAM |
 
 ![latency comparison](figures/C2_latency_comparison.png)
 ![params vs latency](figures/C8_params_vs_latency.png)
