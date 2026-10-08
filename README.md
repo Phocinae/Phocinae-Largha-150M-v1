@@ -51,6 +51,7 @@ widget:
   <img alt="Latency" src="https://img.shields.io/badge/Latency-21.0ms%20GPU%20fp16%20RTX%205090-9cf?style=flat-square">
   <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/Phocinae/Phocinae-Largha-150M-v1?style=flat-square&logo=github"></a>
   <img alt="HF Downloads" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhuggingface.co%2Fapi%2Fmodels%2FPhocinae%2FPhocinae-Largha-150M-v1&query=%24.downloads&label=HF%20Downloads&color=orange&style=flat-square">
+  <a href="https://phocinae.github.io/Phocinae-Largha-150M-v1/"><img alt="Site" src="https://img.shields.io/badge/Site-live-brightgreen?style=flat-square"></a>
 </p>
 
 <div align="center">
@@ -107,13 +108,42 @@ Full numbers, methodology, and evidence: **[BENCHMARKS.md](./BENCHMARKS.md)**.
 
 ## Quick start — phocinae-server
 
+> `phocinae-server` ships the **runtime**, not the weights — fetch the weights first (step 1).
+
 The official runtime is **[phocinae-server](https://github.com/Phocinae/phocinae-server)**: a local FastAPI service (127.0.0.1 only) that loads these weights with a pure PyTorch forward (no extra runtime needed). Full spec: [docs/protocol.md](./docs/protocol.md). Hardware tiers: [docs/deployment.md](./docs/deployment.md).
 ```bash
+# 1) get the weights (either CLI works; `hf` is the newer one)
+hf download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./largha
+#   older huggingface_hub releases:
+#   huggingface-cli download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./largha
+
+# 2) install the runtime and point it at that directory
 pip install phocinae-server
-PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http://127.0.0.1:8155
+PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155
 ```
 
-One decision:
+The directory produced by that download is exactly the layout `PHOC_MODEL_DIR`
+expects (`model.safetensors`, `encoder/`, `tokenizer/`, `rl_agent_config.json`).
+
+From Python (the same engine the server uses):
+
+```python
+from phocinae.engine import Engine
+
+eng = Engine("./largha", device="cpu")   # device="auto" selects CUDA when present
+answers, confidence, action, usage = eng.run(
+    "The agent restarted nginx after checking the logs and the health endpoint is green.",
+    [{"id": "ok",   "type": "noul"},
+     {"id": "act",  "type": "choice", "options": ["allow", "ask", "deny"]},
+     {"id": "risk", "type": "score"}],
+)
+# answers    -> {'ok': False, 'act': 0, 'risk': 3}
+# confidence -> {'ok': 0.668, 'act': 0.409, 'risk': 0.1633}
+# usage      -> {'input_tokens': 146, 'output_tokens': 0}
+# pass with_scores=True to get a 5th value (per-option scores)
+```
+
+One decision over HTTP:
 ```bash
 curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -d '{
   "model": "Phocinae-Largha-150M-v1",
@@ -129,13 +159,19 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 ```json
 {
   "model": "Phocinae-Largha-150M-v1",
-  "answers": {"ok": true, "act": 0, "risk": 2},
-  "usage": {"input_tokens": 24, "output_tokens": 0},
-  "answer_confidence": {"ok": 0.91, "act": 0.72, "risk": 0.18},
-  "action": {"act": {"act_probability": 0.72}},
+  "answers": {"ok": false, "act": 0, "risk": 3},
+  "usage": {"input_tokens": 146, "output_tokens": 0},
+  "answer_confidence": {"ok": 0.668, "act": 0.409, "risk": 0.1633},
+  "action": {"act": {"act_probability": 0.1581}},
   "routing": {"model": "Phocinae-Largha-150M-v1", "device": "cpu", "perm": "none", "backend": "phocinae-pure-torch"}
 }
 ```
+
+> **Known limitation in tool routing.** `Router.route_tool()` confuses semantically
+> close tool names. Reproducible case: state *"The user wants to find the latest news
+> about the product launch."* with the six tools `web_search / read_file / run_command /
+> list_files / fetch_url / ask_user` returns **`fetch_url`**, not `web_search`, at
+> confidence ≈0.33. Treat low-confidence tool picks as escalate-worthy rather than final.
 
 `answers` values: `noul` = bool · `choice` = 0-based option index · `score` = integer 2–10. Errors: **422** (unknown model/type, >64 questions, choice without options, score with options, threshold outside [0,1]) · **413** (>2 MiB body) · **401** (bearer token). Extension keys `answer_confidence` / `action` / `routing` can be disabled with `PHOC_EXTENSIONS=0`.
 
@@ -161,7 +197,7 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 - **JevBench public-231: 0.5455 (126/231) vs a 58.4% acceptance gate — not passed.** We publish the number as measured, and we never train on the eval rows.
 - zh results are on machine-translated cases; the training mix includes machine-translated Chinese (≈2,400 rows) and native Chinese (≈1,400 rows) — treat zh as an in-mix (fitted) evaluation, not zero-shot cross-lingual transfer.
 - Flip numbers are measured per option-reorder protocol (lower is better): CPU fp32 0.0200/0.0217 (flip150/400 reversed) · random-mean 0.0144 · any 0.0283. GPU fp16 0.0200/0.0217 and 1k-row 0.0187/0.0205/0.0431 are note-only values from different protocols.
-- Calibration: the shipped column has ECE **0.2519** (en). Calibration temperatures (0.8660205/0.8081192/0.6624661) are stored in the model repo config and applied at inference by phocinae-server. A recommended recalibration column is *not* shipped.
+- Calibration: the shipped column has ECE **0.2519** (en). Calibration temperatures (0.8660205/0.8081192/0.6624661) are stored in the model repo config and applied at inference by phocinae-server. A recommended recalibration column is bundled under [`calib/`](./calib/).
 
 ## Weights & license
 
@@ -173,6 +209,15 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 - [typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions) (Apache-2.0, LocalLLaMA HF org) — protocol & test data
 - [mmBERT-small](https://huggingface.co/jhu-clsp/mmBERT-small) (JHU CLSP) — base encoder
 - [JevBench](https://github.com/fstandhartinger/JevBench) — held-out protocol used for disclosure
+
+## Version & machine-readable sources
+
+- **This release**: `v1.1` — pinned tag on the model repository (`v1.0.0` marks the previous release), for reproducible citation.
+  Resolve its commit with `git ls-remote --tags https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1`.
+  (No commit hash is written into this file on purpose: it would go stale on the next commit.)
+- **Machine-readable facts** (same numbers as this card, for AI systems and retrieval pipelines): [llms.txt](./llms.txt)
+- **Citation metadata**: [CITATION.cff](./CITATION.cff)
+- **Landing page** (mirrors this card, with structured data): https://phocinae.github.io/Phocinae-Largha-150M-v1/
 
 ## Citation
 
@@ -191,3 +236,4 @@ Machine-readable: [CITATION.cff](./CITATION.cff). BibTeX:
 ## Revision history
 
 - **2026-10-09 — v1.1 refresh.** Weights upgraded (each metric in this card re-measured on the new weights; previous release sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Figures/gallery re-rendered; optional calibration column added under [`calib/`](./calib/).
+- **2026-10-09 — docs.** Expanded quick start (weight download, Python & HTTP examples, tool-routing caveat); added landing page & machine-readable sources section.
