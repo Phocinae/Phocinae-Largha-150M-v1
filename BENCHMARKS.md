@@ -8,7 +8,7 @@ All published numbers (evaluated 2026-10-08). Model: **Phocinae-Largha-150M-v1**
 |---|---|
 | typed-decisions en / zh | **0.797 / 0.789** |
 | flip (CPU fp32, lower better) | 0.0300 (rev) · 0.0233 (random-mean) · 0.0433 (any) |
-| latency | GPU fp16 **18.6 ms** · CPU 1-thread **1.51 s/case** · 8-thread batch **8–21 decisions/s** |
+| latency | GPU fp16 **18.6 ms** · CPU 1-thread **1.51 s/case** · 8-thread batch **8–21 decisions/s** · CPU warm 20-thread **≈51 ms/call** |
 | JevBench public-231 | **0.5108** (118/231) — gate 58.4% **not passed** |
 | E1 escalate (τ=0.6) | kept-subset **0.886** · **−54.4%** LLM calls (82.8% at τ=0.5) |
 | calibration ECE (shipped) | **0.1313** |
@@ -46,7 +46,8 @@ Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged 
 | path | p50 | notes |
 |---|---|---|
 | GPU fp16, single decision | **18.6 ms** | release value |
-| CPU single-thread, one case (5 decisions, single pass) | **1.51 s** | end-to-end (tokenize + forward + answer assembly); ≈0.28 s per decision |
+| CPU single-thread, one case (5 decisions, single pass) | **1.51 s** | release value; end-to-end (tokenize + forward + answer assembly); ≈0.28 s per decision |
+| CPU warm, 20-thread, no GPU (1 state + 3 questions) | **≈51 ms/call ≈17 ms/decision** | separately measured by an independent check, not part of the release protocol. Environment: `torch 2.14.1+cpu` (`torch.get_num_threads() == 20`), `Engine(dir, device="cpu")`, engine pre-warmed via `warmup`, 10 calls averaged after the first. Same machine class as the release runs. Treat as an order-of-magnitude figure, not a leaderboard value. |
 | CPU 8 threads, batch | **8–21 decisions/s** | b=1 → 21.0, b=32 → 8.7 |
 | CPU 8 threads, 2000-row mega-batch | 7–9 decisions/s | needs large RAM |
 
