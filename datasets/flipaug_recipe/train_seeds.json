@@ -1,0 +1,57 @@
+{
+  "title": "flipaug 训练种子表（Phocinae-Largha-150M-v1 复现四件套 · seed 件）",
+  "augmentation_seed": {
+    "base_seed": 42,
+    "scheme": "π = randperm(k, seed = 1000003*42 + i*101 + o)  （i=件/行序号，o=增广副本序号，k=选项数）",
+    "n_orders": {"o3": 3, "o5": 5},
+    "note": "行件级 flipaug.py 用同公式（每题再加题内序号 q 偏移）；随机流为 Python random（Fisher–Yates），token 层构建器为 torch.randperm——置换序列不逐位一致；逐字节复现已发布 .pt 混件须用 token 层构建器（各 .pt 的 .meta.json 记录 argv 与 sha256）。"
+  },
+  "training_run_seeds": [7, 42, 123],
+  "seed_usage": [
+    {"seed": 42, "arms": [
+      "flipaug_base（链 v，1ep）",
+      "flipaug_base_e3（链 w，3ep）",
+      "pt2_flipaug（链 x，1ep）",
+      "pt2_flipaug_e3（链 y，3ep）",
+      "flipaug_base_e5（链 z，5ep）",
+      "pt2_flipaug_250p_e3（链 z2，3ep）",
+      "pt2_flipaug_o3（链 za，n_orders=3，1ep）",
+      "pt2_flipaug_o5_s42（zar 链 TAG=o5，n_orders=5，1ep）"
+    ]},
+    {"seed": 123, "arms": [
+      "pt2_flipaug_o3_s123（zar 链默认 SEED=123）",
+      "pt2_flipaug_o5_s123（zar 链 TAG=o5）"
+    ]},
+    {"seed": 7, "arms": [
+      "pt2_flipaug_o3_s7（zar 链 SEED=7）",
+      "pt2_flipaug_o5_s7（zar 链 TAG=o5 SEED=7）"
+    ]}
+  ],
+  "training_cmd_template": "bash run_gpu.sh exp/train_small.py --encoder-dir <mmBERT-small> --tokenizer-dir <mmBERT-small> --items <mix.pt> --init-from exp/cf_20261004/ft_cf4_ls_brier_cf2 --out <ft_dir> --epochs 1 --micro-batch 8 --grad-accum 4 --loss ce+brier --label-smooth 0.15 --brier-weights 0.5:0.5:0.3 --optimizer adafactor --seed <SEED> --max-len 512 --perm-aug 0",
+  "note_training": "所有 flipaug 训练臂超参一致（同 ctrl 臂），唯一变量 = choice 选项序增强；--perm-aug 0（训练时选项乱序关闭，增强在数据层预先注入）；train_small.py 内部 random.seed(seed+42+epoch) 仅影响训练批序。",
+  "mix_builders": {
+    "token_level": [
+      "exp/pt2_v2_prep_20261006/build_flipaug_mix.py",
+      "exp/pt2_v2_prep_20261006/build_pt2v2_flipaug_mix.py"
+    ],
+    "mixes": {
+      "flipaug_base8000_p10.pt": {"builder": "build_flipaug_mix.py", "n_orders": 1, "scheme": "randperm(k, seed=1000003*42+i)"},
+      "pt2_v1d_flipaug_115.pt": {"builder": "build_pt2v2_flipaug_mix.py", "n_orders": 1, "scheme": "randperm(k, seed=1000003*42+i)"},
+      "pt2_v1d_flipaug_o3_115.pt": {"n_orders": 3, "scheme": "randperm(k, seed=1000003*42+i*101+o)", "items": 13188},
+      "pt2_v1d_flipaug_o5_115.pt": {"n_orders": 5, "scheme": "randperm(k, seed=1000003*42+i*101+o)", "items": 18376}
+    }
+  },
+  "entry": "exp/run_gpu.sh（宿主 venv 包装 + GPU 节流值守；本项目内部训练入口）",
+  "sources": [
+    "exp/cf_20261004/gpu_chain_20261006v.sh",
+    "exp/cf_20261004/gpu_chain_20261006w.sh",
+    "exp/cf_20261004/gpu_chain_20261006x.sh",
+    "exp/cf_20261004/gpu_chain_20261006y.sh",
+    "exp/cf_20261004/gpu_chain_20261006z.sh",
+    "exp/cf_20261004/gpu_chain_20261006z2.sh",
+    "exp/cf_20261004/gpu_chain_20261006za.sh",
+    "exp/cf_20261004/gpu_chain_20261006zar.sh",
+    "exp/train_small.py",
+    "exp/pt2_v2_prep_20261006/*.pt.meta.json"
+  ]
+}
