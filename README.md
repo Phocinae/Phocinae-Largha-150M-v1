@@ -91,7 +91,7 @@ Full numbers, methodology, and evidence: **[BENCHMARKS.md](./BENCHMARKS.md)**.
   <p><em>图 4 · 命令审批门：rm -rf 在 18.6 ms 内拦截，p(deny)=0.96</em></p>
 </div>
 
-**📽️ 全部 27 个场景演示 → [docs/gallery/](./docs/gallery/)**（审批安全 · 路由省费 · 实时分级 · 办公文档 · 流程工程 · 对照与可靠性；中文版 [gallery/README_cn.md](./docs/gallery/README_cn.md)）
+**📽️ 全部 27 个场景演示 → [docs/gallery/](./docs/gallery/README.md)**（审批安全 · 路由省费 · 实时分级 · 办公文档 · 流程工程 · 对照与可靠性；中文版 [gallery/README_cn.md](./docs/gallery/README_cn.md)）
 
 ## Why Phocinae: slash agent costs
 
@@ -148,7 +148,7 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 - **[docs/protocol.md](./docs/protocol.md)** — the `/v1/systemone` decision protocol
 - **[docs/reproduce.md](./docs/reproduce.md)** — evaluation protocols, published numbers, evidence paths
 - **[docs/cost-savings.md](./docs/cost-savings.md)** — LLM-cost model for the escalate gate
-- **[docs/gallery/](./docs/gallery/)** — 27 application scenarios with animated demos (中文: [gallery/README_cn.md](./docs/gallery/README_cn.md))
+- **[docs/gallery/](./docs/gallery/README.md)** — 27 application scenarios with animated demos (中文: [gallery/README_cn.md](./docs/gallery/README_cn.md))
 - **[docs/faq.md](./docs/faq.md)** — common questions (中文: [faq.zh.md](./docs/faq.zh.md)) · **[docs/technical-report.md](./docs/technical-report.md)** — short technical report
 
 ## What it is / what it is not
