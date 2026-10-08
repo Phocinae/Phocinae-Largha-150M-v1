@@ -1,3 +1,12 @@
+---
+license: apache-2.0
+task_categories:
+- text-classification
+language:
+- zh
+size_categories:
+- n<1K
+---
 # zh400 中文判定评测集（数据卡）
 
 > 发布包版本：v1.0（2026-10-08 组装）｜数据文件：`zh400.jsonl`（400 行）｜许可证：Apache-2.0（上游衍生）

@@ -1,3 +1,12 @@
+---
+license: apache-2.0
+task_categories:
+- text-classification
+language:
+- en
+size_categories:
+- n<1K
+---
 # flip 五组复现配方（选项序翻转护栏）
 
 Phocinae-Largha-150M-v1 发布包 · 数据集发布

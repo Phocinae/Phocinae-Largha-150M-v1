@@ -1,3 +1,12 @@
+---
+license: apache-2.0
+task_categories:
+- text-classification
+language:
+- en
+size_categories:
+- n<1K
+---
 # flipaug_recipe —— 选项序翻转增广训练复现包
 
 Phocinae-Largha-150M-v1 复现四件套（数据 / 种子 / 环境 / 脚本）的**训练侧增广件**：

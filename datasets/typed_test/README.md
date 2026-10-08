@@ -1,3 +1,12 @@
+---
+license: apache-2.0
+task_categories:
+- text-classification
+language:
+- en
+size_categories:
+- n<1K
+---
 # typed-decisions 测试行集（typed_test）
 
 ## 数据集描述
