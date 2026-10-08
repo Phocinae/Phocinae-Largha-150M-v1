@@ -6,7 +6,7 @@ Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 dem
 
 <div align="center">
   <img src="./S06_escalate_savings.gif" width="640"/>
-  <p>−82% LLM calls, accuracy 0.789→0.7948</p>
+  <p>−54% LLM calls (82.8% at τ=0.5), kept-subset accuracy 0.886 (vs 0.797 local-only)</p>
   <img src="./S01_rmrf_gate.gif" width="640"/>
   <p>Command gate: rm -rf blocked in 18.6 ms</p>
   <img src="./S07_tool_routing.gif" width="640"/>
@@ -35,7 +35,7 @@ Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 dem
 
 | # | scenario | demo | key numbers |
 |---|---|---|---|
-| S06 | escalate savings | [S06_escalate_savings.gif](./S06_escalate_savings.gif) | acc 0.789→0.7948 · −82% LLM calls (τ=0.6) |
+| S06 | escalate savings | [S06_escalate_savings.gif](./S06_escalate_savings.gif) | acc 0.797→0.886 (kept subset) · −54% LLM calls (82.8% at τ=0.5) (τ=0.6) |
 | S07 | tool routing | [S07_tool_routing.gif](./S07_tool_routing.gif) | p(python)=0.87 · JevBench tool_selection 12/12 |
 | S08 | Chinese zero-escalate | [S08_zh_zero_escalate.gif](./S08_zh_zero_escalate.gif) | Largha 0.83 vs Kimi K3 0.72 (200 translated decisions) |
 | S09 | context screening | [S09_context_screen.gif](./S09_context_screen.gif) | 30 chunks: keep 19 / drop 11 · CPU 8-thread batch 8–21 decisions/s |
@@ -76,7 +76,7 @@ Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 dem
 | # | scenario | demo | key numbers |
 |---|---|---|---|
 | G25 | local vs API race | [G25_race_local_vs_api.gif](./G25_race_local_vs_api.gif) | 18.6 ms local vs 1.51 s API round-trip (81×) |
-| G26 | token savings | [G26_token_savings.gif](./G26_token_savings.gif) | 100 decisions: 82 local / 18 escalated · −82% LLM calls |
+| G26 | token savings | [G26_token_savings.gif](./G26_token_savings.gif) | 100 decisions: 54 local / 46 escalated · −54% LLM calls (82.8% at τ=0.5) |
 | G27 | fail-closed gate | [G27_failclosed.gif](./G27_failclosed.gif) | server unreachable → DENY by default, no silent pass |
 
 ## Honest notes

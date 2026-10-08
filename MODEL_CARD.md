@@ -49,14 +49,14 @@ Full contract: [docs/protocol.md](./docs/protocol.md).
 | typed-decisions zh (translated cases) | **0.789** |
 | flip (CPU fp32): flip150 / flip400 / random-mean / any | **0.0300 / 0.0300 / 0.0233 / 0.0433** |
 | JevBench public-231 | **0.5108 (118/231)**, gate 58.4% not passed |
-| E1 escalate (τ=0.6) | acc 0.789 → 0.7948, **−82% LLM calls** |
+| E1 escalate (τ=0.6) | kept-subset acc 0.886 (vs 0.797 local-only), **−54% LLM calls (82.8% at τ=0.5)** |
 | latency | GPU fp16 p50 18.6 ms; CPU 1-thread p50 1.51 s; CPU 8-thread batch 8–21 dec/s |
 
 Full tables, charts and methodology: [BENCHMARKS.md](./BENCHMARKS.md). Full technical report: [docs/technical-report.md](./docs/technical-report.md).
 
 ## Calibration
 
-The shipped column has **ECE 0.1313** (en). Calibration temperatures (0.7698 / 0.7879 / 0.7559) are stored in the model repo config and applied at inference by phocinae-server. A recommended recalibration column reaching ECE 0.0106 was measured during development but is **not shipped** — do not claim it for the released weights.
+The shipped column has **ECE 0.1313** (en). Calibration temperatures (0.7698 / 0.7879 / 0.7560) are stored in the model repo config and applied at inference by phocinae-server. A recommended recalibration column reaching ECE 0.0106 was measured during development but is **not shipped** — do not claim it for the released weights.
 
 ## Bias, risks & limitations (honest disclosure)
 

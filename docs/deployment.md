@@ -6,7 +6,7 @@ How to run Largha locally: the decision service ([phocinae-server](https://githu
 
 | tier | RAM | storage | CPU | GPU | expected performance |
 |---|---|---|---|---|---|
-| **Baseline** (try it out) | 4 GB available | 8 GB | any 64-bit x86-64 / ARM64, ≥2 cores | none needed | ~1.5–1.7 s per decision (CPU single-thread); loading ~4 s |
+| **Baseline** (try it out) | 4 GB available | 8 GB | any 64-bit x86-64 / ARM64, ≥2 cores | none needed | ~1.5–1.7 s per case (CPU single-thread; 1 case = 5 decisions); loading ~4 s |
 | **Minimum** (full efficiency) | 8 GB | 20 GB (SSD/NVMe) | 8 modern cores | ≥4 GB VRAM (RTX 3060-class → 30–60 ms; 4090-class → 18.6 ms) | GPU 18.6–60 ms/decision; CPU-only 8T: 8–21 decisions/s |
 | **Recommended** (daily driver) | 16 GB (32 GB comfortable) | 512 GB NVMe | 12–16 cores | 8 GB+ consumer card | GPU 18.6–25 ms/decision while other apps run; CPU batch in background |
 

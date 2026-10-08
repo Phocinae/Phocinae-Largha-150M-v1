@@ -27,7 +27,7 @@ See [deployment.md](./deployment.md) for hardware tiers, guard and MCP setup, an
 
 | tier | RAM / storage / GPU | expected |
 |---|---|---|
-| baseline (try it) | 4 GB RAM · 8 GB storage · no GPU | ~1.5–1.7 s per decision (CPU single-thread) |
+| baseline (try it) | 4 GB RAM · 8 GB storage · no GPU | ~1.5–1.7 s per case (CPU single-thread) |
 | minimum (efficient) | 8 GB RAM · 8 cores · ≥4 GB VRAM (3060 → 30–60 ms; 4090 → 18.6 ms) | 18.6–60 ms GPU; 8–21 decisions/s on 8 CPU threads |
 | recommended | 16 GB · 512 GB NVMe · 8 GB+ GPU | 18.6–25 ms while other apps run |
 
@@ -35,7 +35,7 @@ Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB 
 ## 5. How fast is it — and why is CPU ~1.5 s?
 
 - GPU fp16 single decision: **18.6 ms** p50 (release value).
-- CPU single-thread: **1.51 s** p50 — end-to-end (tokenize + forward + answer assembly) on one fp32 thread. This is the honest CPU number, not the GPU number.
+- CPU single-thread: **1.51 s per case** p50 (1 case = 1 state + 5 decisions, single pass) — end-to-end (tokenize + forward + answer assembly) on one fp32 thread; ≈0.28 s per decision. This is the honest CPU number, not the GPU number.
 - CPU 8-thread batch: **8–21 decisions/s** (b=1 → 21.0, b=32 → 8.7).
 
 ## 6. What do the "flip" numbers mean?
@@ -44,7 +44,7 @@ We reorder a decision's options and check whether the answer changes ("flip", lo
 
 ## 7. How is the model calibrated?
 
-The shipped column has **ECE 0.1313** (en). The calibration temperatures **0.7698 / 0.7879 / 0.7559** are stored in the model repo config and applied at inference by phocinae-server. A development recalibration reached 0.0106 — it is **not shipped** with the released weights.
+The shipped column has **ECE 0.1313** (en). The calibration temperatures **0.7698 / 0.7879 / 0.7560** are stored in the model repo config and applied at inference by phocinae-server. A development recalibration reached 0.0106 — it is **not shipped** with the released weights.
 
 ## 8. Why didn't you pass the JevBench acceptance gate?
 
@@ -56,12 +56,12 @@ On the English test we measure **0.797**; on translated typed-decisions cases **
 
 ## 10. Can I use it as a safety/security gate?
 
-Not as the sole gate. Largha is a first-line decision aid: use it with escalation (the E1 τ=0.6 gate sends the 18% it is unsure about elsewhere) and a deterministic L0 rule layer such as [phocinae-guard](https://github.com/Phocinae/phocinae-guard) — never as the only control for destructive or safety-critical actions.
+Not as the sole gate. Largha is a first-line decision aid: use it with escalation (the E1 τ=0.6 gate sends the 45.7% it is unsure about elsewhere) and a deterministic L0 rule layer such as [phocinae-guard](https://github.com/Phocinae/phocinae-guard) — never as the only control for destructive or safety-critical actions.
 
 
 ## 11. How much money does it save?
 
-The τ=0.6 escalate gate raises combined accuracy 0.789 → **0.7948** (+0.006) while cutting LLM calls by **−82%** (100% → 18%). Worked example: ≈17.2M LLM tokens/month per 10k routed decisions ≈ **$492/yr saved** (Claude Sonnet 5 list prices, Oct 2026). Estimates only — see [cost-savings.md](./cost-savings.md).
+The τ=0.6 escalate gate answers ~1 of every 2 decisions locally (kept-subset accuracy 0.797 → **0.886**, +0.089) and escalates the uncertain 45.7%, cutting LLM calls by **−54%** (82.8% at τ=0.5). Worked example: ≈11.4M LLM tokens/month per 10k routed decisions ≈ **$326/yr saved** (Claude Sonnet 5 list prices, Oct 2026). Estimates only — see [cost-savings.md](./cost-savings.md).
 
 ## 12. What are the main limitations?
 

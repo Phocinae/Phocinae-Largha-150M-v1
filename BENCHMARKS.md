@@ -21,7 +21,7 @@ Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged 
 | path | p50 | notes |
 |---|---|---|
 | GPU fp16, single decision | **18.6 ms** | release value |
-| CPU single-thread, single decision | **1.51 s** | end-to-end (tokenize + forward + answer assembly) |
+| CPU single-thread, one case (5 decisions, single pass) | **1.51 s** | end-to-end (tokenize + forward + answer assembly); ≈0.28 s per decision |
 | CPU 8 threads, batch | **8–21 decisions/s** | b=1 → 21.0, b=32 → 8.7 |
 | CPU 8 threads, 2000-row mega-batch | 7–9 decisions/s | needs large RAM |
 
@@ -64,7 +64,7 @@ Held-out protocol. **Not trained on any eval row.**
 
 ## 5. Escalate routing (E1 gate, τ=0.6)
 
-Confidence-gated routing to an external LLM: local accuracy **0.789 → 0.7948** (+0.006) while LLM calls drop **100% → 18% (−82%)**. See [docs/cost-savings.md](./docs/cost-savings.md).
+Confidence-gated routing to an external LLM: local accuracy **0.797 → 0.886 (kept subset)** (+0.089) while LLM calls drop **100% → 45.7% (−54%; 82.8% at τ=0.5)**. See [docs/cost-savings.md](./docs/cost-savings.md).
 
 ![routing savings](figures/C7_routing_savings.png)
 
@@ -73,8 +73,8 @@ Confidence-gated routing to an external LLM: local accuracy **0.789 → 0.7948**
 | item | value |
 |---|---|
 | shipped column ECE (en) | **0.1313** |
-| true temperature | `rl_agent_config.json`: 0.7698 / 0.7879 / 0.7559 |
-| calibration temperatures | 0.7698 / 0.7879 / 0.7559 (stored in repo config, applied at inference) |
+| true temperature | `rl_agent_config.json`: 0.7698 / 0.7879 / 0.7560 |
+| calibration temperatures | 0.7698 / 0.7879 / 0.7560 (stored in repo config, applied at inference) |
 | recommended recalibration column (A1, T=(0.62,0.52,0.52)) | 0.0106 — **not shipped** |
 
 ![calibration](figures/C5_calibration.png)

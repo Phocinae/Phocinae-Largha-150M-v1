@@ -24,17 +24,17 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 
 ### Latency
 - GPU fp16 single-decision p50 **18.6 ms** (release value).
-- CPU single-thread p50 **1.51 s** (n=40, idle machine; end-to-end incl. tokenize + forward + answer assembly).
+- CPU single-thread p50 **1.51 s per case** (n=40, idle machine; 1 case = 1 state + 5 decisions, end-to-end incl. tokenize + forward + answer assembly; ≈0.28 s per decision).
 - CPU 8-thread batch **8–21 decisions/s** (b=1 → 21.0, b=32 → 8.7); 2000-row mega-batch 7–9 decisions/s.
 
 ### JevBench public-231
 - micro **0.5108 = 118/231**; acceptance gate 58.4% (not passed, disclosed); tiers easy 0.8958 (43) / original 0.4167 (30) / hard 0.4054 (45); family-macro 0.4829; tool_selection k≤10 **12/12**.
 
 ### Escalate routing (E1, τ=0.6)
-- Local acc **0.789** → combined **0.7948** (+0.006) with 18% of decisions escalated to an external LLM (**−82% LLM calls**).
+- Local acc **0.797** → kept-subset **0.886** (+0.089) with 45.7% of decisions escalated to an external LLM (**−54% LLM calls; 82.8% at τ=0.5**). Independent reproductions: local 0.7825 (en) / 0.7820 (zh) vs official 0.797 / 0.789 — shown side by side, disagreements stated.
 
 ### Calibration
-- Shipped column ECE **0.1313** (en). Calibration temperatures in the model repo config: **0.7698 / 0.7879 / 0.7559**.
+- Shipped column ECE **0.1313** (en). Calibration temperatures in the model repo config: **0.7698 / 0.7879 / 0.7560**.
 - A recommended recalibration column (A1) reached 0.0106 during development — **not shipped**; any published ECE below 0.1313 for these weights refers to a non-shipped recalibration.
 
 ## Quick verification steps

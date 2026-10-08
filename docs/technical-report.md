@@ -4,7 +4,7 @@
 
 ## 1. Motivation
 
-Agents make many small, structured decisions per session — command approvals, tool picks, escalations, triage. Sending each one to an LLM costs a 500–4,000-token API call and 1.5 s+ of round-trip. Largha's bet: most such decisions are learnable by a **144.3M** encoder with a small decision head — one local forward pass, **18.6 ms** on GPU fp16 (or ~1.5 s on a single CPU thread), calibrated confidence, deterministic and auditable, zero data leaving the machine. With the τ=0.6 escalate gate, only the uncertain **18%** of decisions go onward (**−82% LLM calls**) while combined accuracy improves **0.789 → 0.7948**.
+Agents make many small, structured decisions per session — command approvals, tool picks, escalations, triage. Sending each one to an LLM costs a 500–4,000-token API call and 1.5 s+ of round-trip. Largha's bet: most such decisions are learnable by a **144.3M** encoder with a small decision head — one local forward pass, **18.6 ms** on GPU fp16 (or ~1.5 s on a single CPU thread), calibrated confidence, deterministic and auditable, zero data leaving the machine. With the τ=0.6 escalate gate, only the uncertain **45.7%** of decisions go onward (**−54% LLM calls (82.8% at τ=0.5)**) while combined accuracy improves **0.797 → 0.886 (kept subset)**.
 
 ## 2. Model
 
@@ -34,7 +34,7 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 | wall time | ~1.36 h single GPU (tag `cf4`) |
 | checkpoint | epoch 1/1, avg_loss 0.9565 |
 
-Calibration: the temperatures **0.7698 / 0.7879 / 0.7559** ship in the model repo config and are applied at inference by phocinae-server.
+Calibration: the temperatures **0.7698 / 0.7879 / 0.7560** ship in the model repo config and are applied at inference by phocinae-server.
 ## 4. Evaluation & methodology
 
 Protocol: each case = a `state` + typed questions; every question is judged as an independent decision. en test = 400 cases × 5 = 2,000 decisions; zh = the same cases machine-translated.
@@ -45,7 +45,7 @@ Protocol: each case = a `state` + typed questions; every question is judged as a
 | flip (CPU fp32, lower better): rev150 / rev400 / random-mean / any | **0.0300 / 0.0300 / 0.0233 / 0.0433** |
 | latency | GPU fp16 p50 **18.6 ms** · CPU 1-thread p50 **1.51 s** · CPU 8-thread batch **8–21 dec/s** |
 | JevBench public-231 | **0.5108 (118/231)** — gate 58.4% not passed (tool_selection 12/12) |
-| E1 escalate (τ=0.6) | 0.789 → **0.7948**, **−82% LLM calls** |
+| E1 escalate (τ=0.6) | 0.797 → **0.886 kept-subset**, **−54% LLM calls** (82.8% at τ=0.5; independent repro 45.7% escalate) |
 | calibration ECE (shipped) | **0.1313** (development recalibration 0.0106 not shipped) |
 
 Methodology notes:

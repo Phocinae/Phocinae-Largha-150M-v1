@@ -35,7 +35,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 ## 5. 速度到底多快？为什么 CPU 要约 1.5 s？
 
 - GPU fp16 单决策：p50 **18.6 ms**（发布冻结值）。
-- CPU 单线程：p50 **1.51 s**——端到端（分词＋前向＋答案组装）单线程 fp32。这是诚实的 CPU 数字，不是 GPU 数字。
+- CPU 单线程：p50 **1.51 s/case**（1 case＝1 state＋5 题单次前向）——端到端（分词＋前向＋答案组装）单线程 fp32；单决策 ≈0.28 s。这是诚实的 CPU 数字，不是 GPU 数字。
 - CPU 8 线程批处理：**8–21 决策/s**（b=1 → 21.0，b=32 → 8.7）。
 
 ## 6. 「翻转率（flip）」数字是什么意思？
@@ -44,7 +44,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 ## 7. 模型是怎么校准的？
 
-发货列 ECE **0.1313**（en）。checkpoint 里的 `temperature` 张量是哑元（全 1）；真正冻结的温度 **0.7698 / 0.7879 / 0.7559** 在 `rl_agent_config.json` 里，由 phocinae-server 在推理时应用。开发期重校准曾到 0.0106——**未随发布权重发货**，引用时不得套用。
+发货列 ECE **0.1313**（en）。checkpoint 里的 `temperature` 张量是哑元（全 1）；真正冻结的温度 **0.7698 / 0.7879 / 0.7560** 在 `rl_agent_config.json` 里，由 phocinae-server 在推理时应用。开发期重校准曾到 0.0106——**未随发布权重发货**，引用时不得套用。
 
 ## 8. 为什么没过 JevBench 验收门？
 
@@ -56,12 +56,12 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 ## 10. 能当安全/审批门用吗？
 
-不能当唯一一道门。斑海豹是一线决策辅助：配合升级门（E1 τ=0.6 会把没把握的 18% 转出去）和确定性 L0 规则层（如 [phocinae-guard](https://github.com/Phocinae/phocinae-guard)）使用——绝不能作为破坏性/安全关键操作的唯一防护。
+不能当唯一一道门。斑海豹是一线决策辅助：配合升级门（E1 τ=0.6 会把没把握的 45.7% 转出去）和确定性 L0 规则层（如 [phocinae-guard](https://github.com/Phocinae/phocinae-guard)）使用——绝不能作为破坏性/安全关键操作的唯一防护。
 
 
 ## 11. 能省多少钱？
 
-τ=0.6 升级门把组合准确率 0.789 提到 **0.7948**（+0.006），同时把大模型调用砍掉 **−82%**（100% → 18%）。算例：每月每 1 万次路由决策 ≈ 1720 万 token ≈ 每年省 **$492**（Claude Sonnet 5 牌价，2026-10）。仅为估算——见 [cost-savings.md](./cost-savings.md)。
+τ=0.6 升级门把约一半决策留在本地（保留集准确率 0.797 → **0.886**，+0.089），没把握的 45.7% 转出，大模型调用砍掉 **−54%**（τ=0.5 档为 82.8%）。算例：每月每 1 万次路由决策 ≈ 1140 万 token ≈ 每年省 **$326**（Claude Sonnet 5 牌价，2026-10）。仅为估算——见 [cost-savings.md](./cost-savings.md)。
 
 ## 12. 主要局限是什么？
 
