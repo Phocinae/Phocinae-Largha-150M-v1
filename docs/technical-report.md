@@ -61,7 +61,6 @@ Methodology notes:
 - Option-order robustness is imperfect: 0.0300 flip ≈ one changed answer per ~33 reorders — 0.7 pp better than Laya in-domain (3.7%), far from perfect invariance (Jev ~9%, Laya out-of-domain 19.4%).
 - zh is translated-only eval; no native zh training rows.
 - Context: the encoder supports 8192 positions, but the head was trained at 512; 16k/32k probes degrade (0.453 / 0.387).
-- int8 quantization not recommended (CPU latency +49–164%); not shipped.
 - No demographic/fairness evaluation; the training domain (English business operations) carries language and domain biases.
 - Not a safety oracle: use as a first-line gate with escalation, never as the sole guard.
 

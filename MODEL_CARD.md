@@ -67,7 +67,6 @@ The shipped column has **ECE 0.1313** (en). Calibration temperatures (0.7698 / 0
 - **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387).
 - **Not for** open-ended chat/generation, long-document reasoning, or world-knowledge QA (MMLU-style probes below par).
 - **No demographic/fairness evaluation** has been run; training data is English business-operations text (typed-decisions) and will carry its domain and language biases. Treat outputs as domain-specific signals, not general judgments.
-- **Quantization**: int8 (NNCF weights-only) keeps accuracy but raises CPU latency +49–164% — not recommended; not shipped.
 - **Determinism**: deterministic at a fixed batch shape on the same device; values can differ slightly between fp16/fp32 and across batching shapes.
 
 ## Out-of-scope uses

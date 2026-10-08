@@ -79,15 +79,8 @@ Confidence-gated routing to an external LLM: local accuracy **0.789 → 0.7948**
 
 ![calibration](figures/C5_calibration.png)
 
-## 7. Quantization (int8)
 
-| variant | result |
-|---|---|
-| NNCF weights-only | fidelity 99.25%; acc 79.55% vs fp32 79.70% |
-| NNCF CPU latency | +49% ~ +164% vs fp32 → **not recommended** (memory-only variant: RSS −101 MB) |
-| dynamic int8 | **not shipped** |
-
-## 8. Chinese (translated protocol)
+## 7. Chinese (translated protocol)
 
 zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, same 200 translated decisions): **0.83 vs Kimi K3 0.72**.
 

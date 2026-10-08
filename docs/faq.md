@@ -37,7 +37,6 @@ Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB 
 - GPU fp16 single decision: **18.6 ms** p50 (release value).
 - CPU single-thread: **1.51 s** p50 — end-to-end (tokenize + forward + answer assembly) on one fp32 thread. This is the honest CPU number, not the GPU number.
 - CPU 8-thread batch: **8–21 decisions/s** (b=1 → 21.0, b=32 → 8.7).
-- int8 quantization does not help on CPU (+49–164% latency; see Q11).
 
 ## 6. What do the "flip" numbers mean?
 
@@ -59,15 +58,12 @@ On the English test we measure **0.797**; on translated typed-decisions cases **
 
 Not as the sole gate. Largha is a first-line decision aid: use it with escalation (the E1 τ=0.6 gate sends the 18% it is unsure about elsewhere) and a deterministic L0 rule layer such as [phocinae-guard](https://github.com/Phocinae/phocinae-guard) — never as the only control for destructive or safety-critical actions.
 
-## 11. Should I quantize to int8?
 
-No. NNCF weights-only keeps accuracy (fidelity 99.25%; 79.55% vs 79.70% fp32) but raises CPU latency by **+49–164%** — the opposite of what quantization is for. We ship fp16 only.
-
-## 12. How much money does it save?
+## 11. How much money does it save?
 
 The τ=0.6 escalate gate raises combined accuracy 0.789 → **0.7948** (+0.006) while cutting LLM calls by **−82%** (100% → 18%). Worked example: ≈17.2M LLM tokens/month per 10k routed decisions ≈ **$492/yr saved** (Claude Sonnet 5 list prices, Oct 2026). Estimates only — see [cost-savings.md](./cost-savings.md).
 
-## 13. What are the main limitations?
+## 12. What are the main limitations?
 
 - Not for chat/generation, long-document reasoning, or world-knowledge QA.
 - zh is translated-only; long inputs degrade (16k/32k probes: 0.453 / 0.387).

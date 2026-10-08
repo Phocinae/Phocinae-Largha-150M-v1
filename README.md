@@ -34,8 +34,6 @@ One local forward pass replaces a 500–4,000-token LLM call for 82% of agent de
 
 <img src="./figures/C10_hardware_tiers.png" width="640"/>
 
-<img src="./figures/C11_int8_disclosure.png" width="640"/>
-
 All 27 scenario demos: [docs/gallery](./docs/gallery/README.md). All charts: [figures/](./figures/).
 
 ## Quick start
@@ -75,7 +73,7 @@ The protocol (`/v1/systemone`: noul / choice / score questions, calibrated proba
 | [docs/deployment.md](./docs/deployment.md) | hardware tiers, deployment |
 | [docs/cost-savings.md](./docs/cost-savings.md) | cost-savings evaluation |
 | [docs/reproduce.md](./docs/reproduce.md) | reproduction: seeds, row sets, environment, scripts |
-| [docs/gallery](./docs/gallery/README.md) | 27 scenario demos + 12 charts |
+| [docs/gallery](./docs/gallery/README.md) | 27 scenario demos + 11 charts |
 | [docs/faq.md](./docs/faq.md) / [docs/faq.zh.md](./docs/faq.zh.md) | FAQ (en / zh) |
 | [datasets/](./datasets/) | eval row sets: typed-test, zh400, flip-recipe, flipaug-recipe |
 
