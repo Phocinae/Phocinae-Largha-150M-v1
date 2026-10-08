@@ -1,0 +1,17 @@
+Phocinae-Largha-150M-v1
+Copyright 2026 Phocinae contributors.
+
+This product includes software and model artifacts from third parties:
+
+1. jhu-clsp/mmBERT-small (Hugging Face model "jhu-clsp/mmBERT-small"),
+   base encoder architecture and initial weights.
+   License: MIT. Copyright by the original authors (JHU CLSP).
+   https://huggingface.co/jhu-clsp/mmBERT-small
+
+2. LocalLLaMA/typed-decisions (Hugging Face dataset),
+   training data (typed-decisions protocol: state / criteria / options).
+   License: Apache-2.0.
+   https://huggingface.co/datasets/LocalLLaMA/typed-decisions
+
+This model is released under the Apache License, Version 2.0 (see LICENSE).
+No trademark rights are granted.
