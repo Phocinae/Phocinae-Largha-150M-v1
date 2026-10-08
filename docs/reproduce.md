@@ -22,9 +22,9 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 
 ### Option-order flip
 - Reorder the options of a decision; a flip = the answer changed.
-- flip150: 150 rows × 2 orders = 300 items → **0.0200** (6 flips); flip400: 400 rows → 600 items → **0.0217** (13 flips). CPU fp32, idle machine, double-reproduced (2026-10-07).
+- flip150: 150 rows × 2 orders = 300 items → **0.0200** (6 flips); flip400: 400 rows → 600 items → **0.0217** (13 flips). CPU fp32, idle machine, double-reproduced (2026-10-09).
 - random-mean: mean over 3 random reorder seeds → **0.0144**; any-of-3: any of 3 reorders flips → **0.0283**.
-- Reference-only (different protocols): GPU fp16 idle 0.0200/0.0217; 1k-row 4-perm (train-first-1000 rows) 0.0187/0.0205/0.0431.
+- Reference-only (different protocols): GPU fp16 idle 0.0200/0.0217; 1k-row 4-perm (train-first-1000 rows) 0.0181/0.0150/0.0331.
 
 ### Latency
 - GPU fp16 single-decision p50 **21.0 ms (RTX 5090)** (release value).
