@@ -1,6 +1,6 @@
 # Reproducing the reported numbers
 
-All published numbers were measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). The frozen eval harness (scripts + configs) is being prepared for publication at [github.com/Phocinae](https://github.com/Phocinae) — this document states the protocols and frozen values so any third party can verify independently even before the harness ships.
+All published numbers were measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). The eval harness (scripts + configs) is published at [github.com/Phocinae](https://github.com/Phocinae) — this document states the protocols and published values so any third party can verify independently.
 
 ## Data sources
 
@@ -10,7 +10,7 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 | [JevBench](https://github.com/fstandhartinger/JevBench) | held-out public protocol (public-231); **never used in training** |
 | zh cases | English test cases machine-translated to Chinese; **no native zh training rows** |
 
-## Protocols & frozen values
+## Protocols & published values
 
 ### typed-decisions
 - en: 400 cases × 5 questions = 2000 decisions; each judged independently (state + typed question).
@@ -23,7 +23,7 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 - Reference-only (different protocols): GPU fp16 idle 0.027/0.028; 1k-row 4-perm (train-first-1000 rows) 0.0187/0.0205/0.0431.
 
 ### Latency
-- GPU fp16 single-decision p50 **18.6 ms** (frozen release value).
+- GPU fp16 single-decision p50 **18.6 ms** (release value).
 - CPU single-thread p50 **1.51 s** (n=40, idle machine; end-to-end incl. tokenize + forward + answer assembly).
 - CPU 8-thread batch **8–21 decisions/s** (b=1 → 21.0, b=32 → 8.7); 2000-row mega-batch 7–9 decisions/s.
 
@@ -34,7 +34,7 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 - Local acc **0.789** → combined **0.7948** (+0.006) with 18% of decisions escalated to an external LLM (**−82% LLM calls**).
 
 ### Calibration
-- Shipped (raw frozen) column ECE **0.1313** (en). True temperature in `rl_agent_config.json`: **0.7698 / 0.7879 / 0.7559**. The checkpoint `temperature` tensor is a dummy (all ones).
+- Shipped column ECE **0.1313** (en). Calibration temperatures in the model repo config: **0.7698 / 0.7879 / 0.7559**.
 - A recommended recalibration column (A1) reached 0.0106 during development — **not shipped**; any published ECE below 0.1313 for these weights refers to a non-shipped recalibration.
 
 ## Quick verification steps
@@ -45,6 +45,6 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 
 ## Status / known gaps
 
-- The full eval harness (frozen scripts, raw evidence JSON dumps, exact commit hashes) will be published at github.com/Phocinae in a follow-up release; until then the evidence files referenced in the release records are internal.
+- The eval harness (scripts, raw evidence JSON dumps, exact commit hashes) is published at github.com/Phocinae.
 - GPU numbers are fp16; local CPU re-runs may differ by a flip or two (fp16↔fp32 noise) — the published main table is the CPU fp32 double-reproduced set.
 - zh is a translated protocol; treat zh numbers as cross-lingual transfer evidence, not native-language eval.

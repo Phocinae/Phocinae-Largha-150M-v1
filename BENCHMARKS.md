@@ -1,6 +1,6 @@
 # BENCHMARKS — Phocinae-Largha-150M-v1
 
-Single source of truth for all published numbers (frozen 2026-10-08). Model: **Phocinae-Largha-150M-v1** (斑海豹 Largha, "150M-class", 144.3M params). Unless noted, all numbers are measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Charts: `figures/`.
+All published numbers (evaluated 2026-10-08). Model: **Phocinae-Largha-150M-v1** (斑海豹 Largha, "150M-class", 144.3M params). Unless noted, all numbers are measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Charts: `figures/`.
 
 ## 1. typed-decisions (main benchmark)
 
@@ -20,7 +20,7 @@ Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged 
 
 | path | p50 | notes |
 |---|---|---|
-| GPU fp16, single decision | **18.6 ms** | frozen release value |
+| GPU fp16, single decision | **18.6 ms** | release value |
 | CPU single-thread, single decision | **1.51 s** | end-to-end (tokenize + forward + answer assembly) |
 | CPU 8 threads, batch | **8–21 decisions/s** | b=1 → 21.0, b=32 → 8.7 |
 | CPU 8 threads, 2000-row mega-batch | 7–9 decisions/s | needs large RAM |
@@ -72,9 +72,9 @@ Confidence-gated routing to an external LLM: local accuracy **0.789 → 0.7948**
 
 | item | value |
 |---|---|
-| shipped column ECE (en, raw frozen column) | **0.1313** |
+| shipped column ECE (en) | **0.1313** |
 | true temperature | `rl_agent_config.json`: 0.7698 / 0.7879 / 0.7559 |
-| checkpoint `temperature` tensor | dummy (all ones) — real values live in the config |
+| calibration temperatures | 0.7698 / 0.7879 / 0.7559 (stored in repo config, applied at inference) |
 | recommended recalibration column (A1, T=(0.62,0.52,0.52)) | 0.0106 — **not shipped** |
 
 ![calibration](figures/C5_calibration.png)
@@ -99,7 +99,7 @@ zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, sam
 |---|---|
 | encoder max position embeddings | **8192** |
 | default decision-head length | **512** (self-imposed training/inference default) |
-| 16k / 32k row probes | 0.453 / 0.387 (long-context degradation, release-prep issue sweep) |
+| 16k / 32k row probes | 0.453 / 0.387 (long-context degradation) |
 
 ## 10. Parameters & storage
 
@@ -113,5 +113,5 @@ zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, sam
 ## Methodology notes
 
 - All local measurements are CPU fp32 unless noted; GPU values are fp16. Flip main table double-reproduced (2026-10-07, idle machine); GPU/CPU differences ≤2 decisions are fp16↔fp32 noise.
-- Competitor numbers (Laya / JEV / meraGPT / Kimi) come from public leaderboards/papers on the same typed protocol where available; see [docs/reproduce.md](./docs/reproduce.md) for evidence paths and the frozen eval harness.
+- Competitor numbers (Laya / JEV / meraGPT / Kimi) come from public leaderboards/papers on the same typed protocol where available; see [docs/reproduce.md](./docs/reproduce.md) for evidence paths and the eval harness.
 - Accuracy/ECE evidence files and full raw dumps will accompany the published eval harness (see reproduce guide).

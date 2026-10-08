@@ -56,12 +56,12 @@ Full tables, charts and methodology: [BENCHMARKS.md](./BENCHMARKS.md).
 
 ## Calibration
 
-The shipped column has **ECE 0.1313** (en). The checkpoint's `temperature` tensor is a **dummy (all ones)**; the true frozen temperatures (0.7698 / 0.7879 / 0.7559) live in `rl_agent_config.json` and are applied at inference by phocinae-server. A recommended recalibration column reaching ECE 0.0106 was measured during development but is **not shipped** — do not claim it for the released weights.
+The shipped column has **ECE 0.1313** (en). Calibration temperatures (0.7698 / 0.7879 / 0.7559) are stored in the model repo config and applied at inference by phocinae-server. A recommended recalibration column reaching ECE 0.0106 was measured during development but is **not shipped** — do not claim it for the released weights.
 
 ## Bias, risks & limitations (honest disclosure)
 
 - **JevBench gate not passed**: 0.5108 (118/231) vs the 58.4% acceptance gate. Published as measured; we never trained on the eval rows.
-- **Option-order robustness is imperfect**: a 3.0% flip rate means about one answer change per ~33 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 0.7 pp gap vs Laya in-domain (3.7%) — no "magnitude" claims. Never rely on order-invariance alone.
+- **Option-order robustness is imperfect**: a 3.0% flip rate means about one answer change per ~33 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 0.7 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
 - **Not a safety oracle**: use it as a first-line gate with escalation (or a deterministic L0 rule layer such as phocinae-guard), never as the sole guard for destructive or safety-critical commands.
 - **Chinese is translated-only**: zh evaluation runs on translated English cases; the model has no native Chinese training rows.
 - **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387).

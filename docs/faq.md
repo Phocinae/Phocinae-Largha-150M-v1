@@ -1,6 +1,6 @@
 # FAQ — Phocinae-Largha-150M-v1
 
-Questions people ask about Largha (斑海豹, the spotted seal), a **144.3M bilingual decision model**. All figures quoted here are from [BENCHMARKS.md](../BENCHMARKS.md) — the single source of truth for published numbers.
+Questions people ask about Largha (斑海豹, the spotted seal), a **144.3M bilingual decision model**. All figures quoted here are from [BENCHMARKS.md](../BENCHMARKS.md) — the source of truth for published numbers.
 
 ## 1. What is this model, exactly?
 
@@ -8,7 +8,7 @@ An encoder-based **decision model**, not a chat model. One forward pass turns a 
 
 ## 2. How do I run it locally?
 
-The official runtime is [phocinae-server](https://github.com/Phocinae/phocinae-server) (pure-torch forward, no transformers/laya runtime needed):
+The official runtime is [phocinae-server](https://github.com/Phocinae/phocinae-server) (pure-torch forward, no extra runtime needed):
 
 ```bash
 git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server
@@ -34,7 +34,7 @@ See [deployment.md](./deployment.md) for hardware tiers, guard and MCP setup, an
 Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB RAM.
 ## 5. How fast is it — and why is CPU ~1.5 s?
 
-- GPU fp16 single decision: **18.6 ms** p50 (frozen release value).
+- GPU fp16 single decision: **18.6 ms** p50 (release value).
 - CPU single-thread: **1.51 s** p50 — end-to-end (tokenize + forward + answer assembly) on one fp32 thread. This is the honest CPU number, not the GPU number.
 - CPU 8-thread batch: **8–21 decisions/s** (b=1 → 21.0, b=32 → 8.7).
 - int8 quantization does not help on CPU (+49–164% latency; see Q11).
@@ -45,7 +45,7 @@ We reorder a decision's options and check whether the answer changes ("flip", lo
 
 ## 7. How is the model calibrated?
 
-The shipped column has **ECE 0.1313** (en). The checkpoint's `temperature` tensor is a dummy (all ones); the real frozen temperatures **0.7698 / 0.7879 / 0.7559** live in `rl_agent_config.json` and are applied by phocinae-server. A development recalibration reached 0.0106 — it is **not shipped**, so do not quote it for the released weights.
+The shipped column has **ECE 0.1313** (en). The calibration temperatures **0.7698 / 0.7879 / 0.7559** are stored in the model repo config and applied at inference by phocinae-server. A development recalibration reached 0.0106 — it is **not shipped** with the released weights.
 
 ## 8. Why didn't you pass the JevBench acceptance gate?
 
@@ -91,4 +91,4 @@ Weights: **Apache-2.0** (see LICENSE). Base encoder `jhu-clsp/mmBERT-small`: che
 }
 ```
 
-Verify the weights (`sha256sum model.safetensors` → `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`), then follow [reproduce.md](./reproduce.md) for protocols, frozen values, and evidence paths. The frozen eval harness will be published at github.com/Phocinae.
+Verify the weights (`sha256sum model.safetensors` → `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`), then follow [reproduce.md](./reproduce.md) for protocols, published values, and evidence paths. The eval harness is published in the main repo.

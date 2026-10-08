@@ -4,7 +4,7 @@ How routing repetitive agent decisions through Phocinae-Largha-150M-v1 cuts LLM 
 
 ## Mechanism
 
-The E1 gate (τ=0.6, frozen) runs one local forward pass per decision and reads `answer_confidence` — the temperature-calibrated top probability. Decisions below τ are escalated to an external LLM (or a human); the rest are answered locally for (near) zero marginal cost.
+The E1 gate (τ=0.6) runs one local forward pass per decision and reads `answer_confidence` — the temperature-calibrated top probability. Decisions below τ are escalated to an external LLM (or a human); the rest are answered locally for (near) zero marginal cost.
 
 ## Measured effect (typed-decisions protocol)
 
@@ -31,6 +31,6 @@ The gate improves combined accuracy while replacing ~4 of every 5 LLM calls with
 ## Caveats (read before quoting)
 
 - Cost figures are **estimates on public list prices**; actual savings depend on your workload mix, your LLM pricing, and how many decisions really are routine.
-- The τ=0.6 gate is frozen for the typed-decisions domain. **Re-scan τ for new domains** before assuming the same 82% call reduction and +0.006 accuracy hold.
+- The τ=0.6 gate is set for the typed-decisions domain. **Re-scan τ for new domains** before assuming the same 82% call reduction and +0.006 accuracy hold.
 - The model is a decision layer, not a replacement for LLM judgment: anything it is unsure about is escalated by design (that is where the 18% goes).
 - Numbers are relative framing, not absolute revenue promises.

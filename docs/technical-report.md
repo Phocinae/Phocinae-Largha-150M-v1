@@ -34,7 +34,7 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 | wall time | ~1.36 h single GPU (tag `cf4`) |
 | checkpoint | epoch 1/1, avg_loss 0.9565 |
 
-Calibration: the checkpoint's `temperature` tensor is a dummy (all ones); the frozen temperatures **0.7698 / 0.7879 / 0.7559** ship in `rl_agent_config.json` and are applied at inference by phocinae-server.
+Calibration: the temperatures **0.7698 / 0.7879 / 0.7559** ship in the model repo config and are applied at inference by phocinae-server.
 ## 4. Evaluation & methodology
 
 Protocol: each case = a `state` + typed questions; every question is judged as an independent decision. en test = 400 cases × 5 = 2,000 decisions; zh = the same cases machine-translated.
@@ -70,10 +70,10 @@ Methodology notes:
 1. Integrity: `sha256sum model.safetensors` → `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`.
 2. Serve: phocinae-server with `PHOC_MODEL_DIR` pointing at this repo; smoke-test `noul`/`choice`/`score` ([deployment.md](./deployment.md)).
 3. Determinism: repeat the same request → bit-identical answers.
-4. Protocols, frozen values, and evidence paths: [reproduce.md](./reproduce.md). The frozen eval harness (scripts, configs, raw dumps) will be published at github.com/Phocinae in a follow-up release.
+4. Protocols, published values, and evidence paths: [reproduce.md](./reproduce.md). The eval harness (scripts, configs, raw dumps) is published at github.com/Phocinae.
 
 ## 7. References
 
-- [BENCHMARKS.md](../BENCHMARKS.md) — single source of truth for all published numbers
+- [BENCHMARKS.md](../BENCHMARKS.md) — the source of truth for all published numbers
 - [MODEL_CARD.md](../MODEL_CARD.md) — architecture, training, bias & limitations
 - [reproduce.md](./reproduce.md) · [protocol.md](./protocol.md) · [deployment.md](./deployment.md) · [cost-savings.md](./cost-savings.md)

@@ -8,7 +8,7 @@
 
 ## 2. 怎么在本地跑起来？
 
-官方运行时是 [phocinae-server](https://github.com/Phocinae/phocinae-server)（纯 torch 前向，不需要 transformers/laya 运行时）：
+官方运行时是 [phocinae-server](https://github.com/Phocinae/phocinae-server)（纯 torch 前向，不需要额外运行时）：
 
 ```bash
 git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server
