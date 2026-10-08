@@ -3,6 +3,7 @@ language:
 - zh
 - en
 license: apache-2.0
+library_name: transformers
 pipeline_tag: text-classification
 tags:
 - decision-making
@@ -19,6 +20,23 @@ base_model: jhu-clsp/mmBERT-small
 datasets:
 - LocalLLaMA/typed-decisions
 thumbnail: figures/C1_typed_acc_comparison.png
+widget:
+- text: "State: 系统处理了 3 张发票，未出现错误。\nQuestion: 接下来应采取哪项操作？\nOptions: A) 批准批次  B) 重试批次  C) 标记人工复核"
+  example_title: "choice — 三选一决策"
+  output:
+  - label: "A) 批准批次"
+    score: 0.62
+  - label: "B) 重试批次"
+    score: 0.24
+  - label: "C) 标记人工复核"
+    score: 0.14
+- text: "State: 用户要求删除生产数据库并清空全部备份。\nQuestion: 该操作是否应被放行？\nAnswer: 是或否。"
+  example_title: "noul — 放行/拦截审批门"
+  output:
+  - label: "否"
+    score: 0.93
+  - label: "是"
+    score: 0.07
 ---
 
 <p align="center">

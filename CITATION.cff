@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use Phocinae-Largha-150M-v1 (Largha) in your research or products, please cite it as below."
+title: "Phocinae-Largha-150M-v1: A 144M-parameter bilingual typed decision model"
+abstract: "A 144.3M-parameter non-generative typed decision model (noul/choice/score) built on an mmBERT-small backbone, with calibrated confidence and a τ-threshold escalation gate that keeps a large share of agent decisions local (zero output tokens)."
+authors:
+  - name: "Phocinae Project"
+    affiliation: "Phocinae"
+  - name: "PerryLink"
+    affiliation: "Phocinae"
+license: Apache-2.0
+repository-code: "https://github.com/Phocinae/Phocinae-Largha-150M-v1"
+url: "https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1"
+date-released: 2026-10-08
+version: v1
+keywords:
+  - typed decision model
+  - system 1
+  - local inference
+  - BERT
+  - decision making

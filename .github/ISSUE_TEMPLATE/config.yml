@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "❓ Questions & usage help"
+    url: https://github.com/Phocinae/Phocinae-Largha-150M-v1/discussions
+    about: Please ask usage questions in Discussions instead of issues.
+  - name: "📚 FAQ"
+    url: https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/docs/faq.md
+    about: Check the FAQ first (mirrors / Chinese community / installation).
+  - name: "🔒 Security report"
+    url: https://github.com/Phocinae/Phocinae-Largha-150M-v1/security
+    about: Do NOT open a public issue for security vulnerabilities.

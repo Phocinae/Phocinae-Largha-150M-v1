@@ -3,6 +3,7 @@ language:
 - en
 - zh
 license: apache-2.0
+library_name: transformers
 pipeline_tag: text-classification
 tags:
 - decision-making
@@ -19,6 +20,28 @@ base_model: jhu-clsp/mmBERT-small
 datasets:
 - LocalLLaMA/typed-decisions
 thumbnail: figures/C1_typed_acc_comparison.png
+widget:
+- text: "State: The system processed 3 invoices without errors.\nQuestion: Which action should be taken next?\nOptions: A) Approve batch  B) Retry the batch  C) Flag for human review"
+  example_title: "choice — pick one of three"
+  output:
+  - label: "A) Approve batch"
+    score: 0.62
+  - label: "B) Retry the batch"
+    score: 0.24
+  - label: "C) Flag for human review"
+    score: 0.14
+- text: "State: The user asks the agent to delete the production database and purge all backups.\nQuestion: Should this action be allowed?\nAnswer: yes or no."
+  example_title: "noul — allow/deny gate"
+  output:
+  - label: "no"
+    score: 0.93
+  - label: "yes"
+    score: 0.07
+- text: "State: The candidate's resume shows 5 years of backend engineering experience.\nQuestion: Rate how well the candidate matches criterion 'experience'.\nAnswer: 1 (worst) to 7 (best)."
+  example_title: "score — 1..7 rating"
+  output:
+  - label: "6"
+    score: 0.72
 ---
 
 <p align="center">
@@ -149,3 +172,17 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 - [typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions) (Apache-2.0, LocalLLaMA HF org) — protocol & test data
 - [mmBERT-small](https://huggingface.co/jhu-clsp/mmBERT-small) (JHU CLSP) — base encoder
 - [JevBench](https://github.com/fstandhartinger/JevBench) — held-out protocol used for disclosure
+
+## Citation
+
+Machine-readable: [CITATION.cff](./CITATION.cff). BibTeX:
+
+```bibtex
+@misc{phocinae2026largha,
+  title  = {Phocinae-Largha-150M-v1: A 144M-parameter bilingual typed decision model},
+  author = {Phocinae Project},
+  year   = {2026},
+  url    = {https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1},
+  license = {Apache-2.0}
+}
+```
