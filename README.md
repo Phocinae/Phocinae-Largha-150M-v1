@@ -32,7 +32,7 @@ thumbnail: figures/C1_typed_acc_comparison.png
 | option-order flip robustness (lower is better) | CPU fp32: flip150 **0.0300** · flip400 **0.0300** · random-mean **0.0233** · any **0.0433** (GPU fp16 0.027/0.028, note only) |
 | inference latency | GPU fp16 p50 **18.6 ms** · CPU single-thread p50 **1.51 s per case** (1 case = 1 state + 5 questions, single forward pass; ≈0.28 s per decision) · CPU 8-thread batch **8–21 decisions/s** |
 | JevBench public-231 | **0.5108** (118/231) — below the 58.4% gate, disclosed honestly; tool_selection 12/12 |
-| escalate routing (E1 gate, τ=0.6) | **+0.089 kept-subset acc** (0.797→0.886 (kept subset)) while **−54% LLM cost (82.8% at τ=0.5)** (45.7% escalate to LLM) |
+| escalate routing (E1 gate, τ=0.6) | **+0.089 kept-subset acc** (0.797→0.886 (kept subset)) while **−54.4% LLM cost (82.8% at τ=0.5)** (45.7% escalate to LLM) |
 | calibration | shipped column ECE **0.1313**; calibration temperatures 0.7698/0.7879/0.7560 (applied at inference) |
 
 ![typed accuracy comparison](figures/C1_typed_acc_comparison.png)
@@ -88,7 +88,7 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 ## Why Phocinae: slash agent costs
 
-**54% fewer LLM calls, 18.6 ms per decision.** Phocinae-Largha-150M (144.3M params) routes the repetitive decisions inside agent sessions — command approvals, tool selection (12/12 on JevBench tool_selection, k≤10), step checks, output screening — to a local single-forward-pass engine (8192-token base context, 512-token default head) instead of a 500–4,000-token API call. The τ=0.6 confidence gate cuts LLM traffic 54% while combined accuracy edges up 0.797 → 0.886 (kept subset); deterministic inference means auditable, replayable decisions with zero data leaving your machine — at 18.6 ms GPU p50 vs 1.5 s+ API round-trips. ≈11.4M LLM tokens ≈ **$326/yr** saved per 10k routed decisions/month (Claude Sonnet 5 list prices, Oct 2026). Full cost model: [docs/cost-savings.md](./docs/cost-savings.md).
+**54.4% fewer LLM calls, 18.6 ms per decision.** Phocinae-Largha-150M (144.3M params) routes the repetitive decisions inside agent sessions — command approvals, tool selection (12/12 on JevBench tool_selection, k≤10), step checks, output screening — to a local single-forward-pass engine (8192-token base context, 512-token default head) instead of a 500–4,000-token API call. The τ=0.6 confidence gate cuts LLM traffic 54.4% while combined accuracy edges up 0.797 → 0.886 (kept subset); deterministic inference means auditable, replayable decisions with zero data leaving your machine — at 18.6 ms GPU p50 vs 1.5 s+ API round-trips. ≈11.4M LLM tokens ≈ **$326/yr** saved per 10k routed decisions/month (Claude Sonnet 5 list prices, Oct 2026). Full cost model: [docs/cost-savings.md](./docs/cost-savings.md).
 
 ## What it is / what it is not
 

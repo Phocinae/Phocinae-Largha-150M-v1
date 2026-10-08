@@ -31,11 +31,11 @@ The gate answers ~1 of every 2 decisions locally with an 18.6 ms (GPU) / 1.51 s-
 
 - CPU 8-thread batch: **8–21 decisions/s** (b=1 → 21.0, b=32 → 8.7) — local pre-screening capacity.
 - GPU fp16: p50 18.6 ms/decision.
-- Local screening time is the main cost trade-off: on CPU budget ~1.5 s per single-threaded decision (or batch on 8 threads); on GPU it is effectively free relative to an API round-trip.
+- Local screening time is the main cost trade-off: on CPU budget ~1.5 s per single-threaded case (≈0.28 s per decision) (or batch on 8 threads); on GPU it is effectively free relative to an API round-trip.
 
 ## Caveats (read before quoting)
 
 - Cost figures are **estimates on public list prices**; actual savings depend on your workload mix, your LLM pricing, and how many decisions really are routine.
-- The τ=0.6 gate is set for the typed-decisions domain. **Re-scan τ for new domains** before assuming the same 54% call reduction (82.8% at τ=0.5) and +0.089 kept-subset accuracy hold.
+- The τ=0.6 gate is set for the typed-decisions domain. **Re-scan τ for new domains** before assuming the same 54.4% call reduction (82.8% at τ=0.5) and +0.089 kept-subset accuracy hold.
 - The model is a decision layer, not a replacement for LLM judgment: anything it is unsure about is escalated by design (that is where the 45.7% goes).
 - Numbers are relative framing, not absolute revenue promises.

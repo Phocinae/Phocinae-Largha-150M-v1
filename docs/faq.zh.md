@@ -27,8 +27,8 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 | 档位 | 内存 / 存储 / GPU | 预期表现 |
 |---|---|---|
-| 底线（试跑） | 4 GB 内存 · 8 GB 存储 · 无 GPU | 每决策约 1.5–1.7 s（CPU 单线程） |
-| 下限（高效） | 8 GB 内存 · 8 核 · ≥4 GB 显存（3060 → 30–60 ms；4090 → 18.6 ms） | GPU 18.6–60 ms；CPU 8 线程 8–21 决策/s |
+| 底线（试跑） | 4 GB 内存 · 8 GB 存储 · 无 GPU | 每 case 约 1.5–1.7 s（CPU 单线程，单决策 ≈0.28 s） |
+| 下限（高效） | 8 GB 内存 · 8 核 · ≥4 GB 显存（3060 → 30–60 ms；8 GB+ 显存 → 18.6 ms，RTX 5090 实测） | GPU 18.6–60 ms；CPU 8 线程 8–21 决策/s |
 | 推荐 | 16 GB · 512 GB NVMe · 8 GB+ 显存 | 其他应用同跑时 18.6–25 ms |
 
 权重 288.6 MB（fp16 safetensors）；推理峰值约 1.6 GB 显存 / 1.8 GB 内存。
@@ -61,7 +61,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 ## 11. 能省多少钱？
 
-τ=0.6 升级门把约一半决策留在本地（保留集准确率 0.797 → **0.886**，+0.089），没把握的 45.7% 转出，大模型调用砍掉 **−54%**（τ=0.5 档为 82.8%）。算例：每月每 1 万次路由决策 ≈ 1140 万 token ≈ 每年省 **$326**（Claude Sonnet 5 牌价，2026-10）。仅为估算——见 [cost-savings.md](./cost-savings.md)。
+τ=0.6 升级门把约一半决策留在本地（保留集准确率 0.797 → **0.886**，+0.089），没把握的 45.7% 转出，大模型调用砍掉 **−54.4%**（τ=0.5 档为 82.8%）。算例：每月每 1 万次路由决策 ≈ 1140 万 token ≈ 每年省 **$326**（Claude Sonnet 5 牌价，2026-10）。仅为估算——见 [cost-savings.md](./cost-savings.md)。
 
 ## 12. 主要局限是什么？
 

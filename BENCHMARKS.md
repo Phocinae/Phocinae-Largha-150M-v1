@@ -64,7 +64,7 @@ Held-out protocol. **Not trained on any eval row.**
 
 ## 5. Escalate routing (E1 gate, τ=0.6)
 
-Confidence-gated routing to an external LLM: local accuracy **0.797 → 0.886 (kept subset)** (+0.089) while LLM calls drop **100% → 45.7% (−54%; 82.8% at τ=0.5)**. See [docs/cost-savings.md](./docs/cost-savings.md).
+Confidence-gated routing to an external LLM: local accuracy **0.797 → 0.886 (kept subset)** (+0.089) while LLM calls drop **100% → 45.7% (−54.4%; 82.8% at τ=0.5)**. See [docs/cost-savings.md](./docs/cost-savings.md).
 
 ![routing savings](figures/C7_routing_savings.png)
 
@@ -98,7 +98,7 @@ zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, sam
 
 | item | value |
 |---|---|
-| parameters | **144.3M** (144,292,867; raw tensor sum 144,292,870) |
+| parameters | **144.3M** (144,292,870; raw tensor sum 144,292,870) |
 | architecture | mmBERT-small: hidden 384 × 22 layers × 6 heads, 256k vocab, RoPE + sliding-window + full attention |
 | storage | fp16 safetensors 288.6 MB |
 | sha256 | `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697` |

@@ -28,7 +28,7 @@ See [deployment.md](./deployment.md) for hardware tiers, guard and MCP setup, an
 | tier | RAM / storage / GPU | expected |
 |---|---|---|
 | baseline (try it) | 4 GB RAM · 8 GB storage · no GPU | ~1.5–1.7 s per case (CPU single-thread) |
-| minimum (efficient) | 8 GB RAM · 8 cores · ≥4 GB VRAM (3060 → 30–60 ms; 4090 → 18.6 ms) | 18.6–60 ms GPU; 8–21 decisions/s on 8 CPU threads |
+| minimum (efficient) | 8 GB RAM · 8 cores · ≥4 GB VRAM (3060 → 30–60 ms; 8 GB+ VRAM → 18.6 ms, measured on RTX 5090) | 18.6–60 ms GPU; 8–21 decisions/s on 8 CPU threads |
 | recommended | 16 GB · 512 GB NVMe · 8 GB+ GPU | 18.6–25 ms while other apps run |
 
 Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB RAM.
@@ -61,7 +61,7 @@ Not as the sole gate. Largha is a first-line decision aid: use it with escalatio
 
 ## 11. How much money does it save?
 
-The τ=0.6 escalate gate answers ~1 of every 2 decisions locally (kept-subset accuracy 0.797 → **0.886**, +0.089) and escalates the uncertain 45.7%, cutting LLM calls by **−54%** (82.8% at τ=0.5). Worked example: ≈11.4M LLM tokens/month per 10k routed decisions ≈ **$326/yr saved** (Claude Sonnet 5 list prices, Oct 2026). Estimates only — see [cost-savings.md](./cost-savings.md).
+The τ=0.6 escalate gate answers ~1 of every 2 decisions locally (kept-subset accuracy 0.797 → **0.886**, +0.089) and escalates the uncertain 45.7%, cutting LLM calls by **−54.4%** (82.8% at τ=0.5). Worked example: ≈11.4M LLM tokens/month per 10k routed decisions ≈ **$326/yr saved** (Claude Sonnet 5 list prices, Oct 2026). Estimates only — see [cost-savings.md](./cost-savings.md).
 
 ## 12. What are the main limitations?
 

@@ -22,7 +22,7 @@ Largha makes one structured decision per forward pass: given a `state` and a lis
 ## Architecture
 
 - Encoder: mmBERT-small — hidden **384**, **22** layers, **6** heads, vocab **256k**, RoPE (theta 160000), sliding-window (128) + full attention mix, max position **8192**.
-- Decision head: 2-layer MLP head (`head_layers: 2`, head context 192), reading mean-pooled encoder output.
+- Decision head: 2-layer transformer head (self-attn + FFN, `head_layers: 2`, head context 192) over mean-pooled encoder output.
 - Inference: single forward pass, deterministic for a fixed batch shape (no sampling).
 
 ## Training
@@ -49,8 +49,8 @@ Full contract: [docs/protocol.md](./docs/protocol.md).
 | typed-decisions zh (translated cases) | **0.789** |
 | flip (CPU fp32): flip150 / flip400 / random-mean / any | **0.0300 / 0.0300 / 0.0233 / 0.0433** |
 | JevBench public-231 | **0.5108 (118/231)**, gate 58.4% not passed |
-| E1 escalate (τ=0.6) | kept-subset acc 0.886 (vs 0.797 local-only), **−54% LLM calls (82.8% at τ=0.5)** |
-| latency | GPU fp16 p50 18.6 ms; CPU 1-thread p50 1.51 s; CPU 8-thread batch 8–21 dec/s |
+| E1 escalate (τ=0.6) | kept-subset acc 0.886 (vs 0.797 local-only), **−54.4% LLM calls (82.8% at τ=0.5)** |
+| latency | GPU fp16 p50 18.6 ms; CPU 1-thread p50 1.51 s per case (≈0.28 s per decision); CPU 8-thread batch 8–21 dec/s |
 
 Full tables, charts and methodology: [BENCHMARKS.md](./BENCHMARKS.md). Full technical report: [docs/technical-report.md](./docs/technical-report.md).
 

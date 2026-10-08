@@ -4,7 +4,7 @@
 
 ## 1. Motivation
 
-Agents make many small, structured decisions per session — command approvals, tool picks, escalations, triage. Sending each one to an LLM costs a 500–4,000-token API call and 1.5 s+ of round-trip. Largha's bet: most such decisions are learnable by a **144.3M** encoder with a small decision head — one local forward pass, **18.6 ms** on GPU fp16 (or ~1.5 s on a single CPU thread), calibrated confidence, deterministic and auditable, zero data leaving the machine. With the τ=0.6 escalate gate, only the uncertain **45.7%** of decisions go onward (**−54% LLM calls (82.8% at τ=0.5)**) while combined accuracy improves **0.797 → 0.886 (kept subset)**.
+Agents make many small, structured decisions per session — command approvals, tool picks, escalations, triage. Sending each one to an LLM costs a 500–4,000-token API call and 1.5 s+ of round-trip. Largha's bet: most such decisions are learnable by a **144.3M** encoder with a small decision head — one local forward pass, **18.6 ms** on GPU fp16 (or ~1.51 s per case on a single CPU thread, ≈0.28 s per decision), calibrated confidence, deterministic and auditable, zero data leaving the machine. With the τ=0.6 escalate gate, only the uncertain **45.7%** of decisions go onward (**−54.4% LLM calls (82.8% at τ=0.5)**) while combined accuracy improves **0.797 → 0.886 (kept subset)**.
 
 ## 2. Model
 
@@ -12,7 +12,7 @@ Agents make many small, structured decisions per session — command approvals, 
 |---|---|
 | parameters | **144.3M** (public: "150M-class"); fp16 safetensors 288.6 MB |
 | encoder | mmBERT-small: hidden **384** × **22** layers × **6** heads, vocab **256k**, RoPE (θ 160000) + sliding-window (128) + full attention, max positions **8192** |
-| decision head | 2-layer MLP (`head_layers: 2`, head context 192) over mean-pooled encoder output |
+| decision head | 2-layer transformer (self-attn + FFN, `head_layers: 2`, head context 192) over mean-pooled encoder output |
 | head length | **512** tokens default (self-imposed training/inference default) |
 | outputs | per typed question: noul → bool (threshold, default 0.5) · choice → 0-based index · score → int 2–10, plus calibrated confidence |
 
@@ -43,9 +43,9 @@ Protocol: each case = a `state` + typed questions; every question is judged as a
 |---|---|
 | typed-decisions en / zh | **0.797 / 0.789** (Laya 0.766 · JEV 0.727 · meraGPT 0.768, same protocol) |
 | flip (CPU fp32, lower better): rev150 / rev400 / random-mean / any | **0.0300 / 0.0300 / 0.0233 / 0.0433** |
-| latency | GPU fp16 p50 **18.6 ms** · CPU 1-thread p50 **1.51 s** · CPU 8-thread batch **8–21 dec/s** |
+| latency | GPU fp16 p50 **18.6 ms** · CPU 1-thread p50 **1.51 s per case** (≈0.28 s per decision) · CPU 8-thread batch **8–21 dec/s** |
 | JevBench public-231 | **0.5108 (118/231)** — gate 58.4% not passed (tool_selection 12/12) |
-| E1 escalate (τ=0.6) | 0.797 → **0.886 kept-subset**, **−54% LLM calls** (82.8% at τ=0.5; independent repro 45.7% escalate) |
+| E1 escalate (τ=0.6) | 0.797 → **0.886 kept-subset**, **−54.4% LLM calls** (82.8% at τ=0.5; independent repro 45.7% escalate) |
 | calibration ECE (shipped) | **0.1313** (development recalibration 0.0106 not shipped) |
 
 Methodology notes:

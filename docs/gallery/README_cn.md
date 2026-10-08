@@ -6,7 +6,7 @@
 
 <div align="center">
   <img src="./S06_escalate_savings.gif" width="640"/>
-  <p>大模型调用 −54%（τ=0.5 档 82.8%），准确率反而 0.797→0.886 (kept subset)</p>
+  <p>大模型调用 −54.4%（τ=0.5 档 82.8%），准确率反而 0.797→0.886 (kept subset)</p>
   <img src="./S01_rmrf_gate.gif" width="640"/>
   <p>命令审批门：rm -rf 毫秒级拦截（18.6ms）</p>
   <img src="./S07_tool_routing.gif" width="640"/>
@@ -35,7 +35,7 @@
 
 | 场景 | 文件 | 一句话 |
 |---|---|---|
-| 升级门省费 | [S06_escalate_savings.gif](./S06_escalate_savings.gif) | τ=0.6 升级门：大模型调用 −54%（τ=0.5 档 82.8%），acc 0.797→0.886 (kept subset) |
+| 升级门省费 | [S06_escalate_savings.gif](./S06_escalate_savings.gif) | τ=0.6 升级门：大模型调用 −54.4%（τ=0.5 档 82.8%），acc 0.797→0.886 (kept subset) |
 | 工具路由 | [S07_tool_routing.gif](./S07_tool_routing.gif) | 单次前向选对工具，工具选择 12/12 |
 | 中文域零外呼 | [S08_zh_zero_escalate.gif](./S08_zh_zero_escalate.gif) | 中文判定本地完成，斑海豹 .83 vs Kimi K3 .72 |
 | 上下文粗筛 | [S09_context_screen.gif](./S09_context_screen.gif) | 30 个上下文块本地筛掉 11 个，CPU 批 8–21 决策/s |
@@ -67,7 +67,7 @@
 | 输出初筛 | [S20_output_screen.gif](./S20_output_screen.gif) | 输出第一道粗筛，省主模型 token（选择力弱于大模型，如实说明） |
 | 内容三级门 | [S21_content_gate.gif](./S21_content_gate.gif) | 放行/复核/拦截三级，灰带转人工，不当唯一守门员 |
 | 选项洗牌不变 | [S22_flip_invariance.gif](./S22_flip_invariance.gif) | 选项顺序打乱后判定不变：翻转率 0.0300 |
-| 双语并排 | [S23_bilingual.gif](./S23_bilingual.gif) | 同一判定中英并排，en 0.84 / zh 0.83 |
+| 双语并排 | [S23_bilingual.gif](./S23_bilingual.gif) | 同一判定中英并排，en 0.797 / zh 0.789 |
 | 三行上手 | [S24_quickstart.gif](./S24_quickstart.gif) | pip install → 启动 → POST 判定，全流程演示 |
 
 
@@ -76,7 +76,7 @@
 | 场景 | 文件 | 一句话 |
 |---|---|---|
 | 本地 vs API 竞速 | [G25_race_local_vs_api.gif](./G25_race_local_vs_api.gif) | 同一决策：本地 18.6ms vs API 往返 1.51s（81×） |
-| token 省费 | [G26_token_savings.gif](./G26_token_savings.gif) | 100 个决策：54 本地 / 46 升级 · 大模型调用 −54%（τ=0.5 档 82.8%） |
+| token 省费 | [G26_token_savings.gif](./G26_token_savings.gif) | 100 个决策：54 本地 / 46 升级 · 大模型调用 −54.4%（τ=0.5 档 82.8%） |
 | 服务不可达默认不放行 | [G27_failclosed.gif](./G27_failclosed.gif) | 服务挂掉 → 默认拒绝，绝不静默放行 |
 
 ## 诚实标注

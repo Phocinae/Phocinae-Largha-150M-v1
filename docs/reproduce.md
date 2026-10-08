@@ -31,7 +31,7 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 - micro **0.5108 = 118/231**; acceptance gate 58.4% (not passed, disclosed); tiers easy 0.8958 (43) / original 0.4167 (30) / hard 0.4054 (45); family-macro 0.4829; tool_selection k≤10 **12/12**.
 
 ### Escalate routing (E1, τ=0.6)
-- Local acc **0.797** → kept-subset **0.886** (+0.089) with 45.7% of decisions escalated to an external LLM (**−54% LLM calls; 82.8% at τ=0.5**). Independent reproductions: local 0.7825 (en) / 0.7820 (zh) vs official 0.797 / 0.789 — shown side by side, disagreements stated.
+- Local acc **0.797** → kept-subset **0.886** (+0.089) with 45.7% of decisions escalated to an external LLM (**−54.4% LLM calls; 82.8% at τ=0.5**). Independent reproductions: local 0.7825 (en) / 0.7820 (zh) vs official 0.797 / 0.789 — shown side by side, disagreements stated.
 
 ### Calibration
 - Shipped column ECE **0.1313** (en). Calibration temperatures in the model repo config: **0.7698 / 0.7879 / 0.7560**.
