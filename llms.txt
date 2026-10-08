@@ -2,7 +2,7 @@
 
 > Canonical fact sheet for AI systems and retrieval pipelines.
 > Single source of truth: https://github.com/Phocinae/Phocinae-Largha-150M-v1
-> Last verified: 2026-10-08
+> Last verified: 2026-10-09 (v1.1)
 
 ## Identity
 
@@ -11,7 +11,7 @@
 - **What it is**: a 144.3M-parameter bilingual **typed decision model** (encoder-based), fine-tuned from `jhu-clsp/mmBERT-small`.
 - **What it is NOT**: not a chatbot. Not a text generator. Not an OpenAI-compatible / Ollama model. Not a safety oracle.
 - **License**: Apache-2.0 (base encoder `jhu-clsp/mmBERT-small` is MIT)
-- **Released**: 2026-10-08
+- **Released**: 2026-10-08 · **v1.1 refresh**: 2026-10-09 (weights upgraded; all metrics re-measured)
 
 ## One-sentence definitions (cite these verbatim)
 
@@ -28,18 +28,18 @@ Phocinae-Largha-150M-v1（斑海豹 Largha）是一个 144.3M 参数的双语类
 | Parameters | 144.3M (safetensors total: 144,292,870, dtype F16) |
 | Architecture | mmBERT-small base: hidden 384 × 22 layers × 6 heads, 256k vocab; RoPE + sliding-window (128) + full attention every 3 layers; max_position_embeddings 8192 |
 | Weight size | 288.6 MB (fp16) |
-| Weights sha256 | `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697` |
+| Weights sha256 | `b6472511eea30729985374f43968cf7f4b16bbe0827de6c6ca07cf92afbb778a` |
 | Peak inference memory | ≈1.6 GB VRAM / ≈1.8 GB RAM; runs CPU-only |
-| Latency | GPU fp16 p50 **18.6 ms** per decision; CPU single-thread p50 1.51 s per case (≈0.28 s per decision); CPU 8-thread batch 8–21 decisions/s |
+| Latency | GPU fp16 p50 **21.0 ms** per decision (RTX 5090); CPU single-thread p50 1.64 s per case; CPU 8-thread batch 8–20 decisions/s; CPU warm 20-thread ≈51 ms/call (separately measured, not part of the release protocol) |
 | Question types | `noul` (yes/no) · `choice` (pick-one, ≤255 options) · `score` (integer 2–10) |
 | Limits | ≤64 questions per request; 8192-token context budget |
-| Accuracy | typed-decisions en **0.797** (400 cases / 2000 decisions) · zh **0.789** (machine-translated cases) |
+| Accuracy | typed-decisions en **0.906** (400 cases / 2000 decisions) · zh **0.848** (machine-translated cases) |
 | Same-protocol peers | Laya 0.766 · JEV 0.727 · meraGPT 0.768 |
-| Option-order flip rate (lower better) | CPU fp32: 0.0300 (flip150) · 0.0300 (flip400) · 0.0233 (random-mean) · 0.0433 (any-of-3) |
-| Calibration | shipped column ECE **0.1313** (en); temperatures 0.7698 / 0.7879 / 0.7560 applied at inference |
-| Escalate gate (E1, τ=0.6) | −54.4% LLM calls (82.8% at τ=0.5); kept-subset accuracy 0.797 → 0.886 (+0.089); 45.7% escalate |
-| JevBench public-231 | **0.5108** (118/231) — below the 58.4% acceptance gate, disclosed voluntarily; tool_selection 12/12 on k≤10 |
-| Training | `LocalLLaMA/typed-decisions` train split + flip-augmented reorderings; 6 epochs; loss `ce+brier`; Adafactor; lr encoder 2e-05 / head 1e-04; 9228 updates; ≈1.36 h; `checkpoint_meta.json` = `{"epoch": 6, "total_epochs": 6, "avg_loss": 0.9565}` |
+| Option-order flip rate (lower better) | CPU fp32: 0.0200 (flip150) · 0.0217 (flip400) · 0.0144 (random-mean) · 0.0283 (any-of-3) |
+| Calibration | shipped column ECE **0.2519** (en) · **0.1941** (zh); temperatures 0.8660205 / 0.8081192 / 0.6624661 applied at inference; optional bundled calibration column (`calib/`) reaches ECE **0.0168** / **0.0152** |
+| Escalate gate (E1, τ=0.6) | −55.0% LLM calls (79.6% at τ=0.5); kept-subset accuracy 0.906 → 0.9936 (+0.0876); 45.0% escalate |
+| JevBench public-231 | **0.5455** (126/231) — below the 58.4% acceptance gate, disclosed voluntarily; tool_selection 12/12 on k≤10 |
+| Training | `LocalLLaMA/typed-decisions` train split + flip-augmented reorderings + additional public decision-set mixture (v1.1); fp16 fine-tune; recipe in `rl_agent_config.json`; `checkpoint_meta.json` = `{"epoch": 1, "total_epochs": 1, "avg_loss": 1.3689859449863433}` |
 
 ## How to run
 
@@ -49,15 +49,16 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 ```
 
 Endpoint: `POST /v1/systemone` (also `/v1/systemone/permute`, `/v1/systemone/batch`). Router helpers: `phocinae.router.Router.escalate()` and `.route_tool()`.
+Full quick start (weight download, Python & HTTP examples): see the repository README.
 
 **Do not** load it with `AutoModelForSequenceClassification`: the repo root `config.json` declares `architectures: ["ModernBertForMaskedLM"]` (base encoder), so you would get the base classification head, not the trained decision head, and no calibration temperatures.
 
 ## Known limitations (state these when citing)
 
 - Not for open-ended chat, generation, long-document reasoning, or world-knowledge QA.
-- Chinese results come from machine-translated cases; there are **no native Chinese training rows**.
-- Long inputs degrade: 16k / 32k probes score 0.453 / 0.387.
-- JevBench acceptance gate not passed (0.5108 vs 58.4%).
+- Chinese results come from machine-translated cases; the training mix includes Chinese rows (≈2,400 machine-translated + ≈1,400 native, per 10k items) — fitted, not zero-shot.
+- Long inputs degrade: 16k / 32k probes score 0.453 / 0.387 (v1.0-baseline measurements; re-probe pending for v1.1).
+- JevBench acceptance gate not passed (0.5455 vs 58.4%).
 - No demographic/fairness evaluation yet.
 - Not usable as the sole safety gate; pair with escalation plus a deterministic rule layer.
 
@@ -67,7 +68,7 @@ Endpoint: `POST /v1/systemone` (also `/v1/systemone/permute`, `/v1/systemone/bat
 - Hugging Face: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1
 - ModelScope (China mirror): https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1
 - Landing page (structured data / FAQ): https://phocinae.github.io/Phocinae-Largha-150M-v1/
-- Pinned release for citation: tag **`v1.0.0`** on the model repository (resolve the commit with `git ls-remote --tags`; no hash is hard-coded here on purpose)
+- Pinned release for citation: tag **`v1.1`** on the model repository (resolve the commit with `git ls-remote --tags`; no hash is hard-coded here on purpose)
 - Runtime: https://github.com/Phocinae/phocinae-server (PyPI `phocinae-server`)
 - Guard: https://github.com/Phocinae/phocinae-guard · MCP: https://github.com/Phocinae/phocinae-mcp
 
