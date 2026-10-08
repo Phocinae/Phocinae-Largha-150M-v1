@@ -50,6 +50,7 @@ widget:
   <img alt="Typed ACC" src="https://img.shields.io/badge/Typed%20ACC-en%200.797%20%2F%20zh%200.789-brightgreen?style=flat-square">
   <img alt="Latency" src="https://img.shields.io/badge/Latency-18.6ms%20GPU%20fp16-9cf?style=flat-square">
   <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/Phocinae/Phocinae-Largha-150M-v1?style=flat-square&logo=github"></a>
+  <a href="https://phocinae.github.io/Phocinae-Largha-150M-v1/"><img alt="Site" src="https://img.shields.io/badge/Site-live-brightgreen?style=flat-square"></a>
   <img alt="HF Downloads" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhuggingface.co%2Fapi%2Fmodels%2FPhocinae%2FPhocinae-Largha-150M-v1&query=%24.downloads&label=HF%20Downloads&color=orange&style=flat-square">
 </p>
 
@@ -60,7 +61,7 @@ widget:
   <p><em>一斑见全豹，一点定全局。</em> / <em>Spotted seal. Spot-on calls.</em></p>
 </div>
 
-斑海豹 **Largha**, the spotted seal: a **144.3M bilingual decision model** (150M-class) for structured decisions — one forward pass per decision, on your own hardware. Not a chat model: it takes a `state` plus a list of typed questions (`noul` yes/no · `choice` pick-one · `score` 2–10) and returns calibrated answers with confidence, robust to option reordering. Downloads: [Hugging Face](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) · [GitHub](https://github.com/Phocinae/Phocinae-Largha-150M-v1) · [ModelScope 魔搭](https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1) · 中文: [FAQ 中文版](docs/faq.zh.md) · [场景演示画廊](docs/gallery/README_cn.md).
+斑海豹 **Largha**, the spotted seal: a **144.3M bilingual decision model** (150M-class) for structured decisions — one forward pass per decision, on your own hardware. Not a chat model: it takes a `state` plus a list of typed questions (`noul` yes/no · `choice` pick-one · `score` 2–10) and returns calibrated answers with confidence, robust to option reordering. Downloads: [Hugging Face](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) · [GitHub](https://github.com/Phocinae/Phocinae-Largha-150M-v1) · [ModelScope 魔搭](https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1) · [官网 / Landing page](https://phocinae.github.io/Phocinae-Largha-150M-v1/) · 中文: [FAQ 中文版](docs/faq.zh.md) · [场景演示画廊](docs/gallery/README_cn.md).
 
 ## TL;DR
 
@@ -172,6 +173,13 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 - [typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions) (Apache-2.0, LocalLLaMA HF org) — protocol & test data
 - [mmBERT-small](https://huggingface.co/jhu-clsp/mmBERT-small) (JHU CLSP) — base encoder
 - [JevBench](https://github.com/fstandhartinger/JevBench) — held-out protocol used for disclosure
+
+## Version & machine-readable sources
+
+- **This release**: `v1.0.0` — pinned tag on the model repository (resolves to commit `9ea45b46`), for reproducible citation.
+- **Machine-readable facts** (same numbers as this card, for AI systems and retrieval pipelines): [llms.txt](./llms.txt)
+- **Citation metadata**: [CITATION.cff](./CITATION.cff)
+- **Landing page** (mirrors this card, with structured data): https://phocinae.github.io/Phocinae-Largha-150M-v1/
 
 ## Citation
 
