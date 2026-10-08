@@ -25,7 +25,7 @@
 | typed-decisions en (400 cases / 2000 decisions) | **0.797** — Laya 0.766 · JEV 0.727 · meraGPT 0.768 (same protocol) |
 | typed-decisions zh (translated cases, no zh training rows) | **0.789** |
 | option-order flip robustness (lower is better) | CPU fp32: flip150 **0.0300** · flip400 **0.0300** · random-mean **0.0233** · any **0.0433** (GPU fp16 0.027/0.028, note only) |
-| inference latency | GPU fp16 p50 **18.6 ms** · CPU single-thread p50 **1.51 s per case** (1 case = 1 state + 5 questions, single forward pass; ≈0.28 s per decision) · CPU 8-thread batch **8–21 decisions/s** |
+| inference latency | GPU fp16 p50 **18.6 ms** · CPU single-thread p50 **1.51 s per case** (1 case = 1 state + 5 questions, single forward pass; ≈0.28 s per decision) · CPU 8-thread batch **8–21 decisions/s** · CPU warm, 20-thread, 1 state + 3 questions (separately measured) **≈51 ms per call ≈17 ms per decision** |
 | JevBench public-231 | **0.5108** (118/231) — below the 58.4% gate, disclosed honestly; tool_selection 12/12 |
 | escalate routing (E1 gate, τ=0.6) | **+0.089 kept-subset acc** (0.797→0.886 (kept subset)) while **−54.4% LLM cost (82.8% at τ=0.5)** (45.7% escalate to LLM) |
 | calibration | shipped column ECE **0.1313**; calibration temperatures 0.7698/0.7879/0.7560 (applied at inference) |
@@ -62,13 +62,42 @@ Full numbers, methodology, and evidence: **[BENCHMARKS.md](./BENCHMARKS.md)**.
 
 ## Quick start — phocinae-server
 
+> `phocinae-server` ships the **runtime**, not the weights — fetch the weights first (step 1).
+
 The official runtime is **[phocinae-server](https://github.com/Phocinae/phocinae-server)**: a local FastAPI service (127.0.0.1 only) that loads these weights with a pure PyTorch forward (no extra runtime needed). Full spec: [docs/protocol.md](./docs/protocol.md). Hardware tiers: [docs/deployment.md](./docs/deployment.md).
 ```bash
+# 1) get the weights (either CLI works; `hf` is the newer one)
+hf download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./largha
+#   older huggingface_hub releases:
+#   huggingface-cli download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./largha
+
+# 2) install the runtime and point it at that directory
 pip install phocinae-server
-PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http://127.0.0.1:8155
+PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155
 ```
 
-One decision:
+The directory produced by that download is exactly the layout `PHOC_MODEL_DIR`
+expects (`model.safetensors`, `encoder/`, `tokenizer/`, `rl_agent_config.json`).
+
+From Python (the same engine the server uses):
+
+```python
+from phocinae.engine import Engine
+
+eng = Engine("./largha", device="cpu")   # device="auto" selects CUDA when present
+answers, confidence, action, usage = eng.run(
+    "The agent restarted nginx after checking the logs and the health endpoint is green.",
+    [{"id": "ok",   "type": "noul"},
+     {"id": "act",  "type": "choice", "options": ["allow", "ask", "deny"]},
+     {"id": "risk", "type": "score"}],
+)
+# answers    -> {'ok': False, 'act': 2, 'risk': 2}
+# confidence -> {'ok': 0.7486, 'act': 0.4343, 'risk': 0.1786}
+# usage      -> {'input_tokens': 146, 'output_tokens': 0}
+# pass with_scores=True to get a 5th value (per-option scores)
+```
+
+One decision over HTTP:
 ```bash
 curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -d '{
   "model": "Phocinae-Largha-150M-v1",
@@ -91,6 +120,12 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
   "routing": {"model": "Phocinae-Largha-150M-v1", "device": "cpu", "perm": "none", "backend": "phocinae-pure-torch"}
 }
 ```
+
+> **Known limitation in tool routing.** `Router.route_tool()` confuses semantically
+> close tool names. Reproducible case: state *"The user wants to find the latest news
+> about the product launch."* with the six tools `web_search / read_file / run_command /
+> list_files / fetch_url / ask_user` returns **`fetch_url`**, not `web_search`, at
+> confidence ≈0.33. Treat low-confidence tool picks as escalate-worthy rather than final.
 
 `answers` values: `noul` = bool · `choice` = 0-based option index · `score` = integer 2–10. Errors: **422** (unknown model/type, >64 questions, choice without options, score with options, threshold outside [0,1]) · **413** (>2 MiB body) · **401** (bearer token). Extension keys `answer_confidence` / `action` / `routing` can be disabled with `PHOC_EXTENSIONS=0`.
 
@@ -130,7 +165,9 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 ## Version & machine-readable sources
 
-- **This release**: `v1.0.0` — pinned tag on the model repository (resolves to commit `9ea45b46`), for reproducible citation.
+- **This release**: `v1.0.0` — pinned tag on the model repository, for reproducible citation.
+  Resolve its commit with `git ls-remote --tags https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1`.
+  (No commit hash is written into this file on purpose: it would go stale on the next commit.)
 - **Machine-readable facts** (same numbers as this card, for AI systems and retrieval pipelines): [llms.txt](./llms.txt)
 - **Citation metadata**: [CITATION.cff](./CITATION.cff)
 - **Landing page** (mirrors this card, with structured data): https://phocinae.github.io/Phocinae-Largha-150M-v1/
