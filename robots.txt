@@ -1,0 +1,35 @@
+User-agent: *
+Allow: /
+
+# LLM / AI 爬虫显式放行（多数平台默认已允许，这里显式声明以示友好）
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: PetalBot
+Allow: /
+
+Sitemap: https://phocinae.github.io/Phocinae-Largha-150M-v1/sitemap.xml

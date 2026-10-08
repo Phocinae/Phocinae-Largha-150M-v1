@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phocinae-Largha-150M-v1（斑海豹 Largha）· 144.3M 双语类型化决策模型 — 本地运行、无需 GPU</title>
+<meta name="description" content="Phocinae-Largha-150M-v1（斑海豹 Largha）是一个 144.3M 参数的双语类型化决策模型，不是聊天模型：输入状态与带类型的提问（是否 / 多选一 / 打分），一次前向传播返回带标定置信度的答案，输出零生成 token，GPU 上单次决策 18.6 ms、无 GPU 也能跑，把 AI Agent 里 54.4% 的 LLM 调用留在本机。Apache-2.0。">
+<meta name="keywords" content="Phocinae-Largha-150M-v1, 斑海豹 Largha, 本地决策模型, 类型化决策, typed decision model, small decision model, agent 审批, command approval model, 降低 LLM 成本, reduce LLM API cost, mmBERT, ModernBERT, CPU 推理, 无需 GPU, zero output tokens, calibrated confidence">
+<meta name="author" content="Phocinae Project">
+<link rel="canonical" href="https://phocinae.github.io/Phocinae-Largha-150M-v1/">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph / 社交与聚合站摘要（决定被转载时显示什么） -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Phocinae-Largha-150M-v1（斑海豹 Largha）· 144.3M 双语类型化决策模型">
+<meta property="og:description" content="不是聊天模型，是决策模型：状态 + 类型化提问 → 一次前向传播返回带标定置信度的答案，零生成 token。GPU 18.6 ms/决策，CPU 也能跑，把 Agent 里 54.4% 的 LLM 调用留在本机。Apache-2.0。">
+<meta property="og:url" content="https://phocinae.github.io/Phocinae-Largha-150M-v1/">
+<meta property="og:image" content="https://raw.githubusercontent.com/Phocinae/Phocinae-Largha-150M-v1/main/figures/C1_typed_acc_comparison.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Phocinae-Largha-150M-v1 · 144.3M 双语类型化决策模型">
+<meta name="twitter:description" content="状态 + 类型化提问 → 一次前向传播返回带标定置信度的答案，零生成 token。GPU 18.6 ms/决策，无需 GPU 也能跑。Apache-2.0。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Phocinae/Phocinae-Largha-150M-v1/main/figures/C1_typed_acc_comparison.png">
+
+<style>
+:root{
+  --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --line:#2b3444;
+  --fg:#e6edf3; --muted:#9aa7b6; --accent:#6ea8fe; --ok:#3fb950; --warn:#d29922;
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#ffffff; --panel:#f6f8fa; --panel2:#eef1f5; --line:#d8dee4;
+         --fg:#1f2328; --muted:#59636e; --accent:#0969da; --ok:#1a7f37; --warn:#9a6700; }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",Helvetica,Arial,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:32px 20px 80px}
+header{text-align:center;padding:24px 0 8px;border-bottom:1px solid var(--line)}
+h1{font-size:1.9rem;margin:16px 0 8px;line-height:1.3}
+h2{font-size:1.25rem;margin:40px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:1.05rem;margin:24px 0 6px}
+p,li{color:var(--fg)}
+.muted{color:var(--muted)}
+.tagline{font-size:1.05rem;margin:6px 0}
+.lead{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:8px;padding:16px 18px;margin:22px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.94rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel2);font-weight:600;width:34%}
+code{background:var(--panel2);padding:2px 6px;border-radius:4px;font-size:.9em;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-size:.86rem}
+pre code{background:none;padding:0}
+.links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0 4px}
+.links a{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
+  padding:8px 14px;color:var(--accent);text-decoration:none;font-weight:600;font-size:.92rem}
+.links a:hover{border-color:var(--accent)}
+.not{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:14px 0}
+.not strong{color:var(--warn)}
+img.chart{max-width:100%;border:1px solid var(--line);border-radius:8px;margin:10px 0}
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:.86rem;text-align:center}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img src="https://raw.githubusercontent.com/Phocinae/Phocinae-Largha-150M-v1/main/figures/logo_phocinae.png" width="140" alt="斑海豹 Phocinae logo">
+  <h1>斑海豹 · Phocinae-Largha-150M-v1</h1>
+  <p class="tagline"><strong>小海豹，大决断。</strong><span class="muted"> / Tiny model. Big decisions.</span></p>
+  <p class="tagline muted"><em>一斑见全豹，一点定全局。</em></p>
+  <div class="links">
+    <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1">GitHub 仓库</a>
+    <a href="https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1">Hugging Face</a>
+    <a href="https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1">ModelScope 魔搭</a>
+    <a href="https://pypi.org/project/phocinae-server/">PyPI phocinae-server</a>
+  </div>
+</header>
+
+<div class="lead">
+  <p><strong>Phocinae-Largha-150M-v1（斑海豹 Largha）是一个 144.3M 参数的双语类型化决策模型，不是聊天模型。</strong>输入一段状态文本 <code>state</code> 与一组带类型的提问（<code>noul</code> 是否 · <code>choice</code> 多选一 · <code>score</code> 2–10 打分），它在<strong>一次前向传播</strong>内返回带标定置信度的答案，<strong>输出零个生成 token</strong>，且答案对选项顺序不敏感。GPU 上单个决策 <strong>18.6 ms</strong>，权重 <strong>288.6 MB</strong>，无需 GPU 也能运行。Apache-2.0。</p>
+</div>
+
+<h2 id="what">这是什么？</h2>
+<p>Phocinae-Largha-150M-v1（英文名 Largha，中文名斑海豹）是一个基于 <code>jhu-clsp/mmBERT-small</code> 微调的 <strong>encoder 决策模型</strong>，参数 144.3M。它被设计用来承担 AI Agent 会话里<strong>重复出现且选项封闭</strong>的决策——命令审批、工具选择、步骤校验、输出筛查——把这类调用从大模型 API 搬回本机执行。</p>
+<p>它的判断方式不是"生成一段话再解析"，而是把每个提问当作一次分类：问题类型决定输出形态，模型直接在封闭标签集上给出概率分布。因此它<strong>不采样、不产生格式解析失败、固定 batch 形状下逐位可复现</strong>。</p>
+
+<h3>它是什么 / 它不是什么</h3>
+<div class="not">
+  <p><strong>是：</strong>结构化决策 · 审批门 · 工具路由 · 置信度升级 · 文档分诊 · 步骤校验 · 输出筛查；任何需要"快、省、本地"决策层的地方。</p>
+  <p><strong>不是：</strong>开放对话 / 文本生成 · 长文档推理 · 世界知识问答 · 唯一安全防线。</p>
+  <p><strong>也不是：</strong>OpenAI 兼容接口 / Ollama 模型 / 聊天补全 API——官方运行时<strong>刻意不实现</strong>这些，因为它不是聊天模型。</p>
+</div>
+
+<h2 id="facts">关键事实</h2>
+<table>
+  <tr><th>参数量</th><td><strong>144.3M</strong>（safetensors 实测 total 144,292,870，dtype F16）</td></tr>
+  <tr><th>结构</th><td>mmBERT-small 基座：hidden 384 × 22 层 × 6 头，256k 词表，RoPE + 滑窗(128) + 每 3 层全局注意力；<code>max_position_embeddings</code> 8192</td></tr>
+  <tr><th>权重体积</th><td><strong>288.6 MB</strong>（fp16）· sha256 <code>db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697</code></td></tr>
+  <tr><th>推理内存</th><td>约 1.6 GB 显存 / 约 1.8 GB 内存 · <strong>无 GPU 可运行</strong></td></tr>
+  <tr><th>输出</th><td>零生成 token；<code>noul</code>=布尔 · <code>choice</code>=0 基下标 · <code>score</code>=2–10 整数，均附标定置信度</td></tr>
+  <tr><th>延迟</th><td>GPU fp16 p50 <strong>18.6 ms</strong>/决策 · CPU 单线程 p50 1.51 秒/用例（约 0.28 秒/决策）· CPU 8 线程批处理 8–21 决策/秒</td></tr>
+  <tr><th>准确率</th><td>typed-decisions en <strong>0.797</strong>（400 用例 / 2000 决策）· zh <strong>0.789</strong>（机翻用例，无中文原生训练行）</td></tr>
+  <tr><th>同协议对照</th><td>Laya 0.766 · JEV 0.727 · meraGPT 0.768</td></tr>
+  <tr><th>选项顺序翻转率</th><td>越低越好：CPU fp32 flip150 <strong>0.0300</strong> · flip400 0.0300 · random-mean 0.0233 · any-of-3 0.0433</td></tr>
+  <tr><th>升级门收益</th><td>τ=0.6：LLM 调用 <strong>−54.4%</strong>（τ=0.5 档 −82.8%），保留集准确率 0.797 → <strong>0.886</strong>，45.7% 升级</td></tr>
+  <tr><th>标定</th><td>出厂列 ECE <strong>0.1313</strong>（en）；标定温度 0.7698 / 0.7879 / 0.7560，推理时应用</td></tr>
+  <tr><th>许可</th><td><strong>Apache-2.0</strong>（基座 <code>jhu-clsp/mmBERT-small</code> 为 MIT）</td></tr>
+</table>
+
+<img class="chart" src="https://raw.githubusercontent.com/Phocinae/Phocinae-Largha-150M-v1/main/figures/C1_typed_acc_comparison.png" alt="typed-decisions 准确率对比：本模型 0.797 (en) / 0.789 (zh)，Laya 0.766，JEV 0.727，meraGPT 0.768">
+<img class="chart" src="https://raw.githubusercontent.com/Phocinae/Phocinae-Largha-150M-v1/main/figures/C7_routing_savings.png" alt="升级路由：τ=0.6 时 LLM 调用减少 54.4%，保留集准确率 0.797 升至 0.886">
+
+<h2 id="quickstart">快速开始</h2>
+<pre><code>pip install phocinae-server
+# 下载权重到本地目录，例如 ./largha
+PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155</code></pre>
+<p>一次决策：</p>
+<pre><code>curl -s http://127.0.0.1:8155/v1/systemone \
+  -H 'Content-Type: application/json' -d '{
+  "model": "Phocinae-Largha-150M-v1",
+  "state": "The agent restarted nginx after checking the logs and the health endpoint is green.",
+  "questions": [
+    {"id": "ok",   "type": "noul",   "threshold": 0.65},
+    {"id": "act",  "type": "choice", "options": ["allow", "ask", "deny"]},
+    {"id": "risk", "type": "score"}
+  ]
+}'</code></pre>
+<p>服务只监听 <code>127.0.0.1</code>；一次请求最多 64 题，上下文预算 8192 token。协议全文见 <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/docs/protocol.md">docs/protocol.md</a>。</p>
+
+<h2 id="faq">常见问题</h2>
+
+<h3>Phocinae-Largha-150M-v1 是什么？</h3>
+<p>一个 144.3M 参数的双语类型化决策模型（encoder-based），在 <code>jhu-clsp/mmBERT-small</code> 上微调。它接收状态文本与类型化问题，输出带标定置信度的答案，不做文本生成、不采样。</p>
+
+<h3>它和聊天模型 / 大语言模型有什么区别？</h3>
+<p>聊天模型生成 token，用它做"允许还是拒绝"这类决策要付出 500–4,000 token 的 API 往返与 1.5 秒以上延迟；本模型用一次前向传播、零输出 token 完成同一个决策，本地 18.6 ms（GPU）或约 0.28 秒/决策（CPU 单线程）。</p>
+
+<h3>什么时候该用它，什么时候该用大模型？</h3>
+<p>判断标准是"决策是否重复且选项封闭"。命令审批、工具选择（k≤10）、步骤校验、输出筛查属于此列，交给本机；开放式推理、多轮对话、长文档理解交给大模型。配合 τ=0.6 置信度门，只有 45.7% 的不确定决策会上行。</p>
+
+<h3>能省多少成本？</h3>
+<p>τ=0.6 升级门把 LLM 调用削减 54.4%（τ=0.5 档 82.8%），同时保留集准确率从 0.797 升到 0.886。按每月 1 万次被路由决策估算，约省 11.4M LLM token，约合 <strong>326 美元/年</strong>（按 Claude Sonnet 5 列表价、2026 年 10 月估算，仅为估算）。</p>
+
+<h3>需要什么硬件？</h3>
+<p>无 GPU 可运行：4 GB 内存 + 8 GB 存储即可试用（CPU 单线程 1.4–1.7 秒/用例）。推荐 16 GB 内存 + 8 GB 以上显存 + 512 GB NVMe，可达 18.6–25 ms/决策。</p>
+
+<h3>中文效果怎么样？</h3>
+<p>在机翻的英文用例上测得 0.789（英文同集 0.797）。<strong>没有中文原生训练行</strong>，请把中文成绩视为跨语言迁移证据，而不是中文优化结果。</p>
+
+<h3>可以直接用 transformers 加载吗？</h3>
+<p>不推荐。仓库根目录 <code>config.json</code> 的 <code>architectures</code> 仍是基座的 <code>ModernBertForMaskedLM</code>；用 <code>AutoModelForSequenceClassification</code> 得到的是基座分类头，并非训练好的 decision head，也不含标定温度。请使用官方运行时 <code>phocinae-server</code>（纯 PyTorch 自写前向，直读 safetensors）。</p>
+
+<h3>能当安全门或唯一防线用吗？</h3>
+<p>不能。它是一线决策辅助：需要与升级机制（τ=0.6 门会把 45.7% 不确定项交出去）和确定性规则层配合使用，绝不可作为破坏性/安全关键操作的唯一控制。</p>
+
+<h3>主要局限有哪些？</h3>
+<p>不擅长生成、长文档推理、世界知识问答；中文仅机翻；长输入退化（16k / 32k 探针 0.453 / 0.387）；JevBench 公开集未达验收门槛（0.5108 vs 58.4%，已主动披露）；尚无人口统计学/公平性评估。</p>
+
+<h3>从哪里下载？</h3>
+<p><a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1">GitHub</a>（完整文档与复现材料）· <a href="https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1">Hugging Face</a> · <a href="https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1">ModelScope 魔搭</a>（国内推荐）。运行时：<a href="https://pypi.org/project/phocinae-server/">PyPI phocinae-server</a>。</p>
+
+<h2 id="disclosure">诚实披露</h2>
+<ul>
+  <li><strong>JevBench public-231：0.5108（118/231），未达 58.4% 验收门槛。</strong>数字按实测发布，且从未在评测行上训练；tool_selection（k≤10）为 12/12。</li>
+  <li>中文成绩来自机翻用例，没有中文原生训练行。</li>
+  <li>翻转率按选项重排协议测量（越低越好）：CPU fp32 0.0300 / 0.0300（flip150 / flip400 反向）· random-mean 0.0233 · any-of-3 0.0433。GPU fp16 0.027 / 0.028 与 1k 行 0.0187 / 0.0205 / 0.0431 是不同协议的备注值。</li>
+  <li>标定：出厂列 en ECE <strong>0.1313</strong>。一项达到 0.0106 的推荐重标定列<strong>并未随权重发布</strong>。</li>
+</ul>
+
+<h2 id="cite">引用</h2>
+<pre><code>@misc{phocinae2026largha,
+  title   = {Phocinae-Largha-150M-v1: A 144M-parameter bilingual typed decision model},
+  author  = {Phocinae Project},
+  year    = {2026},
+  url     = {https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1},
+  license = {Apache-2.0}
+}</code></pre>
+<p>完整文档：<a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1#readme">README</a> · <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md">BENCHMARKS.md</a> · <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/MODEL_CARD.md">MODEL_CARD.md</a> · <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/docs/reproduce.md">复现协议</a></p>
+
+<footer>
+  <p>Phocinae-Largha-150M-v1 · Apache-2.0 · 上游数据源：GitHub / Hugging Face / ModelScope<br>
+  本页所有数字与仓库 README、BENCHMARKS.md 保持一致；如有出入，以仓库为准。</p>
+</footer>
+
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://phocinae.github.io/Phocinae-Largha-150M-v1/#model",
+      "name": "Phocinae-Largha-150M-v1",
+      "alternateName": ["Largha", "斑海豹 Largha", "Phocinae-Largha", "Largha 150M"],
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Machine Learning Model",
+      "operatingSystem": "Linux, macOS, Windows",
+      "softwareVersion": "v1",
+      "datePublished": "2026-10-08",
+      "license": "https://www.apache.org/licenses/LICENSE-2.0",
+      "description": "Phocinae-Largha-150M-v1 is a 144.3M-parameter bilingual typed decision model built on mmBERT-small. It is not a chatbot: given a state plus typed questions (noul yes/no, choice pick-one, score 2-10) it returns calibrated answers with confidence in a single forward pass, emitting zero output tokens.",
+      "softwareHelp": "https://github.com/Phocinae/Phocinae-Largha-150M-v1",
+      "downloadUrl": "https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "sameAs": [
+        "https://github.com/Phocinae/Phocinae-Largha-150M-v1",
+        "https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1",
+        "https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1",
+        "https://pypi.org/project/phocinae-server/"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://phocinae.github.io/Phocinae-Largha-150M-v1/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Phocinae-Largha-150M-v1?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Phocinae-Largha-150M-v1 is a 144.3M-parameter bilingual typed decision model built on mmBERT-small. It is not a chatbot: it takes a state plus typed questions (noul yes/no, choice pick-one, score 2-10) and returns calibrated answers with confidence in a single forward pass, emitting zero output tokens."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is it different from a chat model or LLM?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A chat model generates tokens; using one for an allow-or-deny decision costs a 500-4,000 token API round-trip and over 1.5 seconds of latency. This model performs the same decision in one forward pass with zero output tokens: 18.6 ms on GPU, or about 0.28 s per decision single-threaded on CPU."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does it reduce LLM cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "At a tau=0.6 confidence gate it cuts LLM calls by 54.4% (82.8% at tau=0.5) while kept-subset accuracy rises from 0.797 to 0.886. For 10k routed decisions per month it saves roughly 11.4M LLM tokens, about USD 326 per year at Claude Sonnet 5 list prices (October 2026, estimate only)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What hardware does it need?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It runs without a GPU: 4 GB RAM and 8 GB storage is enough to try it. Weights are 288.6 MB and inference peaks at about 1.6 GB VRAM or 1.8 GB RAM. A recommended setup is 16 GB RAM with 8 GB+ VRAM, reaching 18.6-25 ms per decision."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with OpenAI-compatible APIs or Ollama?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No, deliberately not. The official runtime phocinae-server exposes only POST /v1/systemone on 127.0.0.1 and does not implement chat, Ollama, or OpenAI-compatible endpoints, because this is not a chat model."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it be loaded directly with transformers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not recommended. The repository root config.json declares architectures as ModernBertForMaskedLM (the base encoder), so AutoModelForSequenceClassification yields the base classification head, not the trained decision head, and no calibration temperatures. Use phocinae-server instead."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How good is the Chinese support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It scores 0.789 on machine-translated English typed-decisions cases, versus 0.797 on the English set. There are no native Chinese training rows, so Chinese results are cross-lingual transfer evidence rather than Chinese-specific optimisation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it be used as a safety gate?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not as the sole gate. It is a first-line decision aid and must be combined with an escalation mechanism (the tau=0.6 gate escalates the uncertain 45.7%) and a deterministic rule layer. Never use it as the only control for destructive or safety-critical actions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are its main limitations?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It is not for chat, generation, long-document reasoning or world-knowledge QA. Chinese results come from machine-translated cases. Long inputs degrade (16k and 32k probes score 0.453 and 0.387). It does not pass the JevBench public-231 acceptance gate (0.5108 against 58.4%), which is disclosed voluntarily. No demographic or fairness evaluation yet."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where can I download it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "From Hugging Face at huggingface.co/Phocinae/Phocinae-Largha-150M-v1, from GitHub at github.com/Phocinae/Phocinae-Largha-150M-v1, or from ModelScope at modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1. The runtime is installable with pip install phocinae-server."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</body>
+</html>
