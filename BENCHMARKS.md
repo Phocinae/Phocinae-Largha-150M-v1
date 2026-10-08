@@ -86,7 +86,7 @@ zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, sam
 
 ![zh anchor](figures/C9_zh_anchor.png)
 
-## 9. Context
+## 8. Context
 
 | item | value |
 |---|---|
@@ -94,7 +94,7 @@ zh typed-decisions **0.789** (translated cases). Cross-domain anchor (E5-zh, sam
 | default decision-head length | **512** (self-imposed training/inference default) |
 | 16k / 32k row probes | 0.453 / 0.387 (long-context degradation) |
 
-## 10. Parameters & storage
+## 9. Parameters & storage
 
 | item | value |
 |---|---|

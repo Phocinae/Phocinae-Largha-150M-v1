@@ -11,11 +11,11 @@
 官方运行时是 [phocinae-server](https://github.com/Phocinae/phocinae-server)（纯 torch 前向，不需要额外运行时）：
 
 ```bash
-git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server
-python -m venv .venv && . .venv/bin/activate
-pip install fastapi uvicorn torch
+pip install phocinae-server
 PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http://127.0.0.1:8155
 ```
+
+从源码安装（备选）：`git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server && pip install .`
 
 硬件三档、guard 与 MCP 部署见 [deployment.md](./deployment.md)；请求契约见 [protocol.md](./protocol.md)。
 
@@ -72,9 +72,18 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 完整清单：[MODEL_CARD.md](../MODEL_CARD.md)。
 
+## 13. 从哪里下载？有中文社区的镜像吗？
+
+- **Hugging Face**：https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1
+- **GitHub**：https://github.com/Phocinae/Phocinae-Largha-150M-v1
+- **魔搭（ModelScope）**：https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1
+- 运行时（GitHub org **Phocinae**）：phocinae-server · phocinae-guard · phocinae-mcp
+
+英文资源：FAQ 英文版 [faq.md](./faq.md) · [场景演示画廊英文版](gallery/README.md)。
+
 ## 14. 许可协议是什么？
 
-权重：**Apache-2.0**（见 LICENSE）。底座编码器 `jhu-clsp/mmBERT-small`：请查阅其上游许可。server/guard 代码：Apache-2.0。
+权重：**Apache-2.0**（见 LICENSE）。底座编码器 `jhu-clsp/mmBERT-small`：**MIT**（见 NOTICE）。server/guard 代码：Apache-2.0。
 
 ## 15. 如何引用与复现？
 

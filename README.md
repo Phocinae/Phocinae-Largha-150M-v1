@@ -37,7 +37,7 @@ thumbnail: figures/C1_typed_acc_comparison.png
 
 ![typed accuracy comparison](figures/C1_typed_acc_comparison.png)
 ![latency comparison](figures/C2_latency_comparison.png)
-![option-order invariance](figures/S22_flip_invariance.gif)
+![option-order invariance](docs/gallery/S22_flip_invariance.gif)
 ![routing savings](figures/C7_routing_savings.png)
 ![local vs API race](docs/gallery/G25_race_local_vs_api.gif)
 ![hardware tiers](figures/C10_hardware_tiers.png)

@@ -1,8 +1,11 @@
-# 场景演示动画（24 个）
+# 场景演示动画（27 个：S01–S24 场景 + G25–G27 对照与可靠性）
 
-斑海豹（Phocinae-Largha-150M-v1）的典型应用场景演示，全部为合成演示数据、逐帧渲染，数字与模型卡 [BENCHMARKS.md](../../BENCHMARKS.md) 一致。每张 GIF 首帧为结论卡，尾帧为一句总结。
+斑海豹（Phocinae-Largha-150M-v1）的典型应用场景演示，全部为合成演示数据、逐帧渲染，数字与模型卡 [BENCHMARKS.md](../../BENCHMARKS.md) 一致。每张 GIF 首帧为结论卡，尾帧为一句总结。编号说明：**S = 应用场景，G = 对照与可靠性**。[English version](./README.md)
 
 ## 代表场景
+
+<details>
+<summary>▶ 精选演示（6 张，点击展开）</summary>
 
 <div align="center">
   <img src="./S06_escalate_savings.gif" width="640"/>
@@ -18,6 +21,8 @@
   <img src="./S13_event_triage.gif" width="640"/>
   <p>实时事件分级：30fps 帧门内逐帧判定</p>
 </div>
+
+</details>
 
 ## 全部场景索引
 

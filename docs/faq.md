@@ -11,11 +11,11 @@ An encoder-based **decision model**, not a chat model. One forward pass turns a 
 The official runtime is [phocinae-server](https://github.com/Phocinae/phocinae-server) (pure-torch forward, no extra runtime needed):
 
 ```bash
-git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server
-python -m venv .venv && . .venv/bin/activate
-pip install fastapi uvicorn torch
+pip install phocinae-server
 PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http://127.0.0.1:8155
 ```
+
+From source (alternative): `git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server && pip install .`
 
 See [deployment.md](./deployment.md) for hardware tiers, guard and MCP setup, and [protocol.md](./protocol.md) for the request contract.
 
@@ -72,9 +72,18 @@ The τ=0.6 escalate gate answers ~1 of every 2 decisions locally (kept-subset ac
 
 Full list: [MODEL_CARD.md](../MODEL_CARD.md).
 
+## 13. Where else can I download it (mirrors & Chinese community)?
+
+- **Hugging Face**: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1
+- **GitHub**: https://github.com/Phocinae/Phocinae-Largha-150M-v1
+- **ModelScope (魔搭)**: https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1
+- Runtimes on GitHub org **Phocinae**: phocinae-server · phocinae-guard · phocinae-mcp
+
+中文资源：FAQ 中文版 [faq.zh.md](./faq.zh.md) · [场景演示画廊中文版](gallery/README_cn.md)。
+
 ## 14. What license applies?
 
-Weights: **Apache-2.0** (see LICENSE). Base encoder `jhu-clsp/mmBERT-small`: check its upstream license. Server/guard code: Apache-2.0.
+Weights: **Apache-2.0** (see LICENSE). Base encoder `jhu-clsp/mmBERT-small` is **MIT** (see NOTICE). Server/guard code: Apache-2.0.
 
 ## 15. How do I cite and reproduce?
 

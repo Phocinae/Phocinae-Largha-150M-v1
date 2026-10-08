@@ -34,8 +34,11 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 | wall time | ~1.36 h single GPU (tag `cf4`) |
 | checkpoint | epoch 1/1, avg_loss 0.9565 |
 
-Calibration: the temperatures **0.7698 / 0.7879 / 0.7560** ship in the model repo config and are applied at inference by phocinae-server.
-## 4. Evaluation & methodology
+## 4. Calibration
+
+The shipped column has ECE **0.1313** (en). Calibration temperatures **0.7698 / 0.7879 / 0.7560** ship in the model repo config and are applied at inference by phocinae-server. A development recalibration column reaching 0.0106 is **not shipped**.
+
+## 5. Evaluation & methodology
 
 Protocol: each case = a `state` + typed questions; every question is judged as an independent decision. en test = 400 cases × 5 = 2,000 decisions; zh = the same cases machine-translated.
 
@@ -54,7 +57,7 @@ Methodology notes:
 - Competitor figures (Laya, JEV, meraGPT) come from public leaderboards/papers on the same typed protocol.
 - Charts live in `figures/`; full tables, disclosures, and evidence pointers: [BENCHMARKS.md](../BENCHMARKS.md) and [reproduce.md](./reproduce.md).
 
-## 5. Known limitations
+## 6. Known limitations
 
 - Not a chat/generator; no long-document reasoning; MMLU-style world-knowledge probes are below par.
 - JevBench acceptance gate **not passed** (0.5108 vs 58.4%) — disclosed honestly; never trained on eval rows.
@@ -64,14 +67,14 @@ Methodology notes:
 - No demographic/fairness evaluation; the training domain (English business operations) carries language and domain biases.
 - Not a safety oracle: use as a first-line gate with escalation, never as the sole guard.
 
-## 6. Reproduction
+## 7. Reproduction
 
 1. Integrity: `sha256sum model.safetensors` → `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`.
 2. Serve: phocinae-server with `PHOC_MODEL_DIR` pointing at this repo; smoke-test `noul`/`choice`/`score` ([deployment.md](./deployment.md)).
 3. Determinism: repeat the same request → bit-identical answers.
 4. Protocols, published values, and evidence paths: [reproduce.md](./reproduce.md). The eval harness (scripts, configs, raw dumps) is published at github.com/Phocinae.
 
-## 7. References
+## 8. References
 
 - [BENCHMARKS.md](../BENCHMARKS.md) — the source of truth for all published numbers
 - [MODEL_CARD.md](../MODEL_CARD.md) — architecture, training, bias & limitations

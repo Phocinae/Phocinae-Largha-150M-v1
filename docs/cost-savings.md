@@ -8,15 +8,15 @@ The E1 gate (τ=0.6) runs one local forward pass per decision and reads `answer_
 
 ## Measured effect (typed-decisions protocol, en · 400 cases / 2,000 decisions)
 
-Official release numbers and independent reproductions are shown side by side; where they disagree, we say so.
+Official numbers (frozen 2026-10-08) and independent reproductions are shown side by side; where they disagree, we say so. Deprecated headline claims are listed in a separate column so they cannot be mistaken for current numbers.
 
-| metric | official release claim | independent reproduction |
-|---|---|---|
-| local-only accuracy (en) | 0.797 | **0.7825** |
-| kept-subset accuracy at τ=0.6 | — | **0.886** |
-| decisions escalated at τ=0.6 | 18% | **45.7%** |
-| LLM calls saved at τ=0.6 | 82% | **54.4%** |
-| LLM calls saved at τ=0.5 | — | **82.8%** |
+| metric | official (frozen 2026-10-08) | independent reproduction | deprecated claim |
+|---|---|---|---|
+| local-only accuracy (en) | **0.797** | 0.7825 / 0.7820 | 0.797 (unchanged) |
+| kept-subset accuracy at τ=0.6 | **0.886** | — | — |
+| decisions escalated at τ=0.6 | **45.7%** (45.65%) | 40.9% (deployment recompute; 41–46% range) | 18% |
+| LLM calls saved at τ=0.6 | **54.4%** | — | 82% |
+| LLM calls saved at τ=0.5 | **82.8%** (17.15% escalated; kept-subset 0.821) | — | — |
 
 **"−82% LLM calls" and "τ=0.6" cannot both be true.** At the frozen τ=0.6 the measured reduction is 54.4%; the 82.8% headline belongs to τ≈0.50 (where 17.15% of decisions escalate and kept-subset accuracy is 0.821). Both thresholds are real and tunable; the docs below quote the τ=0.6 default.
 

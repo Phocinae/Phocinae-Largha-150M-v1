@@ -1,8 +1,11 @@
-# Gallery — application scenarios
+# Gallery — 27 application scenarios (S01–S24 + G25–G27)
 
-Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 demos: 800×450, loop forever, first frame = conclusion card with key numbers, last frame = one-line takeaway. All in-frame numbers match [BENCHMARKS.md](../../BENCHMARKS.md) and [MODEL_CARD.md](../../MODEL_CARD.md).
+Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 demos: 800×450, loop forever, first frame = conclusion card with key numbers, last frame = one-line takeaway. Prefix legend: **S = application scenario, G = head-to-head & reliability**. All in-frame numbers match [BENCHMARKS.md](../../BENCHMARKS.md) and [MODEL_CARD.md](../../MODEL_CARD.md).
 
 ## Highlights
+
+<details>
+<summary>▶ Representative demos (6 selected, click to expand)</summary>
 
 <div align="center">
   <img src="./S06_escalate_savings.gif" width="640"/>
@@ -18,6 +21,8 @@ Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 dem
   <img src="./S13_event_triage.gif" width="640"/>
   <p>Real-time event triage inside a 30 fps frame budget</p>
 </div>
+
+</details>
 
 ## Index
 
@@ -68,7 +73,7 @@ Animated demos of Phocinae-Largha-150M-v1 in typical agent workflows. All 27 dem
 | S21 | content gate | [S21_content_gate.gif](./S21_content_gate.gif) | allow / review / block (0.30/0.65 dual thresholds) · gray band → human |
 | S22 | option-order invariance | [S22_flip_invariance.gif](./S22_flip_invariance.gif) | flip rate 0.0300 — same verdict after option shuffle |
 | S23 | bilingual decision | [S23_bilingual.gif](./S23_bilingual.gif) | typed acc en 0.797 / zh 0.789 · zh = translated cases |
-| S24 | quickstart in three lines | [S24_quickstart.gif](./S24_quickstart.gif) | pip install → serve → POST · hardware tiers: 4 GB no-GPU 1.5–1.7 s / 3060-class 30–60 ms / 4090-class 18.6 ms |
+| S24 | quickstart in three lines | [S24_quickstart.gif](./S24_quickstart.gif) | pip install → serve → POST · hardware tiers: 4 GB no-GPU 1.5–1.7 s / 3060-class 30–60 ms / 8 GB+ VRAM (RTX 5090) 18.6 ms |
 
 
 ### Head-to-head & reliability
