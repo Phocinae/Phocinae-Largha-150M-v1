@@ -1,6 +1,6 @@
 # FAQ — Phocinae-Largha-150M-v1
 
-Questions people ask about Largha (斑海豹, the spotted seal), a **144.3M bilingual decision model**. All figures quoted here are from [BENCHMARKS.md](../BENCHMARKS.md) — the source of truth for published numbers.
+Questions people ask about Largha (斑海豹, the spotted seal), a **144.3M bilingual decision model**. All figures quoted here are from [BENCHMARKS.md](../BENCHMARKS.md) — the source of truth for published numbers. [中文版](./faq.zh.md) · [模型卡](../MODEL_CARD.md)
 
 ## 1. What is this model, exactly?
 

@@ -1,8 +1,22 @@
 # Deployment Guide — Phocinae-Largha-150M-v1
 
-How to run Largha locally: the decision service ([phocinae-server](https://github.com/Phocinae/phocinae-server)), the command approval gate ([phocinae-guard](https://github.com/Phocinae/phocinae-guard)), and the MCP bridge ([phocinae-mcp](https://github.com/Phocinae/phocinae-mcp)). Everything runs on your own machine; nothing is ever sent to a cloud service.
+How to run Largha locally: the decision service ([phocinae-server](https://github.com/Phocinae/phocinae-server)), the command approval gate ([phocinae-guard](https://github.com/Phocinae/phocinae-guard)), and the MCP bridge ([phocinae-mcp](https://github.com/Phocinae/phocinae-mcp)). Everything runs on your own machine; nothing is ever sent to a cloud service. **All components listen on 127.0.0.1 only by default — local inference, no cloud.**
+
+## Contents
+
+- [1. Hardware tiers](#1-hardware-tiers)
+- [2. Decision service: phocinae-server](#2-decision-service-phocinae-server)
+- [3. Approval gate: phocinae-guard](#3-approval-gate-phocinae-guard)
+- [4. MCP bridge: phocinae-mcp](#4-mcp-bridge-phocinae-mcp)
+- [5. Performance & reliability demos](#5-performance--reliability-demos)
+- [6. Security statement](#6-security-statement)
 
 ## 1. Hardware tiers
+
+<div align="center">
+  <img src="../figures/C10_hardware_tiers.png" width="640" alt="hardware tiers"/>
+  <p><em>图 · 硬件三档：4 GB 无 GPU 1.5–1.7 s · 3060 级 30–60 ms · 8 GB+ 显存（RTX 5090 实测）18.6 ms</em></p>
+</div>
 
 | tier | RAM | storage | CPU | GPU | expected performance |
 |---|---|---|---|---|---|
@@ -15,13 +29,13 @@ Notes: the weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM
 ## 2. Decision service: phocinae-server
 
 ```bash
-git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server
-python -m venv .venv && . .venv/bin/activate
-pip install fastapi uvicorn torch
+pip install phocinae-server
 # point at the downloaded model repo (this HF repo)
 PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main
 # -> http://127.0.0.1:8155  (interactive docs at /docs)
 ```
+
+From source (alternative): `git clone https://github.com/Phocinae/phocinae-server.git && cd phocinae-server && pip install .`
 
 Environment:
 
@@ -65,6 +79,8 @@ Exit codes: `0` allow · `1` deny · `2` ask (blocking, hook-level human confirm
 
 Key env vars: `PHOCINAE_GUARD_SERVER` (default `http://127.0.0.1:8155`), `PHOCINAE_GUARD_TIMEOUT` (2.0 s), `PHOCINAE_GUARD_NOUL_THRESHOLD` (0.65), `PHOCINAE_GUARD_DENY_AT` (7.0), `PHOCINAE_GUARD_L1_ENABLED` (0), `PHOCINAE_GUARD_FAIL_CLOSED` (deny).
 
+Demos: [S01_rmrf_gate.gif](./gallery/S01_rmrf_gate.gif) (rm -rf blocked) · [S02_curl_pipe_gate.gif](./gallery/S02_curl_pipe_gate.gif) (curl\|sh denied) · [G27_failclosed.gif](./gallery/G27_failclosed.gif) (server down → default deny).
+
 ## 4. MCP bridge: phocinae-mcp
 
 MCP stdio server exposing the gate and the P0 decision protocol as tools for MCP-only agents (Cline, Windsurf, Zed, Codex CLI):
@@ -90,7 +106,12 @@ Client config (Cline/Windsurf `mcpServers`):
 
 Tools: `gate` (command → allow/deny/ask + layer + reason), `classify` (state + labels → choice), `route` (state + tools → chosen tool), `score` (state + criteria → 2–10). Fail-closed: service down → `gate` returns deny with a reason; other tools return explicit MCP errors.
 
-## 5. Security statement
+## 5. Performance & reliability demos
+
+- **Local vs API race**: [G25_race_local_vs_api.gif](./gallery/G25_race_local_vs_api.gif) — same decision, local 18.6 ms vs 1.51 s API round-trip (81×).
+- **Quickstart in three lines**: [S24_quickstart.gif](./gallery/S24_quickstart.gif) — pip install → serve → one decision.
+
+## 6. Security statement
 
 - All components listen on **127.0.0.1 only** by default and are unauthenticated on purpose — **do not expose them to a LAN or the public internet**. If you must bind elsewhere, set `PHOC_BEARER_TOKEN` and put the service behind your own auth/reverse proxy.
 - The model is a **decision aid, not a security product**: a 144M classifier cannot replace sandboxing, least-privilege, or human review. Always pair the L1 model gate with the deterministic L0 table and route the gray zone to a human.

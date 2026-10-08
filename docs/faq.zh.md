@@ -1,6 +1,6 @@
 # FAQ（常见问题）— Phocinae-Largha-150M-v1
 
-关于斑海豹（Largha，**144.3M 参数中英双语决策模型**）的常见问题。本文引用的数字全部来自 [BENCHMARKS.md](../BENCHMARKS.md)——对外数字的唯一权威源。
+关于斑海豹（Largha，**144.3M 参数中英双语决策模型**）的常见问题。本文引用的数字全部来自 [BENCHMARKS.md](../BENCHMARKS.md)——对外数字的唯一权威源。[English](./faq.md) · [模型卡](../MODEL_CARD.md)
 
 ## 1. 这到底是什么模型？
 

@@ -1,5 +1,9 @@
 # MODEL CARD — Phocinae-Largha-150M-v1
 
+## Contents
+
+- [Model details](#model-details) · [Overview](#overview) · [Architecture](#architecture) · [Training](#training) · [Inputs & outputs](#inputs--outputs) · [Evaluation](#evaluation) · [Calibration](#calibration) · [Bias, risks & limitations](#bias-risks--limitations-honest-disclosure) · [Out-of-scope uses](#out-of-scope-uses) · [Environmental impact](#environmental-impact) · [Citation](#citation) · [Credits](#credits)
+
 ## Model details
 
 | item | value |

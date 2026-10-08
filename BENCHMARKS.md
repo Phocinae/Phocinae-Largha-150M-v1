@@ -1,10 +1,35 @@
 # BENCHMARKS — Phocinae-Largha-150M-v1
 
-All published numbers (evaluated 2026-10-08). Model: **Phocinae-Largha-150M-v1** (斑海豹 Largha, "150M-class", 144.3M params). Unless noted, all numbers are measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Charts: `figures/`.
+All published numbers (evaluated 2026-10-08). Model: **Phocinae-Largha-150M-v1** (斑海豹 Largha, "150M-class", 144.3M params). Unless noted, all numbers are measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Charts: `figures/`. **This file is the single source of truth for published numbers.**
+
+## At-a-glance
+
+| metric | value |
+|---|---|
+| typed-decisions en / zh | **0.797 / 0.789** |
+| flip (CPU fp32, lower better) | 0.0300 (rev) · 0.0233 (random-mean) · 0.0433 (any) |
+| latency | GPU fp16 **18.6 ms** · CPU 1-thread **1.51 s/case** · 8-thread batch **8–21 decisions/s** |
+| JevBench public-231 | **0.5108** (118/231) — gate 58.4% **not passed** |
+| E1 escalate (τ=0.6) | kept-subset **0.886** · **−54.4%** LLM calls (82.8% at τ=0.5) |
+| calibration ECE (shipped) | **0.1313** |
+| parameters / storage | 144.3M · 288.6 MB fp16 |
+
+## Contents
+
+- [1. typed-decisions (main benchmark)](#1-typed-decisions-main-benchmark)
+- [2. Latency & throughput](#2-latency--throughput)
+- [3. Option-order flip robustness](#3-option-order-flip-robustness)
+- [4. JevBench public-231](#4-jevbench-public-231-honest-disclosure)
+- [5. Escalate routing (E1 gate)](#5-escalate-routing-e1-gate-τ06)
+- [6. Calibration](#6-calibration)
+- [7. Chinese (translated protocol)](#7-chinese-translated-protocol)
+- [8. Context](#8-context)
+- [9. Parameters & storage](#9-parameters--storage)
+- [Methodology notes](#methodology-notes)
 
 ## 1. typed-decisions (main benchmark)
 
-Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged per decision. en: **400 cases × 5 decisions = 2000 decisions**. zh: translated cases only — **no native Chinese training rows**.
+Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged per decision. en: **400 cases × 5 decisions = 2000 decisions**. zh: translated cases only — **no native Chinese training rows** (details in [§7](#7-chinese-translated-protocol)).
 
 | model | en accuracy | zh accuracy | notes |
 |---|---|---|---|

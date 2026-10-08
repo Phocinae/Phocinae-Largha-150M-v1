@@ -2,6 +2,10 @@
 
 The official runtime contract, implemented by [phocinae-server](https://github.com/Phocinae/phocinae-server). The server is deliberately minimal: it exposes one decision endpoint family and **does not implement any chat/completions-style compatibility layer** (by design — this model is not a chat model and the API does not pretend to be one).
 
+## Contents
+
+- [Endpoints](#endpoints) · [Request](#request) · [Response](#response) · [Errors](#errors) · [Permutation averaging](#permutation-averaging) · [Determinism](#determinism)
+
 ## Endpoints
 
 | method | path | description |

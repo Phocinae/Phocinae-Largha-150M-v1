@@ -2,6 +2,10 @@
 
 All published numbers were measured on the shipped weights (`model.safetensors`, sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). The eval harness (scripts + configs) is published at [github.com/Phocinae](https://github.com/Phocinae) — this document states the protocols and published values so any third party can verify independently.
 
+## Contents
+
+- [Data sources](#data-sources) · [Protocols & published values](#protocols--published-values) · [Quick verification steps](#quick-verification-steps) · [Status / known gaps](#status--known-gaps)
+
 ## Data sources
 
 | source | use |

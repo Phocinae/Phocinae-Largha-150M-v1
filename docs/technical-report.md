@@ -2,6 +2,10 @@
 
 > Short-form technical report. The formal arXiv version is in preparation; once it lands, this file becomes a link page. All numbers: [BENCHMARKS.md](../BENCHMARKS.md).
 
+## Contents
+
+- [1. Motivation](#1-motivation) · [2. Model](#2-model) · [3. Training data & procedure](#3-training-data--procedure) · [4. Calibration](#4-calibration) · [5. Evaluation & methodology](#5-evaluation--methodology) · [6. Known limitations](#6-known-limitations) · [7. Reproduction](#7-reproduction) · [8. References](#8-references)
+
 ## 1. Motivation
 
 Agents make many small, structured decisions per session — command approvals, tool picks, escalations, triage. Sending each one to an LLM costs a 500–4,000-token API call and 1.5 s+ of round-trip. Largha's bet: most such decisions are learnable by a **144.3M** encoder with a small decision head — one local forward pass, **18.6 ms** on GPU fp16 (or ~1.51 s per case on a single CPU thread, ≈0.28 s per decision), calibrated confidence, deterministic and auditable, zero data leaving the machine. With the τ=0.6 escalate gate, only the uncertain **45.7%** of decisions go onward (**−54.4% LLM calls (82.8% at τ=0.5)**) while combined accuracy improves **0.797 → 0.886 (kept subset)**.

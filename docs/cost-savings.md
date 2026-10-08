@@ -20,7 +20,26 @@ Official numbers (frozen 2026-10-08) and independent reproductions are shown sid
 
 **"−82% LLM calls" and "τ=0.6" cannot both be true.** At the frozen τ=0.6 the measured reduction is 54.4%; the 82.8% headline belongs to τ≈0.50 (where 17.15% of decisions escalate and kept-subset accuracy is 0.821). Both thresholds are real and tunable; the docs below quote the τ=0.6 default.
 
+<div align="center">
+  <img src="../figures/C7_routing_savings.png" width="600" alt="routing savings"/>
+  <p><em>图 · E1 escalate 门（τ=0.6）：保留集 acc 0.797→0.886，LLM 调用 −54.4%（τ=0.5 档 −82.8%）</em></p>
+</div>
+
 The gate answers ~1 of every 2 decisions locally with an 18.6 ms (GPU) / 1.51 s-per-case (CPU) forward pass, and escalates the rest.
+
+## τ sweep (shipped weights, deployment temperature columns, official set · 2,000 decisions)
+
+| τ | escalated | LLM calls saved | kept-subset acc |
+|---|---|---|---|
+| 0.40 | 1.3% | 98.8% | 0.801 |
+| 0.45 | 6.9% | 93.2% | 0.815 |
+| 0.50 | 15.4% | 84.6% | 0.842 |
+| **0.60 (default)** | **45.7%** (user-measured 45.65%; deployment recompute 40.9%) | **54.4%** | **0.886** |
+| 0.70 | 62.0% | 38.0% | 0.946 |
+| 0.80 | 77.2% | 22.9% | 0.983 |
+| 0.90 | 86.7% | 13.3% | 1.000 |
+
+Evidence: `exp/tau_recheck_20261008/REPORT.md` in the release-prep workspace; confidence = temperature-calibrated top probability with the shipped temperature columns (0.7698/0.7879/0.7560).
 
 ## Worked example
 
