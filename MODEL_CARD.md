@@ -33,7 +33,7 @@ Largha makes one structured decision per forward pass: given a `state` and a lis
 
 - Base: `jhu-clsp/mmBERT-small` (upstream pre-training unchanged).
 - Fine-tune data: `LocalLLaMA/typed-decisions` train split + flip-augmented option reorderings.
-- Recipe (`rl_agent_config.json`): loss `ce+brier`, optimizer `adafactor`, lr_encoder 2e-5 / lr_head 1e-4, micro_batch 8, grad_accum 4, updates 9228, ~1.36 h (local, tag `cf4`); `checkpoint_meta.json`: epoch 1/1, avg_loss 0.9565.
+- Recipe (`rl_agent_config.json`): loss `ce+brier`, optimizer `adafactor`, lr_encoder 2e-5 / lr_head 1e-4, micro_batch 8, grad_accum 4, updates 9228, ~1.36 h (local, tag `cf4`); `checkpoint_meta.json`: epoch 6/6, avg_loss 0.9565.
 - **No eval rows were used in training** (typed-decisions test split, JevBench held out).
 
 ## Inputs & outputs
