@@ -69,7 +69,7 @@ Protocol: reorder the options of a decision; a "flip" means the answer changed. 
 | random reorder, 3-seed mean | **0.0144** |
 | any of 3 reorders flips | **0.0283** |
 
-Note-only values (different devices/protocols, not main claims): GPU fp16 idle 0.0200/0.0217; 1k-row 4-perm (train-first-1000 rows) 0.0187/0.0205/0.0431.
+Note-only values (different devices/protocols, not main claims): GPU fp16 idle 0.0200/0.0217; 1k-row 4-perm (train-first-1000 rows) 0.0181/0.0150/0.0331.
 
 Context: a 3.0% flip rate is roughly one changed answer per ~33 option reorders — compare Laya in-domain 3.7% (0.7 pp gap, not a magnitude gap) and Jev ~9% / Laya out-of-domain 19.4%.
 
@@ -152,6 +152,6 @@ zh typed-decisions **0.848** (machine-translated cases; the model is fitted on t
 
 ## Methodology notes
 
-- All local measurements are CPU fp32 unless noted; GPU values are fp16. Flip main table double-reproduced (2026-10-07, idle machine); GPU/CPU differences ≤2 decisions are fp16↔fp32 noise.
+- All local measurements are CPU fp32 unless noted; GPU values are fp16. Flip main table double-reproduced (2026-10-09, idle machine); GPU/CPU differences ≤2 decisions are fp16↔fp32 noise.
 - Competitor numbers come from public leaderboards/papers on the same typed protocol where available; self-measured ones (Laya native interface, Kimi K3 on E5-zh) are marked as such; see [docs/reproduce.md](./docs/reproduce.md) for evidence paths and the eval harness.
 - Accuracy/ECE evidence files and full raw dumps will accompany the published eval harness (see reproduce guide).
