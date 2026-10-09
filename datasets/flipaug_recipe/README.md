@@ -87,7 +87,7 @@ JSON **字符串**字段）：
 ## 与已发布 flip 翻转率读数的关系
 
 - **发布主数（发布权重 斑海豹 Largha，CPU fp32）**：flip150 = **0.0200**、
-  flip400 = **0.0200**、random-mean = 0.0144、any-of-3 = 0.0283（主仓 reproduce.md
+  flip400 = **0.0217**、random-mean = 0.0144、any-of-3 = 0.0283（主仓 reproduce.md
   「Option-order flip」节）。这些读数**就是** flipaug 想压制的量。
 - **本包 = 主数的训练侧来源**：发布模型训练数据含选项序增广重排（MODEL_CARD），
   本包给出该环节的可复现脚本与种子。
