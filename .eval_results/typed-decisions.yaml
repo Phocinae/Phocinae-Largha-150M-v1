@@ -1,0 +1,72 @@
+# Phocinae/Phocinae-Largha-150M-v1 — .eval_results/typed-decisions.yaml
+# Submitted: 2026-10-09 (v1.1 weights). Scorer conventions verified against the
+# benchmark's Uniform reference row (KL 0.444 / Brier 0.238 reproduced exactly).
+# After push, verify: GET https://huggingface.co/api/datasets/LocalLLaMA/typed-decisions/leaderboard
+
+- dataset:
+    id: LocalLLaMA/typed-decisions
+    task_id: accuracy
+    revision: e039ebffcc280174dd354227424fb2b249f191de
+  value: 0.906
+  date: '2026-10-09'
+  source:
+    url: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md
+    name: Phocinae self-host eval (BENCHMARKS.md)
+    user: Phocinae
+  notes: >
+    Specialist: fitted on the Typed Decisions train split (mmBERT-small base) — NOT zero-shot;
+    per the benchmark README this belongs to the "fitted/fine-tuned on train" table and is not
+    comparable with the zero-shot table. Test split, 400 cases / 2,000 decisions, one request
+    per case with the state and all five questions (README request shape), all answered, zero
+    errors. Accuracy = agreement with the gold label. One forward pass per question, no generated
+    tokens. Self-reported (self-host, no verifyToken). The submitted accuracy sits above the 0.735
+    teacher self-agreement ceiling — per the README this indicates the model is learning the
+    teacher's quirks (label-specificity), also probed via JevBench on the model card. zh
+    (machine-translated test cases; the training mix includes machine-translated + native Chinese
+    rows) has no benchmark task; see the model card.
+
+- dataset:
+    id: LocalLLaMA/typed-decisions
+    task_id: kl_from_gold
+    revision: e039ebffcc280174dd354227424fb2b249f191de
+  value: 0.0548
+  date: '2026-10-09'
+  source:
+    url: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md
+    name: Phocinae self-host eval (BENCHMARKS.md)
+    user: Phocinae
+  notes: >
+    KL(gold || prediction), mean over the 2,000 decisions; scored with the benchmark's
+    conventions (reproduced exactly from the README's Uniform reference row). Specialist:
+    fitted on the train split — not comparable with the zero-shot table. Self-reported.
+
+- dataset:
+    id: LocalLLaMA/typed-decisions
+    task_id: brier
+    revision: e039ebffcc280174dd354227424fb2b249f191de
+  value: 0.0248
+  date: '2026-10-09'
+  source:
+    url: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md
+    name: Phocinae self-host eval (BENCHMARKS.md)
+    user: Phocinae
+  notes: >
+    Brier summed over options, mean over the 2,000 decisions; scored with the benchmark's
+    conventions (reproduced exactly from the README's Uniform reference row). Specialist:
+    fitted on the train split — not comparable with the zero-shot table. Self-reported.
+
+- dataset:
+    id: LocalLLaMA/typed-decisions
+    task_id: ece
+    revision: e039ebffcc280174dd354227424fb2b249f191de
+  value: 0.2519
+  date: '2026-10-09'
+  source:
+    url: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md
+    name: Phocinae self-host eval (BENCHMARKS.md)
+    user: Phocinae
+  notes: >
+    ECE with the shipped temperature column (en, 15 equal-width bins), as computed by our scorer
+    and documented in BENCHMARKS.md (the benchmark README warns that submitters compute ECE
+    differently). An optional bundled calibration column (calib/) reaches 0.0168. Self-reported
+    (self-host, no verifyToken).

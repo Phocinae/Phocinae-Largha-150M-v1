@@ -39,7 +39,7 @@ Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged 
 | meraGPT | 0.768 | — | generalist, zero-shot (per card) |
 
 
-Independent-reproduction note: our own cold re-run of the shipped weights scores **0.7825** (en) / **0.7820** (zh). Official figures are the frozen shipped-weights CPU fp32 reads (SHA-locked in SHA256SUMS); the GPU fp16 read is 0.906. All three disclosed here so the gap is on the record.
+Independent-reproduction note: our own cold re-run of the shipped weights scores **0.9055** (en) / **0.848** (zh) — CPU fp32 — vs official **0.906 / 0.848**; shown side by side, disagreements stated (gap ≤1 decision; fp16↔fp32 noise).
 ![typed accuracy comparison](figures/C1_typed_acc_comparison.png)
 ![bilingual en/zh](figures/C6_bilingual.png)
 
