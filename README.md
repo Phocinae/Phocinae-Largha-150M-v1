@@ -47,7 +47,7 @@ widget:
 <p align="center">
   <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square">
   <img alt="Params" src="https://img.shields.io/badge/Params-144.3M-orange?style=flat-square">
-  <img alt="Typed ACC" src="https://img.shields.io/badge/Typed%20ACC-en%200\.797%20(self-host%20eval)-green?style=flat-square">
+  <img alt="Typed ACC" src="https://img.shields.io/badge/Typed%20ACC-en%200.906%20(self--host%20eval)-green?style=flat-square">
   <img alt="Latency" src="https://img.shields.io/badge/Latency-21.0ms%20GPU%20fp16%20RTX%205090-9cf?style=flat-square">
   <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/Phocinae/Phocinae-Largha-150M-v1?style=flat-square&logo=github"></a>
   <img alt="HF Downloads" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhuggingface.co%2Fapi%2Fmodels%2FPhocinae%2FPhocinae-Largha-150M-v1&query=%24.downloads&label=HF%20Downloads&color=orange&style=flat-square">
