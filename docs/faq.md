@@ -29,7 +29,7 @@ See [deployment.md](./deployment.md) for hardware tiers, guard and MCP setup, an
 |---|---|---|
 | baseline (try it) | 4 GB RAM · 8 GB storage · no GPU | ~1.5–1.7 s per case (CPU single-thread) |
 | minimum (efficient) | 8 GB RAM · 8 cores · ≥4 GB VRAM (3060 → 30–60 ms; 8 GB+ VRAM → 21.0 ms, measured on RTX 5090) | 21.0–60 ms GPU; 8–20 decisions/s on 8 CPU threads |
-| recommended | 16 GB · 512 GB NVMe · 8 GB+ GPU | 21.0 ms (RTX 5090) (RTX 5090)–25 ms while other apps run |
+| recommended | 16 GB · 512 GB NVMe · 8 GB+ GPU | 21.0 ms (RTX 5090)–25 ms while other apps run |
 
 Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB RAM.
 ## 5. How fast is it — and why is CPU ~1.5 s?

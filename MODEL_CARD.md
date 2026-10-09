@@ -33,7 +33,7 @@ Largha makes one structured decision per forward pass: given a `state` and a lis
 
 - Base: `jhu-clsp/mmBERT-small` (upstream pre-training unchanged).
 - Fine-tune data: `LocalLLaMA/typed-decisions` train split + flip-augmented option reorderings.
-- Recipe (`rl_agent_config.json`): loss `ce+brier`, optimizer `adafactor`, lr_encoder 2e-5 / lr_head 1e-4, micro_batch 8, grad_accum 4, updates 9228, ~1.36 h (local, tag `cf4`); `checkpoint_meta.json`: epoch 6/6, avg_loss 0.9565.
+- Recipe (`rl_agent_config.json`): loss `ce+brier`, optimizer `adafactor`, lr_encoder 2e-5 / lr_head 1e-4, micro_batch 8, grad_accum 4, updates 300, ~0.044 h (local, tag `n13_r4`); `checkpoint_meta.json`: epoch 1/1, avg_loss 1.3689859.
 - **No eval rows were used in training** (typed-decisions test split, JevBench held out).
 
 ## Inputs & outputs
@@ -65,7 +65,7 @@ The shipped column has **ECE 0.2519** (en). Calibration temperatures (0.8660205 
 ## Bias, risks & limitations (honest disclosure)
 
 - **JevBench gate not passed**: 0.5455 (126/231) vs the 58.4% acceptance gate. Published as measured; we never trained on the eval rows.
-- **Option-order robustness is imperfect**: a 2.2% flip rate means about one answer change per ~46 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 1.5 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
+- **Option-order robustness is imperfect**: a 2.17% (flip400) / 2.83% (any of 3) flip rate means about one answer change per ~46 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 1.5 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
 - **Not a safety oracle**: use it as a first-line gate with escalation (or a deterministic L0 rule layer such as phocinae-guard), never as the sole guard for destructive or safety-critical commands.
 - **Chinese: in-mix, machine-translated-case evaluation**: zh evaluation runs on machine-translated English cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus a native-Chinese block (≈1,400 rows) — a fitted (not zero-shot) reading.
 - **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387).

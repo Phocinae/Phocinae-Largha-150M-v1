@@ -25,7 +25,7 @@ Official numbers (frozen 2026-10-09) and independent reproductions are shown sid
   <p><em>图 · E1 escalate 门（τ=0.6）：保留集 acc 0.906→0.9936，LLM 调用 −55.0%（τ=0.5 档 −79.6%）</em></p>
 </div>
 
-The gate answers ~55% of decisions locally with an 21.0 ms (RTX 5090) (GPU) / 1.64 s-per-case (CPU) forward pass, and escalates the rest.
+The gate answers ~55% of decisions locally with a 21.0 ms (RTX 5090, GPU) / 1.64 s-per-case (CPU) forward pass, and escalates the rest.
 
 ## τ sweep (shipped weights, deployment temperature columns, official set · 2,000 decisions)
 

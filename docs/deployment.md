@@ -22,9 +22,9 @@ How to run Largha locally: the decision service ([phocinae-server](https://githu
 |---|---|---|---|---|---|
 | **Baseline** (try it out) | 4 GB available | 8 GB | any 64-bit x86-64 / ARM64, ≥2 cores | none needed | ~1.5–1.7 s per case (CPU single-thread; 1 case = 5 decisions); loading ~4 s |
 | **Minimum** (full efficiency) | 8 GB | 20 GB (SSD/NVMe) | 8 modern cores | ≥4 GB VRAM (RTX 3060-class → 30–60 ms; 8 GB+ VRAM → 21.0 ms, measured on RTX 5090) | GPU 21.0–60 ms/decision; CPU-only 8T: 8–20 decisions/s |
-| **Recommended** (daily driver) | 16 GB (32 GB comfortable) | 512 GB NVMe | 12–16 cores | 8 GB+ consumer card | GPU 21.0 ms (RTX 5090) (RTX 5090)–25 ms/decision while other apps run; CPU batch in background |
+| **Recommended** (daily driver) | 16 GB (32 GB comfortable) | 512 GB NVMe | 12–16 cores | 8 GB+ consumer card | GPU 21.0 ms (RTX 5090)–25 ms/decision while other apps run; CPU batch in background |
 
-Notes: the weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB RAM. The 21.0 ms (RTX 5090) fp16 p50 is a high-end-GPU number — a CPU can never reach it; CPU-only users should budget ~1.64 s per single-threaded case () or use 8-thread batching (8–20 decisions/s).
+Notes: the weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB RAM. The 21.0 ms (RTX 5090) fp16 p50 is a high-end-GPU number — a CPU can never reach it; CPU-only users should budget ~1.64 s per single-threaded case, or use 8-thread batching (8–20 decisions/s).
 
 ## 2. Decision service: phocinae-server
 

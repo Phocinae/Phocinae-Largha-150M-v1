@@ -50,7 +50,7 @@ Protocol: each case = a `state` + typed questions; every question is judged as a
 |---|---|
 | typed-decisions en / zh | **0.906 / 0.848** (Laya 0.766 (self-measured, native interface) · JEV 0.727 · meraGPT 0.768, same protocol) |
 | flip (CPU fp32, lower better): rev150 / rev400 / random-mean / any | **0.0200/0.0217 / 0.0144 / 0.0283** |
-| latency | GPU fp16 p50 **21.0 ms (RTX 5090)** · CPU 1-thread p50 **1.64 s per case** () · CPU 8-thread batch **8–20 dec/s** |
+| latency | GPU fp16 p50 **21.0 ms (RTX 5090)** · CPU 1-thread p50 **1.64 s per case** · CPU 8-thread batch **8–20 dec/s** |
 | JevBench public-231 | **0.5455 (126/231)** — gate 58.4% not passed (tool_selection 12/12) |
 | E1 escalate (τ=0.6) | 0.906 → **0.9936 kept-subset**, **−55.0% LLM calls** (79.6% at τ=0.5; independent repro 45.0% escalate) |
 | calibration ECE (shipped column / with bundled `calib/`) | **0.2519 / 0.0168** |
