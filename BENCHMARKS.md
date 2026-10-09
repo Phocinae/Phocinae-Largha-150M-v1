@@ -122,7 +122,7 @@ Deprecated (old weights + E1 sharpened temperature columns, superseded everywher
 | shipped column ECE (en / zh) | **0.2519 / 0.1941** |
 | true temperature | `rl_agent_config.json`: 0.8660205 / 0.8081192 / 0.6624661 |
 | calibration temperatures | 0.8660205 / 0.8081192 / 0.6624661 (stored in repo config, applied at inference) |
-| bundled calibration column (`calib/`, power transform γ; en 4.33 / zh 2.51) | **shipped** — ECE 0.0168 (en) / 0.0152 (zh) |
+| bundled calibration column (`calib/`, power transform γ; en 4.33 / zh 2.51) | **opt-in — not applied by default**; ECE 0.0168 (en) / 0.0152 (zh), at the cost of Brier 0.0207 → 0.1218 (en) / 0.0333 → 0.0961 (zh) |
 
 ![calibration](figures/C5_calibration.png)
 
