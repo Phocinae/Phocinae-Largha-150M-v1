@@ -36,7 +36,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 - GPU fp16 单决策：p50 **21.0 ms（RTX 5090）**（发布冻结值）。
 - CPU 单线程：p50 **1.64 s/case**（1 case＝1 state＋5 题单次前向）——端到端（分词＋前向＋答案组装）单线程 fp32；。这是诚实的 CPU 数字，不是 GPU 数字。
-- CPU 8 线程批处理：**8–20 决策/s**（b=1 → 21.0，b=32 → 8.7）。
+- CPU 8 线程批处理：**8–20 决策/s**（b=1 → 19.7，b=32 → 8.4）。
 
 ## 6. 「翻转率（flip）」数字是什么意思？
 

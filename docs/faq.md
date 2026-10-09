@@ -36,7 +36,7 @@ Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB 
 
 - GPU fp16 single decision: **21.0 ms (RTX 5090)** p50 (release value).
 - CPU single-thread: **1.64 s per case** p50 (1 case = 1 state + 5 decisions, single pass) — end-to-end (tokenize + forward + answer assembly) on one fp32 thread. This is the honest CPU number, not the GPU number.
-- CPU 8-thread batch: **8–20 decisions/s** (b=1 → 21.0, b=32 → 8.7).
+- CPU 8-thread batch: **8–20 decisions/s** (b=1 → 19.7, b=32 → 8.4).
 
 ## 6. What do the "flip" numbers mean?
 

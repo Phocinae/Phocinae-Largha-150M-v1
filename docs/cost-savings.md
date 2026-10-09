@@ -52,7 +52,7 @@ Evidence: `exp/refresh_v1_20261009/tau_r4/tau_sweep_r4.json` (v1.1 weights · of
 
 ## Throughput context
 
-- CPU 8-thread batch: **8–20 decisions/s** (b=1 → 21.0, b=32 → 8.7) — local pre-screening capacity.
+- CPU 8-thread batch: **8–20 decisions/s** (b=1 → 19.7, b=32 → 8.4) — local pre-screening capacity.
 - GPU fp16: p50 21.0 ms (RTX 5090)/decision.
 - Local screening time is the main cost trade-off: on CPU budget ~1.5 s per single-threaded case (or batch on 8 threads); on GPU it is effectively free relative to an API round-trip.
 

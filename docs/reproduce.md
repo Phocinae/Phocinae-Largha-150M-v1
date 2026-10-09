@@ -29,7 +29,7 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 ### Latency
 - GPU fp16 single-decision p50 **21.0 ms (RTX 5090)** (release value).
 - CPU single-thread p50 **1.64 s per case** (n=40, idle machine; 1 case = 1 state + 5 decisions, end-to-end incl. tokenize + forward + answer assembly).
-- CPU 8-thread batch **8–20 decisions/s** (b=1 → 21.0, b=32 → 8.7); 2000-row mega-batch 7–9 decisions/s.
+- CPU 8-thread batch **8–20 decisions/s** (b=1 → 19.7, b=32 → 8.4); 2000-row mega-batch 6.8–8.5 decisions/s.
 
 ### JevBench public-231
 - micro **0.5455 = 126/231**; acceptance gate 58.4% (not passed, disclosed); tiers easy 0.9167 (44/48) / original 0.5000 (36/72) / hard 0.4144 (46/111); family-macro 0.5226; tool_selection k≤10 **12/12**.

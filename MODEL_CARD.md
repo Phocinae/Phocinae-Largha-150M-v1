@@ -80,7 +80,7 @@ Safety-critical decisions without human review, compliance/legal judgments, medi
 
 ## Environmental impact
 
-~1.4 h single-GPU fine-tune; ~144M-param forward (≈0.74 TFLOP per case) — negligible relative to LLM inference.
+~0.044 h single-GPU fine-tune; ~144M-param forward (≈0.74 TFLOP per case) — negligible relative to LLM inference.
 
 ## Citation
 

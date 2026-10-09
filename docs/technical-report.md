@@ -34,9 +34,9 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 | optimizer | adafactor |
 | lr encoder / head | 2e-5 / 1e-4 |
 | micro batch / grad accum | 8 / 4 |
-| updates | 9228 |
-| wall time | ~1.36 h single GPU (tag `cf4`) |
-| checkpoint | epoch 1/1, avg_loss 1.3690 (v1.1 weights) |
+| updates | 300 |
+| wall time | ~0.044 h single GPU (tag `n13_r4`) |
+| checkpoint | epoch 1/1, avg_loss 1.3689859 (v1.1 weights) |
 
 ## 4. Calibration
 
