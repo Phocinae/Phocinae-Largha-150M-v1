@@ -69,7 +69,7 @@ widget:
 |---|---|
 | parameters | **144.3M** (mmBERT-small base: hidden 384 × 22 layers × 6 heads, 256k-vocab tokenizer, RoPE + sliding-window + full attention; base context 8192; decision sequence ≤512 tokens with a 192-token head attention window) |
 | typed-decisions en (400 cases / 2000 decisions) | **0.906** (specialist: fitted on this dataset's train split) — Laya 0.766 (self-measured, native interface) · JEV 0.727 (generalist, zero-shot) · meraGPT 0.768 (generalist, zero-shot) |
-\| typed-decisions zh (machine-translated cases; training mix includes machine-translated Chinese ≈2,400 rows and native Chinese ≈1,400 rows) \| **0.848** \|
+| typed-decisions zh (machine-translated cases; training mix includes machine-translated Chinese ≈2,400 rows and native Chinese ≈1,400 rows) | **0.848** |
 | option-order flip robustness (lower is better) | CPU fp32: flip150 **0.0200** · flip400 **0.0217** · random-mean **0.0144** · any **0.0283** (GPU fp16 0.0200/0.0217, note only) |
 | inference latency | GPU fp16 p50 **21.0 ms** (RTX 5090) · CPU single-thread p50 **1.64 s per case** (1 case = 1 state + 5 questions, single forward pass) · CPU 8-thread batch **8–20 decisions/s** |
 | JevBench public-231 | **0.5455** (126/231) — below the 58.4% gate, disclosed honestly; tool_selection 12/12 (n=12) |
