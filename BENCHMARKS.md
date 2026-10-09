@@ -71,7 +71,7 @@ Protocol: reorder the options of a decision; a "flip" means the answer changed. 
 
 Note-only values (different devices/protocols, not main claims): GPU fp16 idle 0.0200/0.0217; 1k-row 4-perm (train-first-1000 rows) 0.0181/0.0150/0.0331.
 
-Context: a 3.0% flip rate is roughly one changed answer per ~33 option reorders — compare Laya in-domain 3.7% (0.7 pp gap, not a magnitude gap) and Jev ~9% / Laya out-of-domain 19.4%.
+Context: a 2.2% flip rate is roughly one changed answer per ~46 option reorders — compare Laya in-domain 3.7% (1.5 pp gap, not a magnitude gap) and Jev ~9% / Laya out-of-domain 19.4%.
 
 ![flip robustness](figures/C3_flip_robustness.png)
 

@@ -65,7 +65,7 @@ The shipped column has **ECE 0.2519** (en). Calibration temperatures (0.8660205 
 ## Bias, risks & limitations (honest disclosure)
 
 - **JevBench gate not passed**: 0.5455 (126/231) vs the 58.4% acceptance gate. Published as measured; we never trained on the eval rows.
-- **Option-order robustness is imperfect**: a 3.0% flip rate means about one answer change per ~33 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 0.7 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
+- **Option-order robustness is imperfect**: a 2.2% flip rate means about one answer change per ~46 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 1.5 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
 - **Not a safety oracle**: use it as a first-line gate with escalation (or a deterministic L0 rule layer such as phocinae-guard), never as the sole guard for destructive or safety-critical commands.
 - **Chinese: in-mix, machine-translated-case evaluation**: zh evaluation runs on machine-translated English cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus a native-Chinese block (≈1,400 rows) — a fitted (not zero-shot) reading.
 - **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387).
