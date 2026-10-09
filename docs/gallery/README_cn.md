@@ -26,63 +26,317 @@
 
 ## 全部场景索引
 
+点击每条下方的 ▶ 展开内嵌的演示 GIF。
+
 ### 审批安全
 
-| 场景 | 文件 | 一句话 |
-|---|---|---|
-| 危险命令拦截 | [S01_rmrf_gate.gif](./S01_rmrf_gate.gif) | `rm -rf` 被 21.0ms（RTX 5090） 内拦下，p(deny)=0.96 |
-| 管道命令拦截 | [S02_curl_pipe_gate.gif](./S02_curl_pipe_gate.gif) | `curl \| bash` p(allow)=0.21 → 拒绝 |
-| 批量权限变更 | [S03_chmod_batch.gif](./S03_chmod_batch.gif) | 8 条命令逐条三态判定：6 放行 / 1 转人工 / 1 拦截 |
-| 三态门阈值 | [S04_tristate_gate.gif](./S04_tristate_gate.gif) | 阈值 0.30/0.65：git push 0.91 放行、sudo restart 0.44 转人工、rm -rf /etc 0.05 拦截 |
-| 回放审计电池 | [S05_replay_battery.gif](./S05_replay_battery.gif) | 17 条回放审计：误放行 0、误拒 2 |
+**S01 · 危险命令拦截**——`rm -rf` 被 21.0ms（RTX 5090） 内拦下，p(deny)=0.96
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S01_rmrf_gate.gif" alt="S01 — 危险命令拦截（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S02 · 管道命令拦截**——`curl | bash` p(allow)=0.21 → 拒绝
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S02_curl_pipe_gate.gif" alt="S02 — 管道命令拦截（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S03 · 批量权限变更**——8 条命令逐条三态判定：6 放行 / 1 转人工 / 1 拦截
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S03_chmod_batch.gif" alt="S03 — 批量权限变更（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S04 · 三态门阈值**——阈值 0.30/0.65：git push 0.91 放行、sudo restart 0.44 转人工、rm -rf /etc 0.05 拦截
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S04_tristate_gate.gif" alt="S04 — 三态门阈值（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S05 · 回放审计电池**——17 条回放审计：误放行 0、误拒 2
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S05_replay_battery.gif" alt="S05 — 回放审计电池（演示 GIF）" width="720"/>
+</div>
+
+</details>
 
 ### 路由与省费
 
-| 场景 | 文件 | 一句话 |
-|---|---|---|
-| 升级门省费 | [S06_escalate_savings.gif](./S06_escalate_savings.gif) | τ=0.6 升级门：大模型调用 −55.0%（τ=0.5 档 79.6%），acc 0.906→0.9936 (kept subset) |
-| 工具路由 | [S07_tool_routing.gif](./S07_tool_routing.gif) | 单次前向选对工具，工具选择 12/12 |
-| 中文域零外呼 | [S08_zh_zero_escalate.gif](./S08_zh_zero_escalate.gif) | 中文判定本地完成，斑海豹 .855 vs Kimi K3 .72 |
-| 上下文粗筛 | [S09_context_screen.gif](./S09_context_screen.gif) | 30 个上下文块本地筛掉 11 个，CPU 批 8–20 决策/s |
-| 模型路由 | [S10_model_routing.gif](./S10_model_routing.gif) | 简单决策本地 21.0ms（RTX 5090），复杂决策升级大模型 |
+**S06 · 升级门省费**——τ=0.6 升级门：大模型调用 −55.0%（τ=0.5 档 79.6%），acc 0.906→0.9936 (kept subset)
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S06_escalate_savings.gif" alt="S06 — 升级门省费（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S07 · 工具路由**——单次前向选对工具，工具选择 12/12
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S07_tool_routing.gif" alt="S07 — 工具路由（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S08 · 中文域零外呼**——中文判定本地完成，斑海豹 .855 vs Kimi K3 .72
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S08_zh_zero_escalate.gif" alt="S08 — 中文域零外呼（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S09 · 上下文粗筛**——30 个上下文块本地筛掉 11 个，CPU 批 8–20 决策/s
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S09_context_screen.gif" alt="S09 — 上下文粗筛（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S10 · 模型路由**——简单决策本地 21.0ms（RTX 5090），复杂决策升级大模型
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S10_model_routing.gif" alt="S10 — 模型路由（演示 GIF）" width="720"/>
+</div>
+
+</details>
 
 ### 实时与趣味
 
-| 场景 | 文件 | 一句话 |
-|---|---|---|
-| 微批吞吐 | [S11_microbatch_60fps.gif](./S11_microbatch_60fps.gif) | 微批 4 摊销后 7.0ms/决策，跑进 60fps 帧预算 |
-| 贪吃蛇 | [S12_snake.gif](./S12_snake.gif) | 144M 参数的「蛇脑」21.0ms（RTX 5090）/步玩贪吃蛇 |
-| 事件分级 | [S13_event_triage.gif](./S13_event_triage.gif) | 监控事件逐帧定级，P(3)=0.81 红闪告警 |
+**S11 · 微批吞吐**——微批 4 摊销后 7.0ms/决策，跑进 60fps 帧预算
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S11_microbatch_60fps.gif" alt="S11 — 微批吞吐（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S12 · 贪吃蛇**——144M 参数的「蛇脑」21.0ms（RTX 5090）/步玩贪吃蛇
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S12_snake.gif" alt="S12 — 贪吃蛇（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S13 · 事件分级**——监控事件逐帧定级，P(3)=0.81 红闪告警
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S13_event_triage.gif" alt="S13 — 事件分级（演示 GIF）" width="720"/>
+</div>
+
+</details>
 
 ### 办公与文档
 
-| 场景 | 文件 | 一句话 |
-|---|---|---|
-| 文档分类 | [S14_doc_triage.gif](./S14_doc_triage.gif) | 8 个文件本地贴标，零上云零 token |
-| 报销预判 | [S15_expense_preapprove.gif](./S15_expense_preapprove.gif) | 无发票报销 p(approve)=0.07 直接拒，灰带才转人工 |
-| 技能路由 | [S16_skill_routing.gif](./S16_skill_routing.gif) | 一句话选对技能，p=0.94 |
-| 质量门 | [S17_quality_gate.gif](./S17_quality_gate.gif) | 周报草稿 p(需重写)=0.61 黄标打回——廉价初筛，不做终审 |
-| 发票校验 | [S18_invoice_verify.gif](./S18_invoice_verify.gif) | 金额×税率与税额逐分核对，p(一致)=0.95 |
+**S14 · 文档分类**——8 个文件本地贴标，零上云零 token
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S14_doc_triage.gif" alt="S14 — 文档分类（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S15 · 报销预判**——无发票报销 p(approve)=0.07 直接拒，灰带才转人工
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S15_expense_preapprove.gif" alt="S15 — 报销预判（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S16 · 技能路由**——一句话选对技能，p=0.94
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S16_skill_routing.gif" alt="S16 — 技能路由（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S17 · 质量门**——周报草稿 p(需重写)=0.61 黄标打回——廉价初筛，不做终审
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S17_quality_gate.gif" alt="S17 — 质量门（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S18 · 发票校验**——金额×税率与税额逐分核对，p(一致)=0.95
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S18_invoice_verify.gif" alt="S18 — 发票校验（演示 GIF）" width="720"/>
+</div>
+
+</details>
 
 ### 流程与工程
 
-| 场景 | 文件 | 一句话 |
-|---|---|---|
-| 步骤校验 | [S19_step_verify.gif](./S19_step_verify.gif) | HTTP 500 vs 期望 200：p(pass)=0.04 停链，防级联错误 |
-| 输出初筛 | [S20_output_screen.gif](./S20_output_screen.gif) | 输出第一道粗筛，省主模型 token（选择力弱于大模型，如实说明） |
-| 内容三级门 | [S21_content_gate.gif](./S21_content_gate.gif) | 放行/复核/拦截三级，灰带转人工，不当唯一守门员 |
-| 选项洗牌稳健 | [S22_flip_invariance.gif](./S22_flip_invariance.gif) | 选项顺序打乱后判定高度一致（翻转率 0.0217） |
-| 双语并排 | [S23_bilingual.gif](./S23_bilingual.gif) | 同一判定中英并排，en 0.906 / zh 0.848 |
-| 三行上手 | [S24_quickstart.gif](./S24_quickstart.gif) | pip install → 启动 → POST 判定，全流程演示 |
+**S19 · 步骤校验**——HTTP 500 vs 期望 200：p(pass)=0.04 停链，防级联错误
 
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S19_step_verify.gif" alt="S19 — 步骤校验（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S20 · 输出初筛**——输出第一道粗筛，省主模型 token（选择力弱于大模型，如实说明）
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S20_output_screen.gif" alt="S20 — 输出初筛（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S21 · 内容三级门**——放行/复核/拦截三级，灰带转人工，不当唯一守门员
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S21_content_gate.gif" alt="S21 — 内容三级门（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S22 · 选项洗牌稳健**——选项顺序打乱后判定高度一致（翻转率 0.0217）
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S22_flip_invariance.gif" alt="S22 — 选项洗牌稳健（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S23 · 双语并排**——同一判定中英并排，en 0.906 / zh 0.848
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S23_bilingual.gif" alt="S23 — 双语并排（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**S24 · 三行上手**——pip install → 启动 → POST 判定，全流程演示
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./S24_quickstart.gif" alt="S24 — 三行上手（演示 GIF）" width="720"/>
+</div>
+
+</details>
 
 ### 对照与可靠性
 
-| 场景 | 文件 | 一句话 |
-|---|---|---|
-| 本地 vs API 竞速 | [G25_race_local_vs_api.gif](./G25_race_local_vs_api.gif) | 同一决策：本地 21.0ms（RTX 5090） vs API 往返 1.51s（我方实测 n=40；第三方实测 Jev API 单决策 238–301 ms） |
-| token 省费 | [G26_token_savings.gif](./G26_token_savings.gif) | 100 个决策：54 本地 / 46 升级 · 大模型调用 −55.0%（τ=0.5 档 79.6%） |
-| 服务不可达默认不放行 | [G27_failclosed.gif](./G27_failclosed.gif) | 服务挂掉 → 默认拒绝，绝不静默放行 |
+**G25 · 本地 vs API 竞速**——同一决策：本地 21.0ms（RTX 5090） vs API 往返 1.51s（我方实测 n=40；第三方实测 Jev API 单决策 238–301 ms）
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./G25_race_local_vs_api.gif" alt="G25 — 本地 vs API 竞速（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**G26 · token 省费**——100 个决策：54 本地 / 46 升级 · 大模型调用 −55.0%（τ=0.5 档 79.6%）
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./G26_token_savings.gif" alt="G26 — token 省费（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
+**G27 · 服务不可达默认不放行**——服务挂掉 → 默认拒绝，绝不静默放行
+
+<details>
+<summary>▶ 点击展开演示 GIF</summary>
+
+<div align="center">
+  <img src="./G27_failclosed.gif" alt="G27 — 服务不可达默认不放行（演示 GIF）" width="720"/>
+</div>
+
+</details>
+
 
 ## 诚实标注
 
