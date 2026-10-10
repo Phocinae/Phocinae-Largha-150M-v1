@@ -43,7 +43,7 @@ Independent-reproduction note: our own cold re-run of the shipped weights scores
 ![typed accuracy comparison](figures/C1_typed_acc_comparison.png)
 ![bilingual en/zh](figures/C6_bilingual.png)
 
-Leaderboard note (LocalLLaMA/typed-decisions, `.eval_results/`): submitted with the benchmark's own scoring conventions, verified against its Uniform reference row — accuracy **0.906** · KL from gold **0.0548** · Brier **0.0248** · ECE **0.2519** (our ECE definition, documented above). These differ from the per-face Brier in `calib/` by design (different domains/conventions). Visibility: on the live board the default "Base only" view hides models whose cards declare a `base_model` tag; open the full view (`?leaderboard_base_model=false`) to see this entry — https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false
+Leaderboard note (LocalLLaMA/typed-decisions, `.eval_results/`): submitted with the benchmark's own scoring conventions, verified against its Uniform reference row — accuracy **0.906** · KL from gold **0.0548** · Brier **0.0248** · ECE **0.2519** (our ECE definition, documented above). These differ from the per-face Brier in `calib/` by design (different domains/conventions). Visibility: live on the board, including the default "Base only" view (the card carries no machine-readable base_model field; lineage is stated in prose). Full view: https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false
 
 ## 2. Latency & throughput
 

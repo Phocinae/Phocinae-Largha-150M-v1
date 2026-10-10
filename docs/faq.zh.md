@@ -100,4 +100,4 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 ## 16. 为什么在 typed-decisions 榜单默认看不到本模型？
 
-已在榜，在全量视图中。榜单默认开启「Base only」，卡片声明了 `base_model` 标签的模型（我们是 `jhu-clsp/mmBERT-small`）被判为 derived 而默认隐藏。打开全量视图：https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false——本模型条目为 accuracy **0.906**（specialist：本数据集 train 分割微调），截至 2026-10-10 排名 1/14。
+已在榜，且已出现在默认视图。榜单默认开启「Base only」——声明 base_model 字段的模型会被判为 derived 而隐藏；本模型卡已不含该字段（血统 mmBERT-small 以正文写明）。全量视图：https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false——本模型条目为 accuracy **0.906**（specialist：本数据集 train 分割微调），截至 2026-10-10 排名 1/14。

@@ -100,4 +100,4 @@ Verify the weights (`sha256sum model.safetensors` → `b6472511eea30729985374f43
 
 ## 16. Why doesn't this model appear in the typed-decisions leaderboard by default?
 
-It does, in the board's full view. The default view has "Base only" switched on, and models whose cards declare a `base_model` tag (ours declares `jhu-clsp/mmBERT-small`) count as derived and are hidden. Open the full view: https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false — there our entry reads accuracy **0.906** (specialist: fitted on the dataset's train split), rank 1/14 as of 2026-10-10.
+It does, on the live board — including the default view. The board's "Base only" toggle hides models whose cards declare a base_model tag; ours no longer does (the lineage — mmBERT-small — is stated in prose on the card). Full view: https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false — our entry reads accuracy **0.906** (specialist: fitted on the dataset's train split), rank 1/14 as of 2026-10-10.

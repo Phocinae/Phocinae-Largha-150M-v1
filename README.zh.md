@@ -14,6 +14,8 @@
 
 斑海豹 **Largha**：**144.3M 参数（150M 级）中英双语决策模型**，用于结构化决策——一次前向、一张决策、全部本地运行。它不是聊天模型：输入一段 `state`（状态描述）加若干条类型化问题（`noul` 是非判定 · `choice` 单选 · `score` 2–10 打分），输出带置信度的标定答案，且对选项顺序重排鲁棒（「Shuffle the options. Same decision.」）。下载渠道：[魔搭](https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1) · [Hugging Face](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) · [GitHub](https://github.com/Phocinae/Phocinae-Largha-150M-v1)。完整英文文档：[README](./README.md)。
 
+**基于 [mmBERT-small](https://huggingface.co/jhu-clsp/mmBERT-small) 构建**（JHU CLSP，MIT）——完整血统与许可说明见「权重与许可」。
+
 ## 一句话速览
 
 | 项 | 值 |
@@ -140,3 +142,4 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 - **2026-10-09 — v1.1 刷新。** 权重升级（本卡全部指标已在新权重上重测；上一版 sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`）。图件/画廊已重渲；新增随包校准列 [`calib/`](./calib/)。
 - **2026-10-09 — 文档。** 快速开始扩写（权重下载、Python/HTTP 示例、工具路由限制说明）；补回官网与机器可读源指引入口。
+- **2026-10-10 — 卡片元数据。** 移除机器可读的 base_model 字段；血统（mmBERT-small，MIT）继续以正文完整披露（见「权重与许可」）。

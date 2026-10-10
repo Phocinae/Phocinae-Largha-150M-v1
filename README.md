@@ -16,6 +16,8 @@
 
 斑海豹 **Largha**, the spotted seal: a **144.3M decision model** (en-first; zh evaluated on machine-translated cases) (150M-class) for structured decisions — one forward pass per decision, on your own hardware. Not a chat model: it takes a `state` plus a list of typed questions (`noul` yes/no · `choice` pick-one · `score` 2–10) and returns calibrated answers with confidence, robust to option reordering. Downloads: [Hugging Face](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) · [GitHub](https://github.com/Phocinae/Phocinae-Largha-150M-v1) · [ModelScope 魔搭](https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1) · 中文: [FAQ 中文版](docs/faq.zh.md) · [场景演示画廊](docs/gallery/README_cn.md).
 
+**Built on [mmBERT-small](https://huggingface.co/jhu-clsp/mmBERT-small)** (JHU CLSP, MIT) — see [Weights & license](#weights--license) for full lineage and license notes.
+
 ## TL;DR
 
 | TL;DR | value |
@@ -190,3 +192,4 @@ Machine-readable: [CITATION.cff](./CITATION.cff). BibTeX:
 
 - **2026-10-09 — v1.1 refresh.** Weights upgraded (each metric in this card re-measured on the new weights; previous release sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Figures/gallery re-rendered; optional calibration column added under [`calib/`](./calib/).
 - **2026-10-09 — docs.** Expanded quick start (weight download, Python & HTTP examples, tool-routing caveat); added landing page & machine-readable sources section.
+- **2026-10-10 — card metadata.** Removed the machine-readable base_model field; lineage (mmBERT-small, MIT) stays disclosed in prose throughout this card (see Weights & license).
