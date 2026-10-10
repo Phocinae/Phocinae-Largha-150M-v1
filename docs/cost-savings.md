@@ -44,9 +44,9 @@ Evidence: `exp/refresh_v1_20261009/tau_r4/tau_sweep_r4.json` (v1.1 weights · of
 ## Worked example (recomputed 2026-10-09, grounded in the shipped test rows)
 
 - 10,000 routed decisions/month at τ=0.6 → 45.0% escalated = 4,500 LLM calls/month.
-- Average escalated prompt = 204 tokens (state + question + options; measured with the shipped tokenizer on `datasets/typed_test/test_typed_400.jsonl`), plus ~50 output tokens per call.
-- LLM bill at Claude Sonnet 5 permanent list prices (Anthropic rate card, effective 2026-08-10: $2/M input, $10/M output): 0.92M × $2 + 0.23M × $10 ≈ **$4.1/month ≈ $50/yr** per 10k routed decisions/month.
-- Baseline (routing every decision to the LLM, same volume): ≈ $9.1/month ≈ $109/yr. The gate therefore removes ≈ **55% of the LLM spend**, consistent with the −55.0% call reduction.
+- Average escalated prompt = 298 tokens (state + question + options; re-measured 2026-10-09 with the shipped tokenizer, τ=0.6 escalated subset of the shipped typed-decisions test rows (en · n=900)), plus ~50 output tokens per call.
+- LLM bill at Claude Sonnet 5 permanent list prices (Anthropic rate card, effective 2026-08-10: $2/M input, $10/M output): 1.34M × $2 + 0.23M × $10 ≈ **$4.9/month ≈ $59/yr** per 10k routed decisions/month.
+- Baseline (routing every decision to the LLM, same volume): ≈ $11.0/month ≈ $132/yr. The gate therefore removes ≈ **55% of the LLM spend**, consistent with the −55.0% call reduction.
 - These are tokenizer-dependent estimates (Claude's tokenizer may count ±30% differently); before local compute, which is negligible (144.3M-param forwards on CPU/GPU).
 - Superseded: an earlier draft quoted ≈$326/yr using a different token assumption and pre-August pricing; it is withdrawn.
 
