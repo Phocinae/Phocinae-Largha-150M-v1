@@ -52,7 +52,7 @@ We didn't — and we publish it: **0.5455 (126/231)** vs the 58.4% acceptance ga
 
 ## 9. Does it actually work in Chinese?
 
-On the English test we measure **0.906**; on machine-translated typed-decisions cases **0.848**. Reference points on the same typed protocol: Laya 0.766 (self-measured, native interface) · JEV 0.727 · meraGPT 0.768 (en test). Honest caveat: the zh rows are machine-translated English test cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus native Chinese (≈1,400 rows) — treat zh as an in-mix (fitted) evaluation, not zero-shot cross-lingual transfer.
+On the English test (specialist: fitted on this dataset's train split) we measure **0.906**; on machine-translated typed-decisions cases **0.848**. Reference points on the same typed protocol: Laya 0.766 (self-measured, native interface) · JEV 0.727 · meraGPT 0.768 (en test). Honest caveat: the zh rows are machine-translated English test cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus native Chinese (≈1,400 rows) — treat zh as an in-mix (fitted) evaluation, not zero-shot cross-lingual transfer.
 
 ## 10. Can I use it as a safety/security gate?
 
@@ -66,7 +66,7 @@ The τ=0.6 escalate gate answers ~1 of every 2 decisions locally (kept-subset ac
 ## 12. What are the main limitations?
 
 - Not for chat/generation, long-document reasoning, or world-knowledge QA.
-- zh is evaluated on machine-translated cases (in-mix; see Q9); long inputs degrade (16k/32k probes: 0.453 / 0.387).
+- zh is evaluated on machine-translated cases (in-mix; see Q9); long inputs degrade (16k/32k probes: 0.453 / 0.387; v1.0-baseline measurements; re-probe pending for v1.1).
 - JevBench gate not passed (Q8); order-robustness is good but not perfect (Q6).
 - No demographic/fairness evaluation; English business-ops domain biases carry over.
 
@@ -97,3 +97,7 @@ Weights: **Apache-2.0** (see LICENSE). Base encoder `jhu-clsp/mmBERT-small` is *
 ```
 
 Verify the weights (`sha256sum model.safetensors` → `b6472511eea30729985374f43968cf7f4b16bbe0827de6c6ca07cf92afbb778a`), then follow [reproduce.md](./reproduce.md) for protocols, published values, and evidence paths. The eval harness is published in the main repo.
+
+## 16. Why doesn't this model appear in the typed-decisions leaderboard by default?
+
+It does, in the board's full view. The default view has "Base only" switched on, and models whose cards declare a `base_model` tag (ours declares `jhu-clsp/mmBERT-small`) count as derived and are hidden. Open the full view: https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false — there our entry reads accuracy **0.906** (specialist: fitted on the dataset's train split), rank 1/14 as of 2026-10-10.

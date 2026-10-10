@@ -114,6 +114,6 @@ Tools: `gate` (command → allow/deny/ask + layer + reason), `classify` (state +
 ## 6. Security statement
 
 - All components listen on **127.0.0.1 only** by default and are unauthenticated on purpose — **do not expose them to a LAN or the public internet**. If you must bind elsewhere, set `PHOC_BEARER_TOKEN` and put the service behind your own auth/reverse proxy.
-- The model is a **decision aid, not a security product**: a 144M classifier cannot replace sandboxing, least-privilege, or human review. Always pair the L1 model gate with the deterministic L0 table and route the gray zone to a human.
+- The model is a **decision aid, not a security product**: a 144.3M classifier cannot replace sandboxing, least-privilege, or human review. Always pair the L1 model gate with the deterministic L0 table and route the gray zone to a human.
 - Guard semantics are **fail-closed** (deny/ask on any error) and phocinae-server provides **no high-availability guarantees** — callers must treat crashes as "deny".
 - All inference is local; no decision data leaves the machine.

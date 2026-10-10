@@ -43,7 +43,7 @@ Independent-reproduction note: our own cold re-run of the shipped weights scores
 ![typed accuracy comparison](figures/C1_typed_acc_comparison.png)
 ![bilingual en/zh](figures/C6_bilingual.png)
 
-Leaderboard note (LocalLLaMA/typed-decisions, `.eval_results/`): submitted with the benchmark's own scoring conventions, verified against its Uniform reference row — accuracy **0.906** · KL from gold **0.0548** · Brier **0.0248** · ECE **0.2519** (our ECE definition, documented above). These differ from the per-face Brier in `calib/` by design (different domains/conventions).
+Leaderboard note (LocalLLaMA/typed-decisions, `.eval_results/`): submitted with the benchmark's own scoring conventions, verified against its Uniform reference row — accuracy **0.906** · KL from gold **0.0548** · Brier **0.0248** · ECE **0.2519** (our ECE definition, documented above). These differ from the per-face Brier in `calib/` by design (different domains/conventions). Visibility: on the live board the default "Base only" view hides models whose cards declare a `base_model` tag; open the full view (`?leaderboard_base_model=false`) to see this entry — https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false
 
 ## 2. Latency & throughput
 
@@ -139,7 +139,7 @@ zh typed-decisions **0.848** (machine-translated cases; the model is fitted on t
 |---|---|
 | encoder max position embeddings | **8192** |
 | default decision-head length | **512** (self-imposed training/inference default) |
-| 16k / 32k row probes | 0.453 / 0.387 (long-context degradation) |
+| 16k / 32k row probes | 0.453 / 0.387 (long-context degradation; v1.0-baseline measurements; re-probe pending for v1.1) |
 
 ## 9. Parameters & storage
 

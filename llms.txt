@@ -33,7 +33,7 @@ Phocinae-Largha-150M-v1（斑海豹 Largha）是一个 144.3M 参数的双语类
 | Latency | GPU fp16 p50 **21.0 ms** per decision (RTX 5090); CPU single-thread p50 1.64 s per case; CPU 8-thread batch 8–20 decisions/s; CPU warm 20-thread ≈51 ms/call (separately measured, not part of the release protocol) |
 | Question types | `noul` (yes/no) · `choice` (pick-one, ≤255 options) · `score` (integer 2–10) |
 | Limits | ≤64 questions per request; 8192-token context budget |
-| Accuracy | typed-decisions en **0.906** (400 cases / 2000 decisions) · zh **0.848** (machine-translated cases) |
+| Accuracy | typed-decisions en **0.906** (400 cases / 2000 decisions; specialist — fitted on train split) · zh **0.848** (machine-translated cases) |
 | Same-protocol peers | Laya 0.766 · JEV 0.727 · meraGPT 0.768 |
 | Option-order flip rate (lower better) | CPU fp32: 0.0200 (flip150) · 0.0217 (flip400) · 0.0144 (random-mean) · 0.0283 (any-of-3) |
 | Calibration | shipped column ECE **0.2519** (en) · **0.1941** (zh); temperatures 0.8660205 / 0.8081192 / 0.6624661 applied at inference; optional bundled calibration column (`calib/`) reaches ECE **0.0168** / **0.0152** |

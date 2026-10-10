@@ -12,7 +12,7 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 |---|---|
 | [LocalLLaMA/typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions) (Apache-2.0, HF revision f7a2487e) | main benchmark; train split (with flip-augmented reorderings) for training, test split for eval |
 | [JevBench](https://github.com/fstandhartinger/JevBench) | held-out public protocol (public-231); **never used in training** |
-\| zh cases \| English test cases machine-translated to Chinese, for evaluation; the training mix includes machine-translated + native Chinese rows (see [BENCHMARKS §7](../BENCHMARKS.md#7-chinese-translated-protocol)) \|
+| zh cases | English test cases machine-translated to Chinese, for evaluation; the training mix includes machine-translated + native Chinese rows (see [BENCHMARKS §7](../BENCHMARKS.md#7-chinese-translated-protocol)) |
 
 ## Protocols & published values
 

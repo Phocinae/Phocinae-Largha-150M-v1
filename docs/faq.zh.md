@@ -35,7 +35,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 ## 5. 速度到底多快？为什么 CPU 要约 1.5 s？
 
 - GPU fp16 单决策：p50 **21.0 ms（RTX 5090）**（发布冻结值）。
-- CPU 单线程：p50 **1.64 s/case**（1 case＝1 state＋5 题单次前向）——端到端（分词＋前向＋答案组装）单线程 fp32；。这是诚实的 CPU 数字，不是 GPU 数字。
+- CPU 单线程：p50 **1.64 s/case**（1 case＝1 state＋5 题单次前向）——端到端（分词＋前向＋答案组装）单线程 fp32。这是诚实的 CPU 数字，不是 GPU 数字。
 - CPU 8 线程批处理：**8–20 决策/s**（b=1 → 19.7，b=32 → 8.4）。
 
 ## 6. 「翻转率（flip）」数字是什么意思？
@@ -52,7 +52,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 ## 9. 中文真的能用吗？
 
-在英文测试集实测 **0.906**；机器翻译版 typed-decisions 用例 **0.848**。同协议参考分：Laya 0.766（我方实测·原生接口）· JEV 0.727 · meraGPT 0.768（英文测试集）。诚实口径：中文行是英文测试用例的机器翻译，且训练混料含机译中文 ≈2,400 行＋原生中文 ≈1,400 行——请把 zh 当作「含中文训练材料的机译评测」（fitted），而非零样本跨语言迁移。
+在英文测试集实测 **0.906**（specialist：本数据集 train 分割微调）；机器翻译版 typed-decisions 用例 **0.848**。同协议参考分：Laya 0.766（我方实测·原生接口）· JEV 0.727 · meraGPT 0.768（英文测试集）。诚实口径：中文行是英文测试用例的机器翻译，且训练混料含机译中文 ≈2,400 行＋原生中文 ≈1,400 行——请把 zh 当作「含中文训练材料的机译评测」（fitted），而非零样本跨语言迁移。
 
 ## 10. 能当安全/审批门用吗？
 
@@ -66,7 +66,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 ## 12. 主要局限是什么？
 
 - 不能聊天/生成，不适于长文档推理与世界知识问答。
-- 中文评测为机译用例（训练混料含中文行，见第 9 问）；长输入退化（16k/32k 探针：0.453 / 0.387）。
+- 中文评测为机译用例（训练混料含中文行，见第 9 问）；长输入退化（16k/32k 探针：0.453 / 0.387；v1.0 基线测量，v1.1 重测待进行）。
 - JevBench 门未过（第 8 问）；序鲁棒性好但非完美（第 6 问）。
 - 未做人口统计/公平性评测；英文业务运营域偏置会带入。
 
@@ -97,3 +97,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 ```
 
 先校验权重（`sha256sum model.safetensors` → `b6472511eea30729985374f43968cf7f4b16bbe0827de6c6ca07cf92afbb778a`），再按 [reproduce.md](./reproduce.md) 核对协议、冻结值与证据路径。冻结评测 harness 将在 github.com/Phocinae 发布。
+
+## 16. 为什么在 typed-decisions 榜单默认看不到本模型？
+
+已在榜，在全量视图中。榜单默认开启「Base only」，卡片声明了 `base_model` 标签的模型（我们是 `jhu-clsp/mmBERT-small`）被判为 derived 而默认隐藏。打开全量视图：https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false——本模型条目为 accuracy **0.906**（specialist：本数据集 train 分割微调），截至 2026-10-10 排名 1/14。

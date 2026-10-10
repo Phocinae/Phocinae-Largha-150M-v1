@@ -67,7 +67,7 @@ Methodology notes:
 - JevBench acceptance gate **not passed** (0.5455 vs 58.4%) — disclosed honestly; never trained on eval rows.
 - Option-order robustness is imperfect: 0.0217 flip ≈ one changed answer per ~46 reorders — 1.5 pp better than Laya in-domain (3.7%), far from perfect invariance (Jev ~9%, Laya out-of-domain 19.4%).
 - zh evaluation is on machine-translated cases; the training mix includes machine-translated and native Chinese rows (see §3).
-- Context: the encoder supports 8192 positions; the shipped config uses a 512-token sequence budget with a 192-token head attention window (`rl_agent_config.json`); 16k/32k probes degrade (0.453 / 0.387).
+- Context: the encoder supports 8192 positions; the shipped config uses a 512-token sequence budget with a 192-token head attention window (`rl_agent_config.json`); 16k/32k probes degrade (0.453 / 0.387; v1.0-baseline measurements; re-probe pending for v1.1).
 - No demographic/fairness evaluation; the training domain (English business operations) carries language and domain biases.
 - Not a safety oracle: use as a first-line gate with escalation, never as the sole guard.
 

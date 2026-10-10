@@ -13,7 +13,7 @@
 | series | 海豹系列 / Phocinae |
 | type | encoder-based **decision model** (not a chat/decoder model) |
 | parameters | **144.3M** (public: "150M-class") |
-\| languages \| en; zh via machine-translated eval cases (training mix includes machine-translated + native Chinese rows — see Bias, risks & limitations) \|
+| languages | en; zh via machine-translated eval cases (training mix includes machine-translated + native Chinese rows — see Bias, risks & limitations) |
 | license | Apache-2.0 (weights; see LICENSE) |
 | base encoder | jhu-clsp/mmBERT-small (JHU CLSP) |
 | storage | fp16 safetensors, 288.6 MB |
@@ -49,7 +49,7 @@ Full contract: [docs/protocol.md](./docs/protocol.md).
 
 | benchmark | result |
 |---|---|
-| typed-decisions en (400 cases / 2000 decisions) | **0.906** (Laya 0.766 (self-measured, native) · JEV 0.727 · meraGPT 0.768) |
+| typed-decisions en (400 cases / 2000 decisions) | **0.906** — specialist (fitted on this dataset's train split) · Laya 0.766 (self-measured, native) · JEV 0.727 · meraGPT 0.768 |
 | typed-decisions zh (translated cases) | **0.848** |
 | flip (CPU fp32): flip150 / flip400 / random-mean / any | **0.0200/0.0217 / 0.0144 / 0.0283** |
 | JevBench public-231 | **0.5455 (126/231)**, gate 58.4% not passed |
@@ -68,7 +68,7 @@ The shipped column has **ECE 0.2519** (en). Calibration temperatures (0.8660205 
 - **Option-order robustness is imperfect**: a 2.17% (flip400) / 2.83% (any of 3) flip rate means about one answer change per ~46 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 1.5 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
 - **Not a safety oracle**: use it as a first-line gate with escalation (or a deterministic L0 rule layer such as phocinae-guard), never as the sole guard for destructive or safety-critical commands.
 - **Chinese: in-mix, machine-translated-case evaluation**: zh evaluation runs on machine-translated English cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus a native-Chinese block (≈1,400 rows) — a fitted (not zero-shot) reading.
-- **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387).
+- **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387; v1.0-baseline measurements; re-probe pending for v1.1).
 - **Not for** open-ended chat/generation, long-document reasoning, or world-knowledge QA (MMLU-style probes below par).
 - **Known trigger-word weakness**: a small fraction of negated phrasings (e.g. \"do NOT cancel subscription\") can be misread as affirmative intent (internal probe: 1/6 weak). Pair safety-critical approvals with an L0 rule layer / fail-closed semantics.
 - **No demographic/fairness evaluation** has been run; training data is English business-operations text (typed-decisions) and will carry its domain and language biases. Treat outputs as domain-specific signals, not general judgments.
@@ -80,7 +80,7 @@ Safety-critical decisions without human review, compliance/legal judgments, medi
 
 ## Environmental impact
 
-~0.044 h single-GPU fine-tune; ~144M-param forward (≈0.74 TFLOP per case) — negligible relative to LLM inference.
+~0.044 h single-GPU fine-tune; ~144.3M-param forward (≈0.74 TFLOP per case) — negligible relative to LLM inference.
 
 ## Citation
 
