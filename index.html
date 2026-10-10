@@ -70,7 +70,6 @@ a{color:var(--accent)}
   <img src="https://raw.githubusercontent.com/Phocinae/Phocinae-Largha-150M-v1/main/figures/logo_phocinae.png" width="140" alt="斑海豹 Phocinae logo">
   <h1>斑海豹 · Phocinae-Largha-150M-v1</h1>
   <p class="tagline"><strong>小海豹，大决断。</strong><span class="muted"> / Tiny model. Big decisions.</span></p>
-  <p class="tagline muted"><em>一斑见全豹，一点定全局。</em></p>
   <div class="links">
     <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1">GitHub 仓库</a>
     <a href="https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1">Hugging Face</a>
@@ -102,7 +101,7 @@ a{color:var(--accent)}
   <tr><th>推理内存</th><td>约 1.6 GB 显存 / 约 1.8 GB 内存 · <strong>无 GPU 可运行</strong></td></tr>
   <tr><th>输出</th><td>零生成 token；<code>noul</code>=布尔 · <code>choice</code>=0 基下标 · <code>score</code>=2–10 整数，均附标定置信度</td></tr>
   <tr><th>延迟</th><td>GPU fp16 p50 <strong>21.0 ms</strong>（RTX 5090）/决策 · CPU 单线程 p50 1.64 秒/用例 · CPU 8 线程批处理 8–20 决策/秒</td></tr>
-  <tr><th>准确率</th><td>typed-decisions en <strong>0.906</strong>（400 用例 / 2000 决策）· zh <strong>0.848</strong>（机翻用例；训练混料含中文行）</td></tr>
+  <tr><th>准确率</th><td>typed-decisions en <strong>0.906</strong>（specialist：本数据集训练切分微调；400 用例 / 2000 决策）· zh <strong>0.848</strong>（机翻用例；训练混料含中文行）</td></tr>
   <tr><th>同协议对照</th><td>Laya 0.766 · JEV 0.727 · meraGPT 0.768</td></tr>
   <tr><th>选项顺序翻转率</th><td>越低越好：CPU fp32 flip150 <strong>0.0200</strong> · flip400 0.0217 · random-mean 0.0144 · any-of-3 0.0283</td></tr>
   <tr><th>升级门收益</th><td>τ=0.6：LLM 调用 <strong>−55.0%</strong>（τ=0.5 档 −79.6%），保留集准确率 0.906 → <strong>0.9936</strong>，45.0% 升级</td></tr>
@@ -142,7 +141,7 @@ PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155</code>
 <p>判断标准是"决策是否重复且选项封闭"。命令审批、工具选择（k≤10）、步骤校验、输出筛查属于此列，交给本机；开放式推理、多轮对话、长文档理解交给大模型。配合 τ=0.6 置信度门，只有 45.0% 的不确定决策会上行。</p>
 
 <h3>能省多少成本？</h3>
-<p>τ=0.6 升级门把 LLM 调用削减 55.0%（τ=0.5 档 79.6%），同时保留集准确率从 0.906 升到 0.9936。按每月 1 万次被路由决策估算，LLM 账单从约 <strong>109 美元/年</strong>降至约 <strong>50 美元/年</strong>（按 Claude Sonnet 5 列表价、2026 年 10 月估算，仅为估算）。</p>
+<p>τ=0.6 升级门把 LLM 调用削减 55.0%（τ=0.5 档 79.6%），同时保留集准确率从 0.906 升到 0.9936。按每月 1 万次被路由决策估算，LLM 账单从约 <strong>132 美元/年</strong>降至约 <strong>59 美元/年</strong>（按 Claude Sonnet 5 列表价、2026 年 10 月估算，仅为估算）。</p>
 
 <h3>需要什么硬件？</h3>
 <p>无 GPU 可运行：4 GB 内存 + 8 GB 存储即可试用（CPU 单线程 1.4–1.7 秒/用例）。推荐 16 GB 内存 + 8 GB 以上显存 + 512 GB NVMe，可达 21.0–28 ms/决策。</p>
@@ -172,7 +171,7 @@ PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155</code>
 
 <h2 id="cite">引用</h2>
 <pre><code>@misc{phocinae2026largha,
-  title   = {Phocinae-Largha-150M-v1: A 144M-parameter bilingual typed decision model},
+  title   = {Phocinae-Largha-150M-v1: A 144.3M-parameter bilingual typed decision model},
   author  = {Phocinae Project},
   year    = {2026},
   url     = {https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1},
@@ -239,7 +238,7 @@ PHOC_MODEL_DIR=./largha python -m phocinae.main   # http://127.0.0.1:8155</code>
           "name": "How much does it reduce LLM cost?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "At a tau=0.6 confidence gate it cuts LLM calls by 55.0% (79.6% at tau=0.5) while kept-subset accuracy rises from 0.906 to 0.9936. For 10k routed decisions per month the LLM bill drops from about USD 109/year to about USD 50/year at Claude Sonnet 5 list prices (October 2026, estimate only)."
+            "text": "At a tau=0.6 confidence gate it cuts LLM calls by 55.0% (79.6% at tau=0.5) while kept-subset accuracy rises from 0.906 to 0.9936. For 10k routed decisions per month the LLM bill drops from about USD 132/year to about USD 59/year at Claude Sonnet 5 list prices (October 2026, estimate only)."
           }
         },
         {
