@@ -48,7 +48,7 @@ PHOC_MODEL_DIR=/path/to/Phocinae-Largha-150M-v1 python -m phocinae.main   # http
 
 ## 8. 为什么没过 JevBench 验收门？
 
-确实没过，而且我们公开它：**0.5455（126/231）**，验收门 58.4%。数字如实发布，从未用评测行训练，也不据此做任何榜单主张。（tool_selection k≤10 为 12/12。）
+确实没过，而且我们公开它：**0.5455（126/231）**，验收门 58.4%。数字如实发布；JevBench（public-231）各行未纳入训练；也不据此做任何榜单主张。（tool_selection k≤10 为 12/12。）
 
 ## 9. 中文真的能用吗？
 

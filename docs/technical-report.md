@@ -25,7 +25,8 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 ## 3. Training data & procedure
 
 - Base: `jhu-clsp/mmBERT-small` (upstream pre-training unchanged).
-- Fine-tune data: `LocalLLaMA/typed-decisions` train split (1,200 cases; community mirror `LocalLLaMA/typed-decisions`) + flip-augmented option reorderings. **No eval rows were used**: typed-decisions test (400 cases / 2,000 decisions) and JevBench stayed out of training.
+- Fine-tune data: `LocalLLaMA/typed-decisions` train split (1,200 cases; community mirror `LocalLLaMA/typed-decisions`) + flip-augmented option reorderings.
+- **Evaluation-overlap disclosure** *(corrected 2026-10-10)*: the fine-tune mix also includes an error-correction pair pool (500 items; original question order + gold soft targets) mined from model predictions on the typed-decisions test rows — 82 of the 100 typed-decisions cases in the S1MB benchmark (151 of 500 decisions) fall inside it — plus sampled rows from a Jev-8 training pool (18 of 4,055 cleaned banking77-test items; 13 of ~5,500 clinc_oos plus-test items). JevBench (public-231) was held out of training. No other S1MB benchmark sources were used in training.
 - zh: machine-translated English test cases for evaluation; the training mix also includes machine-translated Chinese (≈2,400 rows) and native Chinese (≈1,400 rows).
 
 | recipe item | value (`rl_agent_config.json`) |
@@ -64,7 +65,7 @@ Methodology notes:
 ## 6. Known limitations
 
 - Not a chat/generator; no long-document reasoning; MMLU-style world-knowledge probes are below par.
-- JevBench acceptance gate **not passed** (0.5455 vs 58.4%) — disclosed honestly; never trained on eval rows.
+- JevBench acceptance gate **not passed** (0.5455 vs 58.4%) — published as measured; JevBench (public-231) rows were held out of training (see the evaluation-overlap disclosure in §3).
 - Option-order robustness is imperfect: 0.0217 flip ≈ one changed answer per ~46 reorders — 1.5 pp better than Laya in-domain (3.7%), far from perfect invariance (Jev ~9%, Laya out-of-domain 19.4%).
 - zh evaluation is on machine-translated cases; the training mix includes machine-translated and native Chinese rows (see §3).
 - Context: the encoder supports 8192 positions; the shipped config uses a 512-token sequence budget with a 192-token head attention window (`rl_agent_config.json`); 16k/32k probes degrade (0.453 / 0.387; v1.0-baseline measurements; re-probe pending for v1.1).

@@ -48,7 +48,7 @@ The shipped column has **ECE 0.2519** (en). The calibration temperatures **0.866
 
 ## 8. Why didn't you pass the JevBench acceptance gate?
 
-We didn't — and we publish it: **0.5455 (126/231)** vs the 58.4% acceptance gate. The number is as measured, we never trained on the eval rows, and we make no leaderboard claims from it. (tool_selection k≤10 is 12/12.)
+We didn't — and we publish it: **0.5455 (126/231)** vs the 58.4% acceptance gate. The number is as measured; JevBench (public-231) rows were held out of training; we make no leaderboard claims from it. (tool_selection k≤10 is 12/12.)
 
 ## 9. Does it actually work in Chinese?
 

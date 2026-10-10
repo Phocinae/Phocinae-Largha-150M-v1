@@ -109,7 +109,8 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 ## 诚实披露
 
-- **JevBench public-231：0.5455（126/231），未达 58.4% 准入线——如实公开**；评测行从未进入训练集。
+- **JevBench public-231：0.5455（126/231），未达 58.4% 准入线——如实公开**；JevBench（public-231）各行未纳入训练。
+- **训练重叠披露**（2026-10-10 修正）：训练链含一个错误修正对池（500 条，挖掘自模型在 typed-decisions 测试行上的预测；覆盖 82/100 个 S1MB 基准所用 typed-decisions 案例、151/500 决策）＋ Jev-8 训练池采样行（banking77 测试 18/4,055 条；clinc_oos plus-test 13/约 5,500 条）。详见 [MODEL_CARD.md](./MODEL_CARD.md)。
 - 中文成绩基于机器翻译用例；训练混料含机译中文 ≈2,400 行＋原生中文 ≈1,400 行——zh 属「含中文训练材料的机译评测」（fitted），非零中文训练迁移。
 - 升级路由旧口径（−79.6% 配 τ=0.6）不成立：τ=0.6 实测 −55.0%，−79.6% 属于 τ=0.5 档。两档均真实可调，文档与官方数字并排、不一致处明说（[docs/cost-savings.md](./docs/cost-savings.md)）。
 - 发货列 ECE **0.2519**（随包校准列 0.0168）；标定温度存于模型仓 `rl_agent_config.json`（0.8660205/0.8081192/0.6624661），由 phocinae-server 推理时应用。

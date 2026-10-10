@@ -149,7 +149,8 @@ curl -s http://127.0.0.1:8155/v1/systemone -H 'Content-Type: application/json' -
 
 ## Honest disclosures
 
-- **JevBench public-231: 0.5455 (126/231) vs a 58.4% acceptance gate — not passed.** We publish the number as measured, and we never train on the eval rows.
+- **JevBench public-231: 0.5455 (126/231) vs a 58.4% acceptance gate — not passed.** We publish the number as measured; JevBench (public-231) rows were held out of training.
+- **Training-overlap disclosure** *(corrected 2026-10-10)*: the fine-tune lineage includes an error-correction pair pool (500 items) mined from model predictions on the typed-decisions test rows (82/100 of the S1MB benchmark's typed-decisions cases; 151/500 decisions) and sampled rows from a Jev-8 training pool (18/4,055 banking77-test; 13/~5,500 clinc_oos plus-test). Full details: [MODEL_CARD.md](./MODEL_CARD.md).
 - zh results are on machine-translated cases; the training mix includes machine-translated Chinese (≈2,400 rows) and native Chinese (≈1,400 rows) — treat zh as an in-mix (fitted) evaluation, not zero-shot cross-lingual transfer.
 - Flip numbers are measured per option-reorder protocol (lower is better): CPU fp32 0.0200/0.0217 (flip150/400 reversed) · random-mean 0.0144 · any 0.0283. GPU fp16 0.0200/0.0217 and 1k-row 0.0181/0.0150/0.0331 are note-only values from different protocols.
 - Calibration: the shipped column has ECE **0.2519** (en). Calibration temperatures (0.8660205/0.8081192/0.6624661) are stored in the model repo config and applied at inference by phocinae-server. A recommended recalibration column is bundled under [`calib/`](./calib/).
