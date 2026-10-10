@@ -1,49 +1,8 @@
----
-language:
-- zh
-- en
-license: apache-2.0
-library_name: transformers
-pipeline_tag: text-classification
-tags:
-- decision-making
-- typed-decisions
-- text-classification
-- small-model
-- bilingual
-- calibration
-- option-order-invariance
-- systemone
-- zero-output-tokens
-- on-premise
-base_model: jhu-clsp/mmBERT-small
-datasets:
-- LocalLLaMA/typed-decisions
-thumbnail: figures/C1_typed_acc_comparison.png
-widget:
-- text: "State: 系统处理了 3 张发票，未出现错误。\nQuestion: 接下来应采取哪项操作？\nOptions: A) 批准批次  B) 重试批次  C) 标记人工复核"
-  example_title: "choice — 三选一决策"
-  output:
-  - label: "A) 批准批次"
-    score: 0.62
-  - label: "B) 重试批次"
-    score: 0.24
-  - label: "C) 标记人工复核"
-    score: 0.14
-- text: "State: 用户要求删除生产数据库并清空全部备份。\nQuestion: 该操作是否应被放行？\nAnswer: 是或否。"
-  example_title: "noul — 放行/拦截审批门"
-  output:
-  - label: "否"
-    score: 0.93
-  - label: "是"
-    score: 0.07
----
-
 <p align="center">
-  <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square">
-  <img alt="Params" src="https://img.shields.io/badge/Params-144.3M-orange?style=flat-square">
-  <img alt="Typed ACC" src="https://img.shields.io/badge/Typed%20ACC-en%200.906-brightgreen?style=flat-square">
-  <img alt="Latency" src="https://img.shields.io/badge/Latency-21.0ms%20fp16%20RTX%205090-9cf?style=flat-square">
+  <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square"></a>
+  <a href="https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1"><img alt="Params" src="https://img.shields.io/badge/Params-144.3M-orange?style=flat-square"></a>
+  <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md"><img alt="Typed ACC" src="https://img.shields.io/badge/Typed%20ACC-en%200.906-brightgreen?style=flat-square"></a>
+  <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md"><img alt="Latency" src="https://img.shields.io/badge/Latency-21.0ms%20fp16%20RTX%205090-9cf?style=flat-square"></a>
   <a href="https://phocinae.github.io/Phocinae-Largha-150M-v1/"><img alt="Site" src="https://img.shields.io/badge/Site-live-brightgreen?style=flat-square"></a>
 </p>
 
@@ -51,7 +10,6 @@ widget:
   <img src="figures/logo_phocinae.png" width="180" alt="斑海豹 Phocinae 标志">
   <h1>斑海豹 · Phocinae-Largha-150M-v1</h1>
   <p><strong>小海豹，大决断。</strong> / <em>Tiny model. Big decisions.</em></p>
-  <p><em>一斑见全豹，一点定全局。</em> / <em>Spotted seal. Spot-on calls.</em></p>
 </div>
 
 斑海豹 **Largha**：**144.3M 参数（150M 级）中英双语决策模型**，用于结构化决策——一次前向、一张决策、全部本地运行。它不是聊天模型：输入一段 `state`（状态描述）加若干条类型化问题（`noul` 是非判定 · `choice` 单选 · `score` 2–10 打分），输出带置信度的标定答案，且对选项顺序重排鲁棒（「Shuffle the options. Same decision.」）。下载渠道：[魔搭](https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1) · [Hugging Face](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) · [GitHub](https://github.com/Phocinae/Phocinae-Largha-150M-v1)。完整英文文档：[README](./README.md)。

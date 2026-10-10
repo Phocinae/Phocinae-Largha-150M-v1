@@ -1,56 +1,10 @@
----
-language:
-- en
-- zh
-license: apache-2.0
-library_name: transformers
-pipeline_tag: text-classification
-tags:
-- decision-making
-- typed-decisions
-- text-classification
-- small-model
-- bilingual
-- calibration
-- option-order-invariance
-- systemone
-- zero-output-tokens
-- on-premise
-base_model: jhu-clsp/mmBERT-small
-datasets:
-- LocalLLaMA/typed-decisions
-thumbnail: figures/C1_typed_acc_comparison.png
-widget:
-- text: "State: The system processed 3 invoices without errors.\nQuestion: Which action should be taken next?\nOptions: A) Approve batch  B) Retry the batch  C) Flag for human review"
-  example_title: "choice — pick one of three"
-  output:
-  - label: "A) Approve batch"
-    score: 0.62
-  - label: "B) Retry the batch"
-    score: 0.24
-  - label: "C) Flag for human review"
-    score: 0.14
-- text: "State: The user asks the agent to delete the production database and purge all backups.\nQuestion: Should this action be allowed?\nAnswer: yes or no."
-  example_title: "noul — allow/deny gate"
-  output:
-  - label: "no"
-    score: 0.93
-  - label: "yes"
-    score: 0.07
-- text: "State: The candidate's resume shows 5 years of backend engineering experience.\nQuestion: Rate how well the candidate matches criterion 'experience'.\nAnswer: 2 (worst) to 10 (best)."
-  example_title: "score — 2..10 rating"
-  output:
-  - label: "6"
-    score: 0.72
----
-
 <p align="center">
-  <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square">
-  <img alt="Params" src="https://img.shields.io/badge/Params-144.3M-orange?style=flat-square">
-  <img alt="Typed ACC" src="https://img.shields.io/badge/Typed%20ACC-en%200.906%20(self--host%20eval)-green?style=flat-square">
-  <img alt="Latency" src="https://img.shields.io/badge/Latency-21.0ms%20GPU%20fp16%20RTX%205090-9cf?style=flat-square">
+  <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square"></a>
+  <a href="https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1"><img alt="Params" src="https://img.shields.io/badge/Params-144.3M-orange?style=flat-square"></a>
+  <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md"><img alt="Typed ACC" src="https://img.shields.io/badge/Typed%20ACC-en%200.906%20(self--host%20eval)-green?style=flat-square"></a>
+  <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md"><img alt="Latency" src="https://img.shields.io/badge/Latency-21.0ms%20GPU%20fp16%20RTX%205090-9cf?style=flat-square"></a>
   <a href="https://github.com/Phocinae/Phocinae-Largha-150M-v1"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/Phocinae/Phocinae-Largha-150M-v1?style=flat-square&logo=github"></a>
-  <img alt="HF Downloads" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhuggingface.co%2Fapi%2Fmodels%2FPhocinae%2FPhocinae-Largha-150M-v1&query=%24.downloads&label=HF%20Downloads&color=orange&style=flat-square">
+  <a href="https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1"><img alt="HF Downloads" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhuggingface.co%2Fapi%2Fmodels%2FPhocinae%2FPhocinae-Largha-150M-v1&query=%24.downloads&label=HF%20Downloads&color=orange&style=flat-square"></a>
   <a href="https://phocinae.github.io/Phocinae-Largha-150M-v1/"><img alt="Site" src="https://img.shields.io/badge/Site-live-brightgreen?style=flat-square"></a>
 </p>
 
@@ -58,7 +12,6 @@ widget:
   <img src="figures/logo_phocinae.png" width="180" alt="斑海豹 Phocinae logo">
   <h1>斑海豹 · Phocinae-Largha-150M-v1</h1>
   <p><strong>小海豹，大决断。</strong> / <em>Tiny model. Big decisions.</em></p>
-  <p><em>一斑见全豹，一点定全局。</em> / <em>Spotted seal. Spot-on calls.</em></p>
 </div>
 
 斑海豹 **Largha**, the spotted seal: a **144.3M decision model** (en-first; zh evaluated on machine-translated cases) (150M-class) for structured decisions — one forward pass per decision, on your own hardware. Not a chat model: it takes a `state` plus a list of typed questions (`noul` yes/no · `choice` pick-one · `score` 2–10) and returns calibrated answers with confidence, robust to option reordering. Downloads: [Hugging Face](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) · [GitHub](https://github.com/Phocinae/Phocinae-Largha-150M-v1) · [ModelScope 魔搭](https://modelscope.cn/models/PerryLink/Phocinae-Largha-150M-v1) · 中文: [FAQ 中文版](docs/faq.zh.md) · [场景演示画廊](docs/gallery/README_cn.md).
