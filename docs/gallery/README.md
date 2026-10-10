@@ -155,13 +155,13 @@ Click the ▶ toggle under each entry to expand its embedded demo GIF.
 
 </details>
 
-**S12 · snake with a 144M brain** — 21.0 ms (RTX 5090)/step, 20×20 grid
+**S12 · snake with a 144.3M brain** — 21.0 ms (RTX 5090)/step, 20×20 grid
 
 <details>
 <summary>▶ Click to expand the demo GIF</summary>
 
 <div align="center">
-  <img src="./S12_snake.gif" alt="S12 — snake with a 144M brain (demo GIF)" width="720"/>
+  <img src="./S12_snake.gif" alt="S12 — snake with a 144.3M brain (demo GIF)" width="720"/>
 </div>
 
 </details>
@@ -291,7 +291,7 @@ Click the ▶ toggle under each entry to expand its embedded demo GIF.
 
 </details>
 
-**S24 · quickstart in three lines** — pip install → serve → POST · hardware tiers: 4 GB no-GPU 1.5–1.7 s / 3060-class 30–60 ms / 8 GB+ VRAM (RTX 5090) 21.0 ms
+**S24 · quickstart in three lines** — pip install → serve → POST · hardware tiers: 4 GB no-GPU 1.5–1.7 s / 3060-class 30–60 ms / 8 GB+ VRAM 21.0 ms (RTX 5090)
 
 <details>
 <summary>▶ Click to expand the demo GIF</summary>
