@@ -119,6 +119,10 @@ SUITES = [
          needs=[os.path.join(REPOS, "phocinae-guard", "l0_table.json")],
          why="README 里 L0 表的条数是否等于实际（曾有两份文档对同一张表说法不一致）"),
 
+    dict(name="published-version-sites", py="server",
+         script="tools/check_published_wheel_version_sites.py",
+         why="已发布的 wheel 里每个版本常量是否都等于它自己的版本（0.1.6 曾报成 0.1.5）"),
+
     dict(name="gallery-coverage", py="server",
          script="tools/audit_gallery_coverage.py",
          env={"PHOC_SCREEN_DOCS": os.path.join(STAGING, "dsh-phocinae-screen", "docs"),
