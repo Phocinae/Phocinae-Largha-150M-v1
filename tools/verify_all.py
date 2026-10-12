@@ -34,7 +34,10 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)                       # 模型仓根
-WORK = r"D:\Projects\phociane-project\_work"       # scratch 与同级 checkout 的父目录
+# Our scratch tree, where the sibling checkouts and the shared tools live. Configurable so
+# this file is not tied to one machine's layout: on a runner PHOC_WORK can point at the
+# directory holding whatever checkouts that job made available.
+WORK = os.environ.get("PHOC_WORK") or r"D:\Projects\phociane-project\_work"
 REPOS = os.path.join(WORK, "repos")
 STAGING = os.path.join(WORK, "staging")
 
@@ -88,6 +91,12 @@ SUITES = [
          script="tools/audit_gallery_coverage.py",
          env={"PHOC_SCREEN_DOCS": os.path.join(STAGING, "dsh-phocinae-screen", "docs"),
               "PHOC_GUARD_REPO": os.path.join(REPOS, "phocinae-guard")},
+         # The gallery evidence table lives in the harness repo and refers to the guard
+         # checkout. Where those are absent the audit must not be asked to run at all —
+         # pointing PHOC_SCREEN_DOCS at a path that does not exist turns a "cannot check"
+         # into a failure, which is exactly the confusion this runner is meant to remove.
+         needs=[os.path.join(REPOS, "phocinae-guard"),
+                os.path.join(STAGING, "dsh-phocinae-screen", "docs")],
          why="27 个演示 -> 插件覆盖（shipped/measured/unmeasured）"),
 
     dict(name="bilingual-sync", py="server", script="tools/audit_bilingual_sync.py",
@@ -96,6 +105,7 @@ SUITES = [
     dict(name="version-consistency", py="server",
          script="tools/audit_package_version_consistency.py",
          args=lambda A: [REPOS, STAGING],
+         needs=[REPOS, STAGING],
          why="每个仓在所有清单里是否只声明一个版本"),
 
     dict(name="plugin-manifests", py="server",
@@ -108,6 +118,7 @@ SUITES = [
     dict(name="tool-server-override", py="server",
          script=os.path.join(WORK, "tools", "verify_tool_server_override.py"),
          in_work=True,
+         needs=[os.path.join(WORK, "tools", "verify_tool_server_override.py")],
          why="四个 MCP 工具是否都接受每次调用的 server 覆盖"),
 ]
 
