@@ -124,3 +124,22 @@ jobs:
           PYTHONUTF8: '1'
           PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
         run: python tools/check_server_documented_api.py
+
+      # guard.conf.example.json ships in the repository rather than the wheel (the README
+      # has you copy it from a checkout), so the guard check needs that checkout to verify
+      # that the config file is actually read. Without it the config assertions skip.
+      - name: Check out phocinae-guard for its example config
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/phocinae-guard
+          path: .phoc-guard
+
+      # Exit codes, the two invariants (only allow passes; --confirm cannot override deny),
+      # the fail-closed behaviour with no service, the JSON-by-default output, the audit
+      # file, and that a config value really changes the decision.
+      - name: phocinae-guard documented contract
+        env:
+          PYTHONUTF8: '1'
+          PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
+          PHOC_GUARD_REPO: .phoc-guard
+        run: python tools/check_guard_documented_contract.py
