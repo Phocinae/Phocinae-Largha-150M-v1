@@ -40,9 +40,9 @@ SCREEN_DOCS = os.path.join(
 STATUS = {
     "S01": "shipped", "S02": "shipped", "S03": "shipped",
     "S04": "shipped", "S05": "shipped",
-    "S06": "measured", "S07": "measured", "S08": "unmeasured",
+    "S06": "measured", "S07": "measured", "S08": "measured",
     "S09": "measured", "S10": "measured", "S11": "measured",
-    "S12": "unmeasured", "S13": "measured", "S14": "measured",
+    "S12": "measured", "S13": "measured", "S14": "measured",
     "S15": "measured", "S16": "measured", "S17": "measured",
     "S18": "measured", "S19": "measured", "S20": "measured",
     "S21": "measured", "S22": "measured", "S23": "measured",
@@ -70,6 +70,8 @@ MEASURED = {
     "S17": "measure-quality-gate.mjs",
     "S22": "measure-variance-vs-order.mjs",
     "S10": "measure-latency.mjs",
+    "S12": "measure-snake.mjs",
+    "S08": "FEASIBILITY-zh-zero-escalate.md",
     "G27": "../Phocinae-Largha-150M-v1/tools/measure_failclosed.py",
     "S11": "measure-latency.mjs",
     "S24": "measure-latency.mjs",
@@ -175,11 +177,12 @@ def main():
               STATUS.get(demo))
         found = None
         for cand in (os.path.join(SCREEN_DOCS, script),
-                     os.path.join(HERE, os.path.basename(script))):
+                     os.path.join(HERE, os.path.basename(script)),
+                     os.path.join(SCREEN_DOCS, os.path.basename(script))):
             if os.path.isfile(cand):
                 found = cand
                 break
-        check("%s: measurement script %s exists" % (demo, script),
+        check("%s: the evidence file %s exists" % (demo, script),
               found is not None,
               "looked in %s and %s" % (SCREEN_DOCS, HERE))
 
@@ -191,7 +194,9 @@ def main():
                 "FEASIBILITY-expense.md",
                 "FEASIBILITY-escalation.md",
                 "FEASIBILITY-latency.md",
-                "FEASIBILITY-failclosed.md"):
+                "FEASIBILITY-failclosed.md",
+                "FEASIBILITY-snake.md",
+                "FEASIBILITY-zh-zero-escalate.md"):
         p = os.path.join(SCREEN_DOCS, doc)
         check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
 
