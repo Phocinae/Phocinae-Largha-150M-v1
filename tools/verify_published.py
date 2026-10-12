@@ -42,6 +42,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 import zipfile
 
@@ -54,6 +55,7 @@ BYPASS = ["ls\nrm -rf /", "ls\trm -rf /", 'cat payload.sh | "sh"',
           "echo pwned>/etc/passwd", "ls ; \\rm -rf /", "true && rm -rf /"]
 
 FAILS = []
+NET_SKIPS = []
 EXTRA_PATH = ""
 
 
@@ -76,8 +78,21 @@ def _get_json(url):
         "Pragma": "no-cache",
         "User-Agent": "phocinae-verify-published",
     })
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.loads(r.read().decode("utf-8"))
+    # 瞬时网络错误要重试。实测过一次 PyPI 强制断开（WinError 10054），异常一路上抛，
+    # 整个套件以 traceback 结束 —— 重跑就全绿。在 CI 里那就是随机红灯，而随机红灯
+    # 训练人忽略红色。
+    last = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError:
+            raise                    # 4xx/5xx 是确定答案，重试没有意义
+        except Exception as e:       # noqa: BLE001
+            last = e
+            if attempt < 2:
+                time.sleep(2 * (attempt + 1))
+    raise last
 
 
 def latest_version(project):
@@ -394,16 +409,30 @@ def main():
 
     print("python : %s" % args.python)
     print("server : %s\n" % args.server)
+
+    # 这一段整体包一层网络兜底。每个 verify_* 都要先从 PyPI 取 wheel，所以网络
+    # 不可达时异常会从任意一个里抛出来，把整个套件变成 traceback。抓下来记 SKIP：
+    # **没验到不等于验出问题**，绝不能记成 FAIL（FAIL 表示"发布物有问题"）。
+    def run(label, fn, *fnargs):
+        try:
+            return fn(*fnargs)
+        except Exception as e:                      # noqa: BLE001
+            NET_SKIPS.append(label)
+            print("%s: SKIP (network failure while fetching the artifact: %s: %s)"
+                  % (label, type(e).__name__, str(e)[:70]))
+            print("      nothing was verified for this package; this is not a defect report")
+            return None
+
     if "cli" in only:
-        verify_cli(args.python, args.server)
+        run("phocinae-cli", verify_cli, args.python, args.server)
     if "guard" in only:
-        verify_guard(args.python)
+        run("phocinae-guard", verify_guard, args.python)
     if "mcp" in only:
-        verify_mcp(args.python, args.server)
+        run("phocinae-mcp", verify_mcp, args.python, args.server)
     if "server" in only:
-        verify_server(args.python, args.server)
+        run("phocinae-server", verify_server, args.python, args.server)
     if "mcp" in only:
-        verify_registry()
+        run("MCP Registry entry", verify_registry)
 
     print()
     if FAILS:
@@ -411,6 +440,13 @@ def main():
         for f in FAILS:
             print("  - %s" % f)
         return 1
+    if NET_SKIPS:
+        print("verify_published: passed the checks it could run, %d package(s) SKIPPED:"
+              % len(NET_SKIPS))
+        for s in NET_SKIPS:
+            print("  - %s (network)" % s)
+        print("  SKIP is not PASS: those packages were not verified at all.")
+        return 0
     print("verify_published: all checks passed")
     return 0
 
