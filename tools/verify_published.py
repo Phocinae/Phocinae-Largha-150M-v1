@@ -356,17 +356,26 @@ def verify_registry():
         print("       this check runs where the registry is reachable (CI); locally it is not")
         return
     entries = d.get("servers") or d.get("data") or []
-    ours = [e for e in entries
-            if (e.get("server", e).get("name") == "io.github.Phocinae/phocinae-mcp")]
+    ours = [e.get("server", e) for e in entries
+            if e.get("server", e).get("name") == "io.github.Phocinae/phocinae-mcp"]
     check("registry has the io.github.Phocinae/phocinae-mcp entry", bool(ours),
           "entries returned: %d" % len(entries))
     if not ours:
         return
-    inner = ours[0].get("server", ours[0])
-    reg_ver = inner.get("version")
+
+    # Registry **保留每个已发布版本**，search 按版本升序返回。取第一条会永远拿到
+    # 最旧的（实测有 0.1.4 / 0.2.1 / 0.2.2 / 0.2.3 / 0.2.4 五条），于是报出一个
+    # 不存在的"不同步"。比较的是**最高版本**。
+    def key(v):
+        parts = re.findall(r"\d+", v or "")
+        return tuple(int(p) for p in parts[:3]) + (0,) * (3 - len(parts[:3]))
+
+    versions = sorted({e.get("version") for e in ours if e.get("version")}, key=key)
+    reg_ver = versions[-1] if versions else None
     pypi_ver, _ = latest_version("phocinae-mcp")
-    check("registry version == PyPI version (%s)" % pypi_ver, reg_ver == pypi_ver,
-          "registry says %s" % reg_ver)
+    print("  registry lists %d version(s), newest %s" % (len(versions), reg_ver))
+    check("registry's newest version == PyPI version (%s)" % pypi_ver,
+          reg_ver == pypi_ver, "registry newest is %s" % reg_ver)
 
 
 def main():
