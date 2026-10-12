@@ -30,6 +30,23 @@ import socket
 import subprocess
 import sys
 import tempfile
+
+# 显式的 scratch 目录，不用 tempfile.gettempdir()。
+#
+# 这个环境里系统 TEMP 不可写（Permission denied），于是 Python 的 gettempdir()
+# **回退到当前工作目录** —— 实测 `tempfile.gettempdir() == os.getcwd()`。因此
+# `dir=tempfile.gettempdir()` 并不能把文件移出仓库，只是让泄漏看起来被修好了。
+# 这里用一个绝对路径，与 cwd 无关，且位于 _work/ 之下（不属于任何仓库）。
+SCRATCH = r"D:\Projects\phociane-project\_work\.tmp"
+
+
+def _scratch(prefix):
+    """在 SCRATCH 下建一个临时目录；SCRATCH 不可用时才退回 gettempdir()。"""
+    try:
+        os.makedirs(SCRATCH, exist_ok=True)
+        return tempfile.mkdtemp(prefix=prefix, dir=SCRATCH)
+    except OSError:
+        return tempfile.mkdtemp(prefix=prefix)
 import threading
 import urllib.request
 import zipfile
@@ -91,8 +108,7 @@ def download_wheel(project):
     d = json.loads(urllib.request.urlopen(req, timeout=60).read().decode())
     files = d["releases"].get(d["info"]["version"]) or d["urls"]
     whl = [f for f in files if f["filename"].endswith(".whl")][0]
-    dest = os.path.join(tempfile.mkdtemp(prefix="failclosed-",
-                                         dir=tempfile.gettempdir()),
+    dest = os.path.join(_scratch("failclosed-"),
                         whl["filename"])
     with urllib.request.urlopen(whl["url"], timeout=300) as r, open(dest, "wb") as o:
         shutil.copyfileobj(r, o)
@@ -100,7 +116,7 @@ def download_wheel(project):
 
 
 def extract(wheel):
-    root = tempfile.mkdtemp(prefix="failclosed-x-", dir=tempfile.gettempdir())
+    root = _scratch("failclosed-x-")
     with zipfile.ZipFile(wheel) as z:
         z.extractall(root)
     return root
@@ -132,7 +148,7 @@ def main():
         e = dict(env)
         e["PHOCINAE_GUARD_SERVER"] = server
         e["PHOCINAE_GUARD_AUDIT"] = "off"
-        e["HOME"] = e["USERPROFILE"] = tempfile.mkdtemp(dir=tempfile.gettempdir())
+        e["HOME"] = e["USERPROFILE"] = _scratch("home-")
         p = subprocess.run([py, "-c", boot, "--command", "pip install requests"],
                            capture_output=True, timeout=180, env=e)
         out = (p.stdout + p.stderr).decode("utf-8", "replace")

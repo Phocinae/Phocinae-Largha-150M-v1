@@ -42,6 +42,23 @@ import shutil
 import subprocess
 import sys
 import tempfile
+
+# 显式的 scratch 目录，不用 tempfile.gettempdir()。
+#
+# 这个环境里系统 TEMP 不可写（Permission denied），于是 Python 的 gettempdir()
+# **回退到当前工作目录** —— 实测 `tempfile.gettempdir() == os.getcwd()`。因此
+# `dir=tempfile.gettempdir()` 并不能把文件移出仓库，只是让泄漏看起来被修好了。
+# 这里用一个绝对路径，与 cwd 无关，且位于 _work/ 之下（不属于任何仓库）。
+SCRATCH = r"D:\Projects\phociane-project\_work\.tmp"
+
+
+def _scratch(prefix):
+    """在 SCRATCH 下建一个临时目录；SCRATCH 不可用时才退回 gettempdir()。"""
+    try:
+        os.makedirs(SCRATCH, exist_ok=True)
+        return tempfile.mkdtemp(prefix=prefix, dir=SCRATCH)
+    except OSError:
+        return tempfile.mkdtemp(prefix=prefix)
 import time
 import urllib.request
 import zipfile
@@ -109,8 +126,7 @@ def download_wheel(project, version=None):
     if not whl:
         raise SystemExit("no wheel for %s %s" % (project, version or ver))
     f = whl[0]
-    dest = os.path.join(tempfile.mkdtemp(prefix="pubverify-",
-                                        dir=tempfile.gettempdir()),
+    dest = os.path.join(_scratch("pubverify-"),
                        f["filename"])
     with urllib.request.urlopen(f["url"], timeout=300) as r, open(dest, "wb") as out:
         shutil.copyfileobj(r, out)
@@ -118,7 +134,7 @@ def download_wheel(project, version=None):
 
 
 def extract(wheel):
-    root = tempfile.mkdtemp(prefix="pubx-", dir=tempfile.gettempdir())
+    root = _scratch("pubx-")
     with zipfile.ZipFile(wheel) as z:
         z.extractall(root)
     return root
@@ -211,7 +227,7 @@ def verify_guard(py):
     ver, wheel = download_wheel("phocinae-guard")
     print("phocinae-guard %s" % ver)
     root = extract(wheel)
-    audit = tempfile.mkdtemp(prefix="pubaudit-", dir=tempfile.gettempdir())
+    audit = _scratch("pubaudit-")
     env = {"PHOCINAE_GUARD_AUDIT": "off", "HOME": audit, "USERPROFILE": audit}
     try:
         boot = ("import sys, json, os; sys.path.insert(0, %r); "
@@ -362,7 +378,11 @@ def verify_registry():
     所以不可达时报 SKIP 并说明原因 —— 在能连通的 CI 上它才真正生效。
     """
     print("MCP Registry entry")
-    url = "https://registry.modelcontextprotocol.io/v0/servers?search=phocinae-mcp"
+    # `version=latest` 让 Registry 自己回答"最新是哪个"。第一版没带这个参数，
+    # 于是我从返回的 5 条里自己挑"版本号最大"的，挑到 0.2.4 就报"Registry 落后"——
+    # 而 Registry 上最新其实已经是 0.2.5。**权威方已经给了答案，不该自己再算一遍。**
+    url = ("https://registry.modelcontextprotocol.io/v0/servers"
+           "?search=phocinae-mcp&version=latest")
     try:
         d = _get_json(url)
     except Exception as e:                       # noqa: BLE001
@@ -378,19 +398,26 @@ def verify_registry():
     if not ours:
         return
 
-    # Registry **保留每个已发布版本**，search 按版本升序返回。取第一条会永远拿到
-    # 最旧的（实测有 0.1.4 / 0.2.1 / 0.2.2 / 0.2.3 / 0.2.4 五条），于是报出一个
-    # 不存在的"不同步"。比较的是**最高版本**。
+    # Registry **保留每个已发布版本**。带上 version=latest 时它只返回最新那条；
+    # 若服务端忽略了该参数（返回多条），才退回"取版本号最大者"，并且**明说这是回退**。
     def key(v):
         parts = re.findall(r"\d+", v or "")
         return tuple(int(p) for p in parts[:3]) + (0,) * (3 - len(parts[:3]))
 
     versions = sorted({e.get("version") for e in ours if e.get("version")}, key=key)
-    reg_ver = versions[-1] if versions else None
+    if len(ours) == 1:
+        reg_ver = ours[0].get("version")
+        print("  registry reports latest = %s (authoritative)" % reg_ver)
+    else:
+        reg_ver = versions[-1] if versions else None
+        print("  NOTE the registry returned %d entries despite version=latest;"
+              % len(ours))
+        print("       falling back to the highest version number (%s)" % reg_ver)
+
     pypi_ver, _ = latest_version("phocinae-mcp")
-    print("  registry lists %d version(s), newest %s" % (len(versions), reg_ver))
-    check("registry's newest version == PyPI version (%s)" % pypi_ver,
-          reg_ver == pypi_ver, "registry newest is %s" % reg_ver)
+    check("registry's latest version == PyPI version (%s)" % pypi_ver,
+          reg_ver == pypi_ver,
+          "registry latest is %s; it lists %d version(s)" % (reg_ver, len(versions)))
 
 
 def main():
