@@ -40,13 +40,13 @@ SCREEN_DOCS = os.path.join(
 STATUS = {
     "S01": "shipped", "S02": "shipped", "S03": "shipped",
     "S04": "shipped", "S05": "shipped",
-    "S06": "unmeasured", "S07": "measured", "S08": "unmeasured",
+    "S06": "measured", "S07": "measured", "S08": "unmeasured",
     "S09": "measured", "S10": "unmeasured", "S11": "unmeasured",
     "S12": "unmeasured", "S13": "measured", "S14": "measured",
     "S15": "measured", "S16": "measured", "S17": "measured",
     "S18": "measured", "S19": "measured", "S20": "measured",
     "S21": "measured", "S22": "measured", "S23": "measured",
-    "S24": "unmeasured", "G25": "unmeasured", "G26": "unmeasured",
+    "S24": "unmeasured", "G25": "unmeasured", "G26": "measured",
     "G27": "unmeasured",
 }
 
@@ -69,6 +69,8 @@ MEASURED = {
     "S16": "measure-routing.mjs",
     "S17": "measure-quality-gate.mjs",
     "S22": "measure-variance-vs-order.mjs",
+    "S06": "measure-escalation-savings.mjs",
+    "G26": "measure-escalation-savings.mjs",
     "S15": "measure-expense-approval.mjs",
     "S23": "measure-bilingual.mjs",
     "S18": "measure-deterministic-first.mjs",
@@ -173,7 +175,8 @@ def main():
                 "FEASIBILITY-routing.md", "FEASIBILITY-quality-gate.md",
                 "FEASIBILITY-flip-invariance.md",
                 "FEASIBILITY-bilingual.md",
-                "FEASIBILITY-expense.md"):
+                "FEASIBILITY-expense.md",
+                "FEASIBILITY-escalation.md"):
         p = os.path.join(SCREEN_DOCS, doc)
         check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
 
