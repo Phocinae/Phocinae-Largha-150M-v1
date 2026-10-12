@@ -30,7 +30,35 @@ import urllib.error
 import urllib.request
 import zipfile
 
-SCRATCH = r"D:\Projects\phociane-project\_work\.tmp"
+def _scratch_root():
+    """一个**可移植**的 scratch 目录。
+
+    不能写死本机路径：CI 是 Linux，`r"D:\\Projects\\..."` 会被当成相对路径，
+    在仓库检出目录里造出一串名为 `D:\\Projects\\...` 的目录（实测发生过）。
+
+    优先级：PHOC_SCRATCH -> 系统临时目录（**实测可写**）-> <cwd>/.phoc-scratch。
+    第二项必须真的试写：本机 TEMP 存在但不可写，而 `tempfile.gettempdir()` 会
+    静默回退到 cwd —— 只看"目录存在"会得到错误的结论。
+    """
+    cands = []
+    if os.environ.get("PHOC_SCRATCH"):
+        cands.append(os.environ["PHOC_SCRATCH"])
+    cands.append(os.path.join(tempfile.gettempdir(), ".phocinae-verify"))
+    cands.append(os.path.join(os.getcwd(), ".phoc-scratch"))
+    for d in cands:
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".w")
+            with open(probe, "w") as fh:
+                fh.write("x")
+            os.remove(probe)
+            return d
+        except OSError:
+            continue
+    return os.getcwd()
+
+
+SCRATCH = _scratch_root()
 FAILS = []
 SKIPS = []
 
@@ -82,7 +110,7 @@ def start_server(root, py, port, env_extra=None):
     env["PHOC_HOST"] = "127.0.0.1"
     if env_extra:
         env.update(env_extra)
-    p = subprocess.Popen([py, "-m", "phocinae.main"], env=env,
+    p = subprocess.Popen([py, "-m", "phocinae.main"], env=env, cwd=root,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for _ in range(60):
         time.sleep(0.5)
@@ -170,7 +198,11 @@ def main():
         env["PYTHONUTF8"] = "1"
         env["PHOC_PORT"] = str(port)
         env.pop("PHOC_MODEL_DIR", None)
-        p = _sp.Popen([py, "-m", "phocinae.main"], env=env,
+        # cwd=root：让 sys.path[0] 指向**解包目录**。不传 cwd 时 sys.path[0] 是
+        # 调用方的 cwd（CI 里是仓库检出目录），于是 -m phocinae.main 报
+        # "Error while finding module specification" —— 而我只断言了退出码非 0，
+        # 于是这条"通过"了，实际上模块根本没找到。
+        p = _sp.Popen([py, "-m", "phocinae.main"], env=env, cwd=root,
                       stdout=_sp.PIPE, stderr=_sp.STDOUT)
         try:
             out = p.communicate(timeout=90)[0].decode("utf-8", "replace")

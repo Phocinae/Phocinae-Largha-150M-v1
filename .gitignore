@@ -31,3 +31,9 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+# Scratch space for the verification tools when the system temp directory is not writable.
+.phoc-scratch/
+
+# Scratch space for the verification tools (system temp may be unwritable).
+.phocinae-verify/
+.phoc-scratch/

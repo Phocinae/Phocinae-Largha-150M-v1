@@ -25,7 +25,35 @@ import tempfile
 import urllib.request
 import zipfile
 
-SCRATCH = r"D:\Projects\phociane-project\_work\.tmp"
+def _scratch_root():
+    """一个**可移植**的 scratch 目录。
+
+    不能写死本机路径：CI 是 Linux，`r"D:\\Projects\\..."` 会被当成相对路径，
+    在仓库检出目录里造出一串名为 `D:\\Projects\\...` 的目录（实测发生过）。
+
+    优先级：PHOC_SCRATCH -> 系统临时目录（**实测可写**）-> <cwd>/.phoc-scratch。
+    第二项必须真的试写：本机 TEMP 存在但不可写，而 `tempfile.gettempdir()` 会
+    静默回退到 cwd —— 只看"目录存在"会得到错误的结论。
+    """
+    cands = []
+    if os.environ.get("PHOC_SCRATCH"):
+        cands.append(os.environ["PHOC_SCRATCH"])
+    cands.append(os.path.join(tempfile.gettempdir(), ".phocinae-verify"))
+    cands.append(os.path.join(os.getcwd(), ".phoc-scratch"))
+    for d in cands:
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".w")
+            with open(probe, "w") as fh:
+                fh.write("x")
+            os.remove(probe)
+            return d
+        except OSError:
+            continue
+    return os.getcwd()
+
+
+SCRATCH = _scratch_root()
 FAILS = []
 SKIPS = []
 
