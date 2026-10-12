@@ -47,7 +47,7 @@ STATUS = {
     "S18": "measured", "S19": "measured", "S20": "measured",
     "S21": "measured", "S22": "measured", "S23": "measured",
     "S24": "measured", "G25": "measured", "G26": "measured",
-    "G27": "unmeasured",
+    "G27": "measured",
 }
 
 # 已发布的实现。渠道必须真的查得到 —— 这是这个脚本最有价值的一条断言。
@@ -70,6 +70,7 @@ MEASURED = {
     "S17": "measure-quality-gate.mjs",
     "S22": "measure-variance-vs-order.mjs",
     "S10": "measure-latency.mjs",
+    "G27": "../Phocinae-Largha-150M-v1/tools/measure_failclosed.py",
     "S11": "measure-latency.mjs",
     "S24": "measure-latency.mjs",
     "G25": "measure-latency.mjs",
@@ -166,13 +167,21 @@ def main():
             check("%s: %s package %r is published (%s)" % (demo, kind, pkg, info),
                   ok, info)
 
-    # 2) measured -> 测量脚本真的存在
+    # 2) measured -> 测量脚本真的存在。
+    #    脚本可能落在两处：screen 仓的 docs/（判定质量类的测量），或本仓 tools/
+    #    （发布物验证与降级行为）。两处都查，而不是把路径猜成一个。
     for demo, script in sorted(MEASURED.items()):
         check("%s is classified measured" % demo, STATUS.get(demo) == "measured",
               STATUS.get(demo))
-        path = os.path.join(SCREEN_DOCS, script)
+        found = None
+        for cand in (os.path.join(SCREEN_DOCS, script),
+                     os.path.join(HERE, os.path.basename(script))):
+            if os.path.isfile(cand):
+                found = cand
+                break
         check("%s: measurement script %s exists" % (demo, script),
-              os.path.isfile(path), path)
+              found is not None,
+              "looked in %s and %s" % (SCREEN_DOCS, HERE))
 
     # 3) measured 的每个 demo 都要有对应的结论文档
     for doc in ("FEASIBILITY.md", "FEASIBILITY-deterministic.md",
@@ -181,7 +190,8 @@ def main():
                 "FEASIBILITY-bilingual.md",
                 "FEASIBILITY-expense.md",
                 "FEASIBILITY-escalation.md",
-                "FEASIBILITY-latency.md"):
+                "FEASIBILITY-latency.md",
+                "FEASIBILITY-failclosed.md"):
         p = os.path.join(SCREEN_DOCS, doc)
         check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
 
@@ -199,14 +209,28 @@ def main():
     doc_path = os.path.join(REPO, "docs", "gallery", "README_cn.md")
     if os.path.isfile(doc_path):
         dt = io.open(doc_path, encoding="utf-8").read()
-        for label, key in (("已发布插件实现", "shipped"),
-                           ("已测量，判定不达标 → 不发", "measured"),
-                           ("尚未测量", "unmeasured")):
-            m = re.search(r"\*\*%s\*\*\s*\|\s*(\d+)" % re.escape(label), dt)
+        # "已测量"在文档里拆成两行（判定不达标 / 成立），所以读的是**两行之和**；
+        # 其余两类各一行。断言针对状态总数，避免把"分成两行"误判成数字错。
+        def row_total(*labels):
+            tot = 0
+            seen = False
+            for lab in labels:
+                m = re.search(r"\*\*%s\*\*\s*\|\s*(\d+)" % re.escape(lab), dt)
+                if m:
+                    tot += int(m.group(1))
+                    seen = True
+            return tot if seen else None
+
+        doc_rows = {
+            "shipped": row_total("已发布插件实现"),
+            "measured": row_total("已测量，判定不达标 → 不发", "已测量，成立"),
+            "unmeasured": row_total("尚未测量"),
+        }
+        for key, total in doc_rows.items():
             check("gallery README states %s=%d" % (key, counts.get(key, 0)),
-                  m is not None and int(m.group(1)) == counts.get(key, 0),
-                  "doc says %s, audit computed %d"
-                  % (m.group(1) if m else "(row absent)", counts.get(key, 0)))
+                  total == counts.get(key, 0),
+                  "doc rows sum to %s, audit computed %d"
+                  % (total, counts.get(key, 0)))
 
     print()
     if FAILS:
