@@ -1,0 +1,22 @@
+# ---- Python bytecode / caches ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ---- Scratch directories ----
+# tools/verify_published.py downloads wheels into the system temp dir; these
+# patterns are here in case an older revision (or a hand-run) leaves one behind
+# in the working tree. Without them, 17 such directories were committed by
+# accident once already.
+pubverify-*/
+pubx-*/
+pubaudit-*/
+.guard-for-parity/
+
+# ---- Editor / OS junk ----
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

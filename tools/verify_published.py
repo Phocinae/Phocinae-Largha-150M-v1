@@ -78,14 +78,16 @@ def download_wheel(project, version=None):
     if not whl:
         raise SystemExit("no wheel for %s %s" % (project, version or ver))
     f = whl[0]
-    dest = os.path.join(tempfile.mkdtemp(prefix="pubverify-"), f["filename"])
+    dest = os.path.join(tempfile.mkdtemp(prefix="pubverify-",
+                                        dir=tempfile.gettempdir()),
+                       f["filename"])
     with urllib.request.urlopen(f["url"], timeout=300) as r, open(dest, "wb") as out:
         shutil.copyfileobj(r, out)
     return version or ver, dest
 
 
 def extract(wheel):
-    root = tempfile.mkdtemp(prefix="pubx-")
+    root = tempfile.mkdtemp(prefix="pubx-", dir=tempfile.gettempdir())
     with zipfile.ZipFile(wheel) as z:
         z.extractall(root)
     return root
@@ -178,7 +180,7 @@ def verify_guard(py):
     ver, wheel = download_wheel("phocinae-guard")
     print("phocinae-guard %s" % ver)
     root = extract(wheel)
-    audit = tempfile.mkdtemp(prefix="pubaudit-")
+    audit = tempfile.mkdtemp(prefix="pubaudit-", dir=tempfile.gettempdir())
     env = {"PHOCINAE_GUARD_AUDIT": "off", "HOME": audit, "USERPROFILE": audit}
     try:
         boot = ("import sys, json, os; sys.path.insert(0, %r); "
