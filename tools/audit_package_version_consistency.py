@@ -36,6 +36,21 @@ import sys
 DEFAULT_ROOTS = ["."]
 SKIP_DIRS = {".git", "node_modules", "dist", "build", "__pycache__", ".venv", "venv"}
 
+# The verification tools download and unpack published wheels, and those unpacked packages
+# carry their own `__version__`. Scanning them made this audit report that the model repo
+# declares both 0.1.2 and 0.1.6 — it declares no version at all. Whatever the tools create
+# has to be excluded by name, and by prefix because mkdtemp suffixes are random.
+SKIP_DIRS |= {".phocinae-verify", ".phoc-scratch", ".tmp", "dist-upload",
+              ".mypy_cache", ".pytest_cache", ".ruff_cache", "htmlcov"}
+SKIP_PREFIXES = ("pubverify-", "pubx-", "pubaudit-", "failclosed-", "hostrefuse-",
+                 "cli-contract-", "srv-api-", "srv-empty-", "srv-junk-",
+                 "phocinae-verify")
+
+
+def _skip_dir(name):
+    return name in SKIP_DIRS or any(name.startswith(p) for p in SKIP_PREFIXES)
+
+
 
 def read(p):
     try:
@@ -94,7 +109,7 @@ def collect(repo):
 
     # __init__.py / __main__.py 里的 __version__
     for dp, dn, fn in os.walk(repo):
-        dn[:] = [d for d in dn if d not in SKIP_DIRS]
+        dn[:] = [d for d in dn if not _skip_dir(d)]
         for f in fn:
             if not f.endswith(".py"):
                 continue
