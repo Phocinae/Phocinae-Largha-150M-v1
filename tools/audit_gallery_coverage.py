@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""audit_gallery_coverage.py — 把"27 个演示哪些有插件、哪些没有"变成可核查的事。
+
+为什么需要：`docs/FEASIBILITY*.md` 里写了结论（哪些演示不该做插件），但结论是
+**散文**。散文会过期、也会被误读成"作者觉得不行"。这个脚本把同一件事写成
+机器可检查的断言：
+
+  1. 27 个演示必须**全部分类**，不允许漏（数量断言，不是靠人眼数）；
+  2. 声称"已实现"的演示，其插件必须**真的在发布渠道上**（PyPI / npm 查得到），
+     而不是只在某个仓库里有个目录；
+  3. 声称"已测量、判定不达标"的演示，必须指得出**测量脚本存在**；
+  4. 声称"未测量"的必须显式列出，不允许默默消失。
+
+这样，如果以后有人删掉了某个测量脚本、或把插件下架了，这个脚本会失败，
+而不是让 README 继续宣称一件不再成立的事。
+
+用法：python tools/audit_gallery_coverage.py
+退出码：0=全部自洽；1=有断言失败。
+"""
+import io
+import json
+import os
+import re
+import sys
+import urllib.error
+import urllib.request
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(HERE)
+GALLERY = os.path.join(REPO, "docs", "gallery", "README_cn.md")
+SCREEN_DOCS = os.path.join(
+    r"D:\Projects\phociane-project\_work\staging\dsh-phocinae-screen", "docs")
+
+# demo -> 状态。三种状态，含义必须清楚：
+#   shipped    有已发布的插件实现它（下面 SHIPPED 给出渠道与包名）
+#   measured   做过标注集测量，结论是不达标 → 不发（MEASURED 给出脚本）
+#   unmeasured 尚未测量（显式列出，不隐藏）
+STATUS = {
+    "S01": "shipped", "S02": "shipped", "S03": "shipped",
+    "S04": "shipped", "S05": "shipped",
+    "S06": "unmeasured", "S07": "measured", "S08": "unmeasured",
+    "S09": "measured", "S10": "unmeasured", "S11": "unmeasured",
+    "S12": "unmeasured", "S13": "measured", "S14": "measured",
+    "S15": "unmeasured", "S16": "measured", "S17": "unmeasured",
+    "S18": "measured", "S19": "measured", "S20": "measured",
+    "S21": "measured", "S22": "unmeasured", "S23": "unmeasured",
+    "S24": "unmeasured", "G25": "unmeasured", "G26": "unmeasured",
+    "G27": "unmeasured",
+}
+
+# 已发布的实现。渠道必须真的查得到 —— 这是这个脚本最有价值的一条断言。
+SHIPPED = {
+    "S01": [("pypi", "phocinae-guard"), ("pypi", "phocinae-mcp"),
+            ("npm", "dsh-phocinae")],
+    "S02": [("pypi", "phocinae-guard"), ("pypi", "phocinae-mcp")],
+    "S03": [("pypi", "phocinae-guard"), ("pypi", "phocinae-mcp")],
+    "S04": [("pypi", "phocinae-guard")],
+    "S05": [("pypi", "phocinae-guard")],
+}
+
+# 做过的测量：demo -> 脚本文件名（必须存在于 dsh-phocinae-screen/docs/）
+MEASURED = {
+    "S07": "measure-routing.mjs",
+    "S09": "measure-screen.mjs",
+    "S13": "feasibility-matrix.mjs",
+    "S14": "feasibility-matrix.mjs",
+    "S16": "measure-routing.mjs",
+    "S18": "measure-deterministic-first.mjs",
+    "S19": "feasibility-matrix.mjs",
+    "S20": "measure-screen.mjs",
+    "S21": "feasibility-matrix.mjs",
+}
+
+FAILS = []
+
+
+def check(name, cond, detail=""):
+    print(("PASS " if cond else "FAIL ") + name + ("" if cond else "  " + str(detail)))
+    if not cond:
+        FAILS.append(name)
+    return bool(cond)
+
+
+def get_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "phocinae-audit"})
+    with urllib.request.urlopen(req, timeout=45) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def pypi_ok(pkg):
+    try:
+        d = get_json("https://pypi.org/pypi/%s/json" % pkg)
+        return True, d["info"]["version"]
+    except urllib.error.HTTPError as e:
+        return False, "HTTP %s" % e.code
+    except Exception as e:                      # noqa: BLE001
+        return False, "%s: %s" % (type(e).__name__, e)
+
+
+def npm_ok(pkg):
+    name = pkg.replace("/", "%2F")
+    try:
+        d = get_json("https://registry.npmjs.org/%s" % name)
+        return True, d.get("dist-tags", {}).get("latest", "?")
+    except urllib.error.HTTPError as e:
+        return False, "HTTP %s" % e.code
+    except Exception as e:                      # noqa: BLE001
+        return False, "%s: %s" % (type(e).__name__, e)
+
+
+def main():
+    text = io.open(GALLERY, encoding="utf-8").read()
+    demos = re.findall(r"\*\*(S\d+|G\d+)\s*·\s*([^*]+)\*\*", text)
+    ids = [d[0] for d in demos]
+    print("gallery demos found: %d" % len(ids))
+
+    check("the gallery lists 27 demos", len(ids) == 27, "got %d" % len(ids))
+    check("every demo is classified (no silent omissions)",
+          set(ids) == set(STATUS), "missing from STATUS: %s"
+          % sorted(set(ids) - set(STATUS)))
+    check("no extra ids in STATUS", set(STATUS) == set(ids),
+          "extra: %s" % sorted(set(STATUS) - set(ids)))
+
+    counts = {}
+    for v in STATUS.values():
+        counts[v] = counts.get(v, 0) + 1
+    print("classification: %s" % json.dumps(counts, sort_keys=True))
+
+    # 1) shipped -> 渠道上真的查得到
+    for demo in sorted(SHIPPED):
+        check("%s is classified shipped" % demo, STATUS.get(demo) == "shipped",
+              STATUS.get(demo))
+        for kind, pkg in SHIPPED[demo]:
+            ok, info = pypi_ok(pkg) if kind == "pypi" else npm_ok(pkg)
+            check("%s: %s package %r is published (%s)" % (demo, kind, pkg, info),
+                  ok, info)
+
+    # 2) measured -> 测量脚本真的存在
+    for demo, script in sorted(MEASURED.items()):
+        check("%s is classified measured" % demo, STATUS.get(demo) == "measured",
+              STATUS.get(demo))
+        path = os.path.join(SCREEN_DOCS, script)
+        check("%s: measurement script %s exists" % (demo, script),
+              os.path.isfile(path), path)
+
+    # 3) measured 的每个 demo 都要有对应的结论文档
+    for doc in ("FEASIBILITY.md", "FEASIBILITY-deterministic.md",
+                "FEASIBILITY-routing.md"):
+        p = os.path.join(SCREEN_DOCS, doc)
+        check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
+
+    # 4) 声明为 shipped 的 demo 必须有对应插件仓库在本地
+    for demo in sorted(SHIPPED):
+        if demo in ("S01", "S02", "S03", "S04", "S05"):
+            check("%s: the guard repo checkout is present" % demo,
+                  os.path.isfile(r"D:\Projects\phociane-project\_work\repos"
+                                 r"\phocinae-guard\guard.py"))
+
+    print()
+    if FAILS:
+        print("audit_gallery_coverage: FAILED %d assertion(s)" % len(FAILS))
+        for f in FAILS:
+            print("  - %s" % f)
+        return 1
+    print("audit_gallery_coverage: the coverage claim holds")
+    print("  shipped=%d measured=%d unmeasured=%d"
+          % (counts.get("shipped", 0), counts.get("measured", 0),
+             counts.get("unmeasured", 0)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
