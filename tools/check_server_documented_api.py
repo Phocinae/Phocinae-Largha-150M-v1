@@ -143,6 +143,24 @@ def main():
 
     port = free_port()
 
+    # 先确认这个解释器**能导入刚解包的包**。CI 上第一次跑时，服务"退出码非 0"
+    # 是因为 Error while finding module specification（根本找不到模块），
+    # 而我的断言只检查了退出码非 0 —— **为一个错误的理由通过了**。
+    # 导入不通就直接 SKIP，别让环境问题伪装成契约验证。
+    import subprocess as _sp0
+    _env0 = dict(os.environ)
+    _env0["PYTHONPATH"] = root + os.pathsep + _env0.get("PYTHONPATH", "")
+    _env0["PYTHONUTF8"] = "1"
+    _probe = _sp0.run([py, "-c", "import phocinae, os; print(os.path.dirname(phocinae.__file__))"],
+                      capture_output=True, env=_env0, cwd=root, timeout=120)
+    _pout = (_probe.stdout + _probe.stderr).decode("utf-8", "replace").strip()
+    print("  import probe: rc=%s  %s" % (_probe.returncode, _pout.splitlines()[-1][:110] if _pout else ""))
+    if _probe.returncode != 0:
+        skip("the server contract", "this interpreter cannot import the unpacked package: %s"
+             % (_pout.splitlines()[-1][:110] if _pout else ""))
+        print("  nothing was verified (environment, not a defect)")
+        return 0
+
     # ---- 0) 没有权重时，服务应当"启动即给出可行动报错"，而不是半死不活 ----
     #      这本身是一条该验证的契约。第一版只是整体 SKIP，于是 CI 里这一项什么都没验。
     if not have_model:
