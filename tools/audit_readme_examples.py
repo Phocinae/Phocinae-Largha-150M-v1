@@ -102,9 +102,21 @@ def readme_text(wheel, root):
     return ""
 
 
+
+# ANSI escape sequences. The runner's Python makes rich emit colour even into a pipe, so
+# every flag arrives as "\x1b[1;33m--version\x1b[0m" and no plain-text pattern matches it.
+# Locally the same command is plain, which is why four separate hypotheses failed to
+# reproduce the runner's empty result. Strip before parsing, always.
+_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
+def strip_ansi(text):
+    return _ANSI.sub("", text or "")
+
+
 def flags_of(help_text):
-    """从 --help 文本里抽所有 --flag。"""
-    return set(re.findall(r"(--[a-z][a-z0-9-]{1,28})", help_text))
+    """从 --help 文本里抽所有 --flag（先剥 ANSI）。"""
+    return set(re.findall(r"(--[a-z][a-z0-9-]{1,28})", strip_ansi(help_text)))
 
 
 def subcommands_of(help_text, cmdname):
@@ -115,7 +127,7 @@ def subcommands_of(help_text, cmdname):
     取不到就退化为"只有全局选项"，并把这件事说清楚。
     """
     names = set()
-    for line in help_text.split("\n"):
+    for line in strip_ansi(help_text).split("\n"):
         # 去掉 rich 的竖线边框，再按空白切词。
         # **不要**依赖"名字后恰好两个空格"：不同平台/终端宽度下 rich 的列宽会变，
         # 那种正则会随环境失配（我先后踩过两次）。
