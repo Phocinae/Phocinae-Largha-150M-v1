@@ -31,13 +31,44 @@ import subprocess
 import sys
 import tempfile
 
+
+def _work_root():
+    """Directory holding the sibling checkouts, or "" when it cannot be located."""
+    env = os.environ.get("PHOC_WORK")
+    if env and os.path.isdir(env):
+        return env
+    d = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        if os.path.isdir(os.path.join(d, "repos")) and \
+                os.path.isdir(os.path.join(d, "staging")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    here = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(4):
+        if os.path.basename(here) == "tools":
+            return os.path.dirname(here)
+        here = os.path.dirname(here)
+    return ""
+
+
+def _wp(*parts):
+    """Rebuild a path this file used to hard-code, relative to the work root."""
+    return os.path.join(WORK, *parts) if WORK else ""
+
+
+WORK = _work_root()
+
+
 # 显式的 scratch 目录，不用 tempfile.gettempdir()。
 #
 # 这个环境里系统 TEMP 不可写（Permission denied），于是 Python 的 gettempdir()
 # **回退到当前工作目录** —— 实测 `tempfile.gettempdir() == os.getcwd()`。因此
 # `dir=tempfile.gettempdir()` 并不能把文件移出仓库，只是让泄漏看起来被修好了。
 # 这里用一个绝对路径，与 cwd 无关，且位于 _work/ 之下（不属于任何仓库）。
-SCRATCH = r"D:\Projects\phociane-project\_work\.tmp"
+SCRATCH = _wp(".tmp")
 
 
 def _scratch(prefix):
@@ -50,7 +81,6 @@ def _scratch(prefix):
 import threading
 import urllib.request
 import zipfile
-
 FAILS = []
 
 

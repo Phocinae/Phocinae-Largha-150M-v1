@@ -26,6 +26,36 @@ import os
 import re
 import sys
 
+def _work_root():
+    """Directory holding the sibling checkouts, or "" when it cannot be located."""
+    env = os.environ.get("PHOC_WORK")
+    if env and os.path.isdir(env):
+        return env
+    d = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        if os.path.isdir(os.path.join(d, "repos")) and \
+                os.path.isdir(os.path.join(d, "staging")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    here = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(4):
+        if os.path.basename(here) == "tools":
+            return os.path.dirname(here)
+        here = os.path.dirname(here)
+    return ""
+
+
+def _wp(*parts):
+    """Rebuild a path this file used to hard-code, relative to the work root."""
+    return os.path.join(WORK, *parts) if WORK else ""
+
+
+WORK = _work_root()
+
+
 PAIRS = [
     ("docs/gallery/README.md", "docs/gallery/README_cn.md"),
 ]
@@ -54,7 +84,7 @@ def parse(path):
 
 def main():
     roots = sys.argv[1:] or [
-        r"D:\Projects\phociane-project\_work\repos\Phocinae-Largha-150M-v1"]
+        _wp("repos", "Phocinae-Largha-150M-v1")]
     fails = 0
     warned = 0
     for root in roots:

@@ -20,7 +20,36 @@ import os
 import re
 import sys
 
-W = r"D:\Projects\phociane-project\_work"
+def _work_root():
+    """Directory holding the sibling checkouts, or the CWD as a last resort."""
+    env = os.environ.get("PHOC_WORK")
+    if env and os.path.isdir(env):
+        return env
+    d = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        if os.path.isdir(os.path.join(d, "repos")) and \
+                os.path.isdir(os.path.join(d, "staging")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    here = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(4):
+        if os.path.basename(here) == "tools":
+            return os.path.dirname(here)
+        here = os.path.dirname(here)
+    return os.getcwd()
+
+
+def _wp(*parts):
+    return os.path.join(WORK, *parts)
+
+
+WORK = _work_root()
+
+
+W = WORK or os.getcwd()
 GUARD_TABLE = os.path.join(W, r"repos\phocinae-guard\l0_table.json")
 
 READMES = [

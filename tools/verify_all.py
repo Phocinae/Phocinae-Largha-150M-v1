@@ -37,7 +37,30 @@ ROOT = os.path.dirname(HERE)                       # 模型仓根
 # Our scratch tree, where the sibling checkouts and the shared tools live. Configurable so
 # this file is not tied to one machine's layout: on a runner PHOC_WORK can point at the
 # directory holding whatever checkouts that job made available.
-WORK = os.environ.get("PHOC_WORK") or r"D:\Projects\phociane-project\_work"
+def _locate_work():
+    """The directory holding the sibling checkouts.
+
+    `PHOC_WORK` if set, else walk up looking for one that contains both `repos/` and
+    `staging/`, else this repository's parent (the shape a CI job has when it checks the
+    repositories out side by side). A default that only makes sense on the machine where it
+    was written is a latent failure everywhere else.
+    """
+    env = os.environ.get("PHOC_WORK")
+    if env and os.path.isdir(env):
+        return env
+    d = HERE
+    for _ in range(6):
+        if os.path.isdir(os.path.join(d, "repos")) and \
+                os.path.isdir(os.path.join(d, "staging")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return os.path.dirname(ROOT)
+
+
+WORK = _locate_work()
 REPOS = os.path.join(WORK, "repos")
 STAGING = os.path.join(WORK, "staging")
 
