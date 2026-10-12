@@ -114,6 +114,11 @@ SUITES = [
                 os.path.join(STAGING, "phocinae-cli")],
          why="README 画的目录树与图片引用是否与仓库一致（抓到过一条跑不通的自测命令）"),
 
+    dict(name="l0-count-claims", py="server",
+         script="tools/audit_l0_count_claims.py",
+         needs=[os.path.join(REPOS, "phocinae-guard", "l0_table.json")],
+         why="README 里 L0 表的条数是否等于实际（曾有两份文档对同一张表说法不一致）"),
+
     dict(name="gallery-coverage", py="server",
          script="tools/audit_gallery_coverage.py",
          env={"PHOC_SCREEN_DOCS": os.path.join(STAGING, "dsh-phocinae-screen", "docs"),
