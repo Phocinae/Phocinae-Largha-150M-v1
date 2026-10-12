@@ -106,6 +106,14 @@ SUITES = [
          script="tools/audit_readme_examples.py",
          why="四个包 README 示例里的每个 --flag 是否真实存在"),
 
+    dict(name="readme-trees-and-images", py="server",
+         script="tools/audit_readme_trees_and_images.py",
+         needs=[os.path.join(REPOS, "phocinae-guard"),
+                os.path.join(REPOS, "phocinae-mcp"),
+                os.path.join(REPOS, "phocinae-server"),
+                os.path.join(STAGING, "phocinae-cli")],
+         why="README 画的目录树与图片引用是否与仓库一致（抓到过一条跑不通的自测命令）"),
+
     dict(name="gallery-coverage", py="server",
          script="tools/audit_gallery_coverage.py",
          env={"PHOC_SCREEN_DOCS": os.path.join(STAGING, "dsh-phocinae-screen", "docs"),
