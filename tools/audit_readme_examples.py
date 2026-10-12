@@ -116,12 +116,19 @@ def subcommands_of(help_text, cmdname):
     """
     names = set()
     for line in help_text.split("\n"):
-        # 去掉 rich 的竖线边框后看第一个词
-        stripped = line.strip().strip("│|").strip()
-        m = re.match(r"^([a-z][a-z0-9-]{2,20})\s{2,}\S", stripped)
-        if m:
-            names.add(m.group(1))
-    names.discard("--")
+        # 去掉 rich 的竖线边框，再按空白切词。
+        # **不要**依赖"名字后恰好两个空格"：不同平台/终端宽度下 rich 的列宽会变，
+        # 那种正则会随环境失配（我先后踩过两次）。
+        stripped = line.strip().strip("\u2502|").strip()
+        if not stripped:
+            continue
+        parts = stripped.split()
+        if len(parts) < 2:
+            continue
+        if re.fullmatch(r"[a-z][a-z0-9-]{2,20}", parts[0]):
+            names.add(parts[0])
+    for word in ("--", "usage", "options", "commands", "help"):
+        names.discard(word)
     return names
 
 
@@ -252,6 +259,17 @@ def main():
             continue
 
         lines = example_lines(readme, cmdname)
+        # **可见的第一步**：顶层 --help 到底拿到了什么。
+        # CI 上 CLI 探到 0 个选项、0 个子命令，而本地同一条命令拿到 29 个 ——
+        # 必须能一眼看出"探测本身失败了"，而不是把它当成"文档里有 19 个假选项"。
+        if len(help_text.strip()) < 40 or "No module" in help_text:
+            msg = ("%s: the CLI probe returned nothing usable (%d chars) — "
+                   "nothing was checked" % (project, len(help_text.strip())))
+            print("  NOTE %s" % msg)
+            print("       first line: %s" % (help_text.strip().split(chr(10)) or ["(empty)"])[0][:100])
+            NOTES.append(msg)
+            continue
+        print("  top-level --help: %d chars" % len(help_text))
         table = collect_flags(py, root, entry, kind, cmdname, help_text)
         all_flags = set()
         for v in table.values():
