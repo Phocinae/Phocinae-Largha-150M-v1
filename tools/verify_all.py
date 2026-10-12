@@ -41,8 +41,27 @@ WORK = os.environ.get("PHOC_WORK") or r"D:\Projects\phociane-project\_work"
 REPOS = os.path.join(WORK, "repos")
 STAGING = os.path.join(WORK, "staging")
 
-DEFAULT_CLI_PY = os.path.join(WORK, "verify-cli", "Scripts", "python.exe")
-DEFAULT_SRV_PY = os.path.join(WORK, "srvvenv", "Scripts", "python.exe")
+def _pick_python(preferred, role):
+    """选解释器：显式 env > 本机 venv（存在才用）> 当前解释器。
+
+    On a runner the workflow sets PHOC_CLI_PYTHON/PHOC_SERVER_PYTHON. When it does not — a
+    shell that loses the step env, or a plain checkout — falling back to this machine's
+    virtualenv paths produces twelve "interpreter not found" skips and a confusing failure.
+    Falling back to the interpreter that is running this file is the sane default: it is by
+    definition present, and on CI it is the one the workflow just installed into.
+    """
+    explicit = os.environ.get("PHOC_" + role.upper() + "_PYTHON")
+    if explicit:
+        return explicit
+    if os.path.isfile(preferred):
+        return preferred
+    return sys.executable
+
+
+DEFAULT_CLI_PY = _pick_python(
+    os.path.join(WORK, "verify-cli", "Scripts", "python.exe"), "cli")
+DEFAULT_SRV_PY = _pick_python(
+    os.path.join(WORK, "srvvenv", "Scripts", "python.exe"), "server")
 
 # ---------------------------------------------------------------------------
 # 套件表。字段：
