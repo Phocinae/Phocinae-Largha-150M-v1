@@ -24,6 +24,14 @@
     teacher's quirks (label-specificity), also probed via JevBench on the model card. zh
     (machine-translated test cases; the training mix includes machine-translated + native Chinese
     rows) has no benchmark task; see the model card.
+    Training-overlap disclosure (corrected 2026-10-10; re-audited 2026-10-12): the fine-tune mix
+    includes a 500-item error-correction pair pool mined from model predictions on this benchmark's
+    test rows. Overlap with this test split: 500 / 2,000 decisions across 282 / 400 cases (S1MB
+    typed-decisions subset: 82 / 100 cases, 151 / 500 decisions). This accuracy is therefore measured
+    on a test split this lineage has partly seen — read as "fitted on train, test-exposed", not zero-shot.
+    Full details: the model card's training-overlap disclosure. A clean re-score without the pool (same recipe,
+    pairs swapped back out) measures 0.791 — published in the dataset discussion
+    (2026-10-12).
 
 - dataset:
     id: LocalLLaMA/typed-decisions
@@ -38,7 +46,7 @@
   notes: >
     KL(gold || prediction), mean over the 2,000 decisions; scored with the benchmark's
     conventions (reproduced exactly from the README's Uniform reference row). Specialist:
-    fitted on the train split — not comparable with the zero-shot table. Self-reported.
+    fitted on the train split — not comparable with the zero-shot table. Self-reported. See the accuracy entry's overlap note: includes test-derived correction pairs; not zero-shot.
 
 - dataset:
     id: LocalLLaMA/typed-decisions
@@ -53,7 +61,7 @@
   notes: >
     Brier summed over options, mean over the 2,000 decisions; scored with the benchmark's
     conventions (reproduced exactly from the README's Uniform reference row). Specialist:
-    fitted on the train split — not comparable with the zero-shot table. Self-reported.
+    fitted on the train split — not comparable with the zero-shot table. Self-reported. See the accuracy entry's overlap note: includes test-derived correction pairs; not zero-shot.
 
 - dataset:
     id: LocalLLaMA/typed-decisions
@@ -70,3 +78,4 @@
     and documented in BENCHMARKS.md (the benchmark README warns that submitters compute ECE
     differently). An optional bundled calibration column (calib/) reaches 0.0168. Self-reported
     (self-host, no verifyToken).
+    See the accuracy entry's overlap note: includes test-derived correction pairs; not zero-shot.

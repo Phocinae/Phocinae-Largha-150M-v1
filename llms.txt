@@ -39,7 +39,7 @@ Phocinae-Largha-150M-v1（斑海豹 Largha）是一个 144.3M 参数的双语类
 | Calibration | shipped column ECE **0.2519** (en) · **0.1941** (zh); temperatures 0.8660205 / 0.8081192 / 0.6624661 applied at inference; optional bundled calibration column (`calib/`) reaches ECE **0.0168** / **0.0152** |
 | Escalate gate (E1, τ=0.6) | −55.0% LLM calls (79.6% at τ=0.5); kept-subset accuracy 0.906 → 0.9936 (+0.0876); 45.0% escalate |
 | JevBench public-231 | **0.5455** (126/231) — below the 58.4% acceptance gate, disclosed voluntarily; tool_selection 12/12 on k≤10 |
-| Training | `LocalLLaMA/typed-decisions` train split + flip-augmented reorderings + additional public decision-set mixture (v1.1); fp16 fine-tune; recipe in `rl_agent_config.json`; `checkpoint_meta.json` = `{"epoch": 1, "total_epochs": 1, "avg_loss": 1.3689859449863433}` |
+| Training | `LocalLLaMA/typed-decisions` train split + flip-augmented reorderings + additional public decision-set mixture (v1.1; disclosed training-overlap: a 500-item error-correction pool derived from model predictions on typed-decisions test rows — see model card); fp16 fine-tune; recipe in `rl_agent_config.json`; `checkpoint_meta.json` = `{"epoch": 1, "total_epochs": 1, "avg_loss": 1.3689859449863433}` |
 
 ## How to run
 
@@ -59,6 +59,7 @@ Full quick start (weight download, Python & HTTP examples): see the repository R
 - Chinese results come from machine-translated cases; the training mix includes Chinese rows (≈2,400 machine-translated + ≈1,400 native, per 10k items) — fitted, not zero-shot.
 - Long inputs degrade: 16k / 32k probes score 0.453 / 0.387 (v1.0-baseline measurements; re-probe pending for v1.1).
 - JevBench acceptance gate not passed (0.5455 vs 58.4%).
+- Training-overlap disclosure (corrected 2026-10-10; re-audited 2026-10-12): the v1.1 lineage includes a 500-item error-correction pair pool mined from typed-decisions test-row predictions (overlap 500 / 2,000 decisions across 282 / 400 cases); the 0.906 entry is a fitted, test-exposed reading — not zero-shot. A clean re-score without the pool measures 0.791 (same recipe, pairs swapped back out; published in the dataset discussion, 2026-10-12).
 - No demographic/fairness evaluation yet.
 - Not usable as the sole safety gate; pair with escalation plus a deterministic rule layer.
 

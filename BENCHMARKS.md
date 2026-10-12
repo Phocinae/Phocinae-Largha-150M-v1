@@ -29,11 +29,11 @@ All published numbers (v1.1 weights; evaluated 2026-10-09). Model: **Phocinae-La
 
 ## 1. typed-decisions (main benchmark)
 
-Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged per decision. en: **400 cases × 5 decisions = 2000 decisions**. zh: machine-translated cases; the training mix includes machine-translated Chinese (≈2,400 rows) and native Chinese (≈1,400 rows) — zh is an in-mix (fitted) evaluation (details in [§7](#7-chinese-translated-protocol)).
+Protocol: a `state` plus a typed question (`noul` / `choice` / `score`), judged per decision. en: **400 cases × 5 decisions = 2000 decisions**. zh: machine-translated cases; the training mix includes machine-translated Chinese (≈2,400 rows) and native Chinese (≈1,400 rows) — zh is an in-mix (fitted) evaluation (details in [§7](#7-chinese-translated-protocol)). Disclosure: the v1.1 training mix includes a 500-pair error-correction pool derived from this benchmark's test-row predictions (overlap: 500 / 2,000 decisions across 282 / 400 cases) — the entry below is "fitted on train, test-exposed", not zero-shot; a clean re-score without the pair pool measures 0.791 (see the dataset discussion); full details in the model card's training-overlap disclosure.
 
 | model | en accuracy | zh accuracy | notes |
 |---|---|---|---|
-| **Phocinae-Largha-150M-v1** | **0.906** | **0.848** | 144.3M params · specialist (fitted on train split) |
+| **Phocinae-Largha-150M-v1** | **0.906** | **0.848** | 144.3M params · specialist (fitted on train split; training-overlap disclosed) |
 | Laya 421M | 0.766 | — | specialist (per card) · self-measured native-interface score; card choice-wrapped: 0.737 |
 | JEV-27B | 0.727 | — | generalist, zero-shot (per card) |
 | meraGPT | 0.768 | — | generalist, zero-shot (per card) |
@@ -77,7 +77,7 @@ Context: the release flip rates are 2.17% (flip400 reversed) / 2.83% (any of 3 r
 
 ## 4. JevBench public-231 (honest disclosure)
 
-Held-out protocol. **Not trained on any eval row.**
+Held-out protocol: **no row of JevBench public-231 was used in training.** (Other overlap sources — the typed-decisions test-derived pair pool and the Jev-8 pool notes — are itemized in the model card's training-overlap disclosure.)
 
 | metric | value |
 |---|---|
