@@ -143,3 +143,13 @@ jobs:
           PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
           PHOC_GUARD_REPO: .phoc-guard
         run: python tools/check_guard_documented_contract.py
+
+      # Every `--flag` written in the four packages' README examples must exist in the real
+      # CLI. A reader who types an example has no way to tell that it was never run; this
+      # check reads the option set from `--help` and compares. Packages whose examples
+      # cannot be checked here are reported as not verified rather than passed.
+      - name: README examples name real flags
+        env:
+          PYTHONUTF8: '1'
+          PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
+        run: python tools/audit_readme_examples.py
