@@ -76,7 +76,13 @@ jobs:
         id: pypath
         run: |
           # typer/rich/httpx for the CLI contract check; fastapi/uvicorn for the server one.
-          python -m pip install --quiet typer rich httpx fastapi uvicorn
+          #
+          # torch is here because the server imports it before it looks for weights, so
+          # without it the process dies with ModuleNotFoundError and never reaches the
+          # diagnostic the check is looking for. That is not a heavyweight concession: the
+          # CPU-only wheel is what pip resolves by default, and the assertion is about the
+          # message printed when no weights are configured, not about inference.
+          python -m pip install --quiet typer rich httpx fastapi uvicorn numpy torch
           echo "path=$(python -c 'import sys; print(sys.executable)')" >> "$GITHUB_OUTPUT"
 
       # Runs the published wheel's CLI and asserts the exit-code contract the README
