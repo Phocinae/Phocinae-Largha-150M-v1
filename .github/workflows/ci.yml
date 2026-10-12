@@ -72,10 +72,11 @@ jobs:
       # The CLI's own dependencies, so its contract check actually runs. Without them the
       # check SKIPs (exit 0) — and a green row that verified nothing is precisely the
       # failure mode this repository keeps finding in other forms.
-      - name: Install the CLI's runtime dependencies
+      - name: Install the CLI's and server's runtime dependencies
         id: pypath
         run: |
-          python -m pip install --quiet typer rich httpx
+          # typer/rich/httpx for the CLI contract check; fastapi/uvicorn for the server one.
+          python -m pip install --quiet typer rich httpx fastapi uvicorn
           echo "path=$(python -c 'import sys; print(sys.executable)')" >> "$GITHUB_OUTPUT"
 
       # Runs the published wheel's CLI and asserts the exit-code contract the README
@@ -106,3 +107,14 @@ jobs:
         env:
           PYTHONUTF8: '1'
         run: python tools/verify_published.py
+
+      # The documented API of the published server. With no weights this verifies the
+      # startup diagnostic — the server must exit with a message naming PHOC_MODEL_DIR and
+      # how to fetch them, rather than half-starting — and reports the endpoints it could
+      # not exercise. On a machine with PHOC_MODEL_DIR set it tests all five endpoints, the
+      # bearer-token contract, the 413 limit and the batch boundary.
+      - name: phocinae-server documented API
+        env:
+          PYTHONUTF8: '1'
+          PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
+        run: python tools/check_server_documented_api.py
