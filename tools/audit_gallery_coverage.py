@@ -45,7 +45,7 @@ STATUS = {
     "S12": "unmeasured", "S13": "measured", "S14": "measured",
     "S15": "unmeasured", "S16": "measured", "S17": "measured",
     "S18": "measured", "S19": "measured", "S20": "measured",
-    "S21": "measured", "S22": "measured", "S23": "unmeasured",
+    "S21": "measured", "S22": "measured", "S23": "measured",
     "S24": "unmeasured", "G25": "unmeasured", "G26": "unmeasured",
     "G27": "unmeasured",
 }
@@ -69,6 +69,7 @@ MEASURED = {
     "S16": "measure-routing.mjs",
     "S17": "measure-quality-gate.mjs",
     "S22": "measure-variance-vs-order.mjs",
+    "S23": "measure-bilingual.mjs",
     "S18": "measure-deterministic-first.mjs",
     "S19": "feasibility-matrix.mjs",
     "S20": "measure-screen.mjs",
@@ -169,7 +170,8 @@ def main():
     # 3) measured 的每个 demo 都要有对应的结论文档
     for doc in ("FEASIBILITY.md", "FEASIBILITY-deterministic.md",
                 "FEASIBILITY-routing.md", "FEASIBILITY-quality-gate.md",
-                "FEASIBILITY-flip-invariance.md"):
+                "FEASIBILITY-flip-invariance.md",
+                "FEASIBILITY-bilingual.md"):
         p = os.path.join(SCREEN_DOCS, doc)
         check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
 
