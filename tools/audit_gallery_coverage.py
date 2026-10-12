@@ -23,6 +23,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -44,7 +45,7 @@ STATUS = {
     "S12": "unmeasured", "S13": "measured", "S14": "measured",
     "S15": "unmeasured", "S16": "measured", "S17": "measured",
     "S18": "measured", "S19": "measured", "S20": "measured",
-    "S21": "measured", "S22": "unmeasured", "S23": "unmeasured",
+    "S21": "measured", "S22": "measured", "S23": "unmeasured",
     "S24": "unmeasured", "G25": "unmeasured", "G26": "unmeasured",
     "G27": "unmeasured",
 }
@@ -67,6 +68,7 @@ MEASURED = {
     "S14": "feasibility-matrix.mjs",
     "S16": "measure-routing.mjs",
     "S17": "measure-quality-gate.mjs",
+    "S22": "measure-variance-vs-order.mjs",
     "S18": "measure-deterministic-first.mjs",
     "S19": "feasibility-matrix.mjs",
     "S20": "measure-screen.mjs",
@@ -83,10 +85,29 @@ def check(name, cond, detail=""):
     return bool(cond)
 
 
-def get_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "phocinae-audit"})
-    with urllib.request.urlopen(req, timeout=45) as r:
-        return json.loads(r.read().decode("utf-8"))
+def get_json(url, attempts=3):
+    """GET JSON，对**瞬时网络故障**重试。
+
+    加这个是因为一次运行里出现了
+    `SSL: UNEXPECTED_EOF_WHILE_READING`，于是 S02 被报成"包没发布" —— 而
+    phocinae-guard 明明在 PyPI 上。把网络抖动报成"发布物缺失"是最坏的一类误报：
+    它会让人去重新发布一个本来好好的包。
+    """
+    last = None
+    for i in range(attempts):
+        try:
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "phocinae-audit",
+                              "Cache-Control": "no-cache"})
+            with urllib.request.urlopen(req, timeout=45) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError:
+            raise                       # 4xx/5xx 是确定答案，不重试
+        except Exception as e:          # noqa: BLE001
+            last = e
+            if i + 1 < attempts:
+                time.sleep(2 * (i + 1))
+    raise last
 
 
 def pypi_ok(pkg):
@@ -96,7 +117,7 @@ def pypi_ok(pkg):
     except urllib.error.HTTPError as e:
         return False, "HTTP %s" % e.code
     except Exception as e:                      # noqa: BLE001
-        return False, "%s: %s" % (type(e).__name__, e)
+        return False, "network: %s: %s" % (type(e).__name__, e)
 
 
 def npm_ok(pkg):
@@ -107,7 +128,7 @@ def npm_ok(pkg):
     except urllib.error.HTTPError as e:
         return False, "HTTP %s" % e.code
     except Exception as e:                      # noqa: BLE001
-        return False, "%s: %s" % (type(e).__name__, e)
+        return False, "network: %s: %s" % (type(e).__name__, e)
 
 
 def main():
@@ -147,7 +168,8 @@ def main():
 
     # 3) measured 的每个 demo 都要有对应的结论文档
     for doc in ("FEASIBILITY.md", "FEASIBILITY-deterministic.md",
-                "FEASIBILITY-routing.md", "FEASIBILITY-quality-gate.md"):
+                "FEASIBILITY-routing.md", "FEASIBILITY-quality-gate.md",
+                "FEASIBILITY-flip-invariance.md"):
         p = os.path.join(SCREEN_DOCS, doc)
         check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
 
