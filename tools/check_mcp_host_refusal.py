@@ -29,7 +29,34 @@ import tempfile
 # **回退到当前工作目录** —— 实测 `tempfile.gettempdir() == os.getcwd()`。因此
 # `dir=tempfile.gettempdir()` 并不能把文件移出仓库，只是让泄漏看起来被修好了。
 # 这里用一个绝对路径，与 cwd 无关，且位于 _work/ 之下（不属于任何仓库）。
-SCRATCH = r"D:\Projects\phociane-project\_work\.tmp"
+def _scratch_root():
+    """A writable scratch directory, not a hard-coded path from one machine.
+
+    `r"D:\\Projects\\..."` is a *relative* path on a Linux runner, so the tools built a
+    directory literally named `D:\\Projects\\...` inside the checkout. Order:
+    PHOC_SCRATCH, then the system temp directory (write-tested, because on this machine TEMP
+    exists but is not writable and gettempdir() silently falls back to the working
+    directory), then a dot-directory in the working tree.
+    """
+    cands = []
+    if os.environ.get("PHOC_SCRATCH"):
+        cands.append(os.environ["PHOC_SCRATCH"])
+    cands.append(os.path.join(tempfile.gettempdir(), ".phocinae-verify"))
+    cands.append(os.path.join(os.getcwd(), ".phocinae-verify"))
+    for d in cands:
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".w")
+            with open(probe, "w") as fh:
+                fh.write("x")
+            os.remove(probe)
+            return d
+        except OSError:
+            continue
+    return os.getcwd()
+
+
+SCRATCH = _scratch_root()
 
 
 def _scratch(prefix):
