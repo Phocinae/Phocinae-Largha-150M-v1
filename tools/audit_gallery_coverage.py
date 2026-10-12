@@ -42,7 +42,7 @@ STATUS = {
     "S06": "unmeasured", "S07": "measured", "S08": "unmeasured",
     "S09": "measured", "S10": "unmeasured", "S11": "unmeasured",
     "S12": "unmeasured", "S13": "measured", "S14": "measured",
-    "S15": "unmeasured", "S16": "measured", "S17": "unmeasured",
+    "S15": "unmeasured", "S16": "measured", "S17": "measured",
     "S18": "measured", "S19": "measured", "S20": "measured",
     "S21": "measured", "S22": "unmeasured", "S23": "unmeasured",
     "S24": "unmeasured", "G25": "unmeasured", "G26": "unmeasured",
@@ -66,6 +66,7 @@ MEASURED = {
     "S13": "feasibility-matrix.mjs",
     "S14": "feasibility-matrix.mjs",
     "S16": "measure-routing.mjs",
+    "S17": "measure-quality-gate.mjs",
     "S18": "measure-deterministic-first.mjs",
     "S19": "feasibility-matrix.mjs",
     "S20": "measure-screen.mjs",
@@ -146,7 +147,7 @@ def main():
 
     # 3) measured 的每个 demo 都要有对应的结论文档
     for doc in ("FEASIBILITY.md", "FEASIBILITY-deterministic.md",
-                "FEASIBILITY-routing.md"):
+                "FEASIBILITY-routing.md", "FEASIBILITY-quality-gate.md"):
         p = os.path.join(SCREEN_DOCS, doc)
         check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
 
@@ -156,6 +157,22 @@ def main():
             check("%s: the guard repo checkout is present" % demo,
                   os.path.isfile(r"D:\Projects\phociane-project\_work\repos"
                                  r"\phocinae-guard\guard.py"))
+
+    # 5) gallery README 里那张表必须与本脚本算出的数一致。
+    #    加这条是因为它真的发生过：S17 测完之后本脚本算得 measured=10，而文档里
+    #    还写着 9 —— 两处各说一套，读者无从判断哪个是真的。
+    #    文档与断言不一致，等于断言没做。
+    doc_path = os.path.join(REPO, "docs", "gallery", "README_cn.md")
+    if os.path.isfile(doc_path):
+        dt = io.open(doc_path, encoding="utf-8").read()
+        for label, key in (("已发布插件实现", "shipped"),
+                           ("已测量，判定不达标 → 不发", "measured"),
+                           ("尚未测量", "unmeasured")):
+            m = re.search(r"\*\*%s\*\*\s*\|\s*(\d+)" % re.escape(label), dt)
+            check("gallery README states %s=%d" % (key, counts.get(key, 0)),
+                  m is not None and int(m.group(1)) == counts.get(key, 0),
+                  "doc says %s, audit computed %d"
+                  % (m.group(1) if m else "(row absent)", counts.get(key, 0)))
 
     print()
     if FAILS:
