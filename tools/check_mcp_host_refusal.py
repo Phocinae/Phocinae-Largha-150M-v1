@@ -61,7 +61,9 @@ def fetch_wheel(project):
     ex = _scratch("hostrefuse-")
     with zipfile.ZipFile(dest) as z:
         z.extractall(ex)
-    return ver, ex
+    # 同时返回 wheel 路径：调用方需要它来读 METADATA 里的文档正文
+    # （wheel 的文件列表里没有 README.md）。
+    return ver, ex, dest
 
 
 LOOPBACK = ("127.0.0.1", "localhost", "::1")
@@ -70,7 +72,7 @@ FAILS = []
 
 
 def main():
-    ver, root = fetch_wheel("phocinae-mcp")
+    ver, root, wheel = fetch_wheel("phocinae-mcp")
     print("phocinae-mcp %s (from PyPI, unpacked not installed)\n" % ver)
     cmd = [sys.executable, "-c", BOOT % root, "--transport", "http", "--port", "0"]
 
