@@ -69,6 +69,26 @@ jobs:
           PYTHONUTF8: '1'
         run: python tools/audit_package_version_consistency.py .
 
+      # The CLI's own dependencies, so its contract check actually runs. Without them the
+      # check SKIPs (exit 0) — and a green row that verified nothing is precisely the
+      # failure mode this repository keeps finding in other forms.
+      - name: Install the CLI's runtime dependencies
+        run: python -m pip install --quiet typer rich httpx
+
+      # Runs the published wheel's CLI and asserts the exit-code contract the README
+      # documents: 0 allow, 2 deny, 3 ask, plus the fail-closed behaviour when the
+      # decision service is unreachable.
+      - name: phocinae-cli documented contract
+        env:
+          PYTHONUTF8: '1'
+        run: python tools/check_cli_documented_contract.py
+
+      # NOT run here: tools/audit_doc_claims_have_tests.py compares the four package
+      # repositories against each other, and this job checks out only this one. Pointed at
+      # an empty tree it would find no targets and report success having compared nothing —
+      # the same shape of false pass this workflow exists to avoid. Run it where the four
+      # sibling checkouts are present.
+
       # Downloads each released wheel from PyPI, unpacks it and exercises it the way a
       # user would. This is the check that caught three defects which were invisible in
       # the source tree (a wheel missing its allowlist, a stale hand-copied table, and a
