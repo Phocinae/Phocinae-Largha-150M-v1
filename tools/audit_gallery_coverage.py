@@ -87,6 +87,13 @@ MEASURED = {
 }
 
 FAILS = []
+SKIPS = []
+
+
+def skip(name, why):
+    """网络不可达：没测到，不等于测出问题。"""
+    print("SKIP " + name + "  " + str(why))
+    SKIPS.append(name)
 
 
 def check(name, cond, detail=""):
@@ -122,24 +129,29 @@ def get_json(url, attempts=3):
 
 
 def pypi_ok(pkg):
+    """返回 (状态, 详情)，状态是 "ok" / "skip" / "fail"。
+
+    区分关键在**HTTP 4xx（真的没有这个包）**与**网络不可达（没测到）**。
+    第一版把两者都当 fail，于是在断网环境里报出 9 条"包没发布"。
+    """
     try:
         d = get_json("https://pypi.org/pypi/%s/json" % pkg)
-        return True, d["info"]["version"]
+        return "ok", d["info"]["version"]
     except urllib.error.HTTPError as e:
-        return False, "HTTP %s" % e.code
-    except Exception as e:                      # noqa: BLE001
-        return False, "network: %s: %s" % (type(e).__name__, e)
+        return "fail", "HTTP %s" % e.code          # 注册表明确回答：不存在
+    except Exception as e:                          # noqa: BLE001
+        return "skip", "%s: %s" % (type(e).__name__, str(e)[:70])
 
 
 def npm_ok(pkg):
     name = pkg.replace("/", "%2F")
     try:
         d = get_json("https://registry.npmjs.org/%s" % name)
-        return True, d.get("dist-tags", {}).get("latest", "?")
+        return "ok", d.get("dist-tags", {}).get("latest", "?")
     except urllib.error.HTTPError as e:
-        return False, "HTTP %s" % e.code
-    except Exception as e:                      # noqa: BLE001
-        return False, "network: %s: %s" % (type(e).__name__, e)
+        return "fail", "HTTP %s" % e.code
+    except Exception as e:                          # noqa: BLE001
+        return "skip", "%s: %s" % (type(e).__name__, str(e)[:70])
 
 
 def main():
@@ -165,9 +177,12 @@ def main():
         check("%s is classified shipped" % demo, STATUS.get(demo) == "shipped",
               STATUS.get(demo))
         for kind, pkg in SHIPPED[demo]:
-            ok, info = pypi_ok(pkg) if kind == "pypi" else npm_ok(pkg)
-            check("%s: %s package %r is published (%s)" % (demo, kind, pkg, info),
-                  ok, info)
+            state, info = pypi_ok(pkg) if kind == "pypi" else npm_ok(pkg)
+            label = "%s: %s package %r is published (%s)" % (demo, kind, pkg, info)
+            if state == "skip":
+                skip(label, "registry unreachable from here")
+            else:
+                check(label, state == "ok", info)
 
     # 2) measured -> 测量脚本真的存在。
     #    脚本可能落在两处：screen 仓的 docs/（判定质量类的测量），或本仓 tools/
@@ -243,6 +258,13 @@ def main():
         for f in FAILS:
             print("  - %s" % f)
         return 1
+    if SKIPS:
+        print("audit_gallery_coverage: the coverage claim holds")
+        print("  NOTE %d registry lookup(s) skipped: unreachable from this network."
+              % len(SKIPS))
+        print("  \"not checked\" is not \"checked and fine\" - run this where the"
+              " registries are reachable.")
+        return 0
     print("audit_gallery_coverage: the coverage claim holds")
     print("  shipped=%d measured=%d unmeasured=%d"
           % (counts.get("shipped", 0), counts.get("measured", 0),

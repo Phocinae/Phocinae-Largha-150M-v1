@@ -1,0 +1,79 @@
+name: CI
+
+# This repository publishes no package, so there is nothing to build or upload. What
+# it does publish is a model card, a gallery and a set of verification tools, and the
+# claims those tools make are checkable in CI:
+#
+#   * tools/audit_gallery_coverage.py      — the 27 demos are all accounted for, and the
+#                                            counts in the gallery README match reality
+#   * tools/audit_bilingual_sync.py        — the paired EN/ZH READMEs have not drifted
+#   * tools/audit_package_version_consistency.py — every manifest in a release repo
+#                                            declares the same version
+#   * tools/verify_published.py            — the four PyPI packages work as installed
+#
+# Why this did not exist before, and why it does now: the tools needing PyPI access used
+# to report *failures* when the registry was unreachable. I measured that — blocking the
+# registry produced nine FAILs and exit 1 — and fixed it, so an offline run now SKIPs the
+# lookups and says so instead of inventing a problem. A workflow that goes red because the
+# network is flaky teaches people to ignore red.
+#
+# macos and windows are in the matrix on purpose. Three defects found in this project were
+# platform-specific and invisible on Linux (POSIX shell under PowerShell, `python3` absent
+# on Windows, a shell variable absorbing a CJK character) — tools that only ever ran on
+# Linux were how those survived.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: audits (py3.12 on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Everything below is standard library only, so there is nothing to install.
+      # PYTHONUTF8 matters here for the same reason it does in phocinae-guard: these
+      # scripts print Chinese summaries, and the Windows console default code page is
+      # not UTF-8.
+      - name: Gallery coverage (27 demos classified)
+        env:
+          PYTHONUTF8: '1'
+        run: python tools/audit_gallery_coverage.py
+
+      - name: Paired READMEs have not drifted
+        env:
+          PYTHONUTF8: '1'
+        run: python tools/audit_bilingual_sync.py
+
+      - name: Version consistency across this repo
+        env:
+          PYTHONUTF8: '1'
+        run: python tools/audit_package_version_consistency.py .
+
+      # Downloads each released wheel from PyPI, unpacks it and exercises it the way a
+      # user would. This is the check that caught three defects which were invisible in
+      # the source tree (a wheel missing its allowlist, a stale hand-copied table, and a
+      # Windows-only `python3` assumption).
+      - name: Published artifacts behave as installed
+        env:
+          PYTHONUTF8: '1'
+        run: python tools/verify_published.py

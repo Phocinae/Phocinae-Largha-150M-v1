@@ -335,6 +335,40 @@ def verify_server(py, server):
         shutil.rmtree(root, ignore_errors=True)
 
 
+def verify_registry():
+    """MCP Registry 上的条目必须与 PyPI 上的版本一致。
+
+    为什么单独查这个：`server.json` 只在**发布时**被 CI 校验一次
+    （`mcp-publisher validate server.json`），没有任何检查比对"Registry 上实际挂着
+    的版本"与"PyPI 上实际发布的版本"。这两处一旦不同步，就会对外宣称两个版本，
+    而两边各自都能跑。
+
+    本机网络到 registry.modelcontextprotocol.io 不通（WinError 10054），
+    所以不可达时报 SKIP 并说明原因 —— 在能连通的 CI 上它才真正生效。
+    """
+    print("MCP Registry entry")
+    url = "https://registry.modelcontextprotocol.io/v0/servers?search=phocinae-mcp"
+    try:
+        d = _get_json(url)
+    except Exception as e:                       # noqa: BLE001
+        print("  SKIP registry unreachable from here (%s: %s)"
+              % (type(e).__name__, str(e)[:70]))
+        print("       this check runs where the registry is reachable (CI); locally it is not")
+        return
+    entries = d.get("servers") or d.get("data") or []
+    ours = [e for e in entries
+            if (e.get("server", e).get("name") == "io.github.Phocinae/phocinae-mcp")]
+    check("registry has the io.github.Phocinae/phocinae-mcp entry", bool(ours),
+          "entries returned: %d" % len(entries))
+    if not ours:
+        return
+    inner = ours[0].get("server", ours[0])
+    reg_ver = inner.get("version")
+    pypi_ver, _ = latest_version("phocinae-mcp")
+    check("registry version == PyPI version (%s)" % pypi_ver, reg_ver == pypi_ver,
+          "registry says %s" % reg_ver)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--server", default=os.environ.get("PHOC_SERVER",
@@ -359,6 +393,8 @@ def main():
         verify_mcp(args.python, args.server)
     if "server" in only:
         verify_server(args.python, args.server)
+    if "mcp" in only:
+        verify_registry()
 
     print()
     if FAILS:

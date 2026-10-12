@@ -12,7 +12,18 @@ __pycache__/
 pubverify-*/
 pubx-*/
 pubaudit-*/
+failclosed-*/
+failclosed-x-*/
 .guard-for-parity/
+
+# ---- Downloaded artifacts ----
+# The verification tools pull released wheels from PyPI in order to test them. They
+# unpack into the system temp dir, but a hand-run `pip download` or a one-off script
+# can drop the .whl itself here, where it looks like a file worth committing. It is
+# build output: reproducible from PyPI on demand, and stale the moment a release
+# moves on. Two such files were sitting untracked in this repository.
+*.whl
+*.tar.gz
 
 # ---- Editor / OS junk ----
 .DS_Store
