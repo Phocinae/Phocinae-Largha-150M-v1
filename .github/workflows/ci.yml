@@ -73,7 +73,10 @@ jobs:
       # check SKIPs (exit 0) — and a green row that verified nothing is precisely the
       # failure mode this repository keeps finding in other forms.
       - name: Install the CLI's runtime dependencies
-        run: python -m pip install --quiet typer rich httpx
+        id: pypath
+        run: |
+          python -m pip install --quiet typer rich httpx
+          echo "path=$(python -c 'import sys; print(sys.executable)')" >> "$GITHUB_OUTPUT"
 
       # Runs the published wheel's CLI and asserts the exit-code contract the README
       # documents: 0 allow, 2 deny, 3 ask, plus the fail-closed behaviour when the
@@ -81,6 +84,12 @@ jobs:
       - name: phocinae-cli documented contract
         env:
           PYTHONUTF8: '1'
+          # Pin the interpreter the subprocesses use to the one that just received
+          # typer/rich/httpx. Relying on sys.executable matching the interpreter on PATH
+          # was an assumption, and on the runner it was wrong: the children reported
+          # "No module named phocinae_cli" for all five gate cases, which reads as five
+          # protocol failures rather than one environment mismatch.
+          PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
         run: python tools/check_cli_documented_contract.py
 
       # NOT run here: tools/audit_doc_claims_have_tests.py compares the four package

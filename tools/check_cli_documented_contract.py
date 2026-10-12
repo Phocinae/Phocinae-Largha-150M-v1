@@ -60,8 +60,15 @@ def fetch(project):
     return ver, ex, dest
 
 
-def run_cli(root, args, stdin=None, env_extra=None, timeout=120):
-    """用解包出来的包跑 CLI（`python -m phocinae_cli`），返回 (rc, out)。"""
+PY = os.environ.get("PHOC_CHECK_PYTHON") or sys.executable
+
+
+def run_py(root, code, args=(), stdin=None, env_extra=None, timeout=120):
+    """用**显式解释器**跑一段代码，cwd 设为解包目录。
+
+    不再依赖 PYTHONPATH 的传递，也不依赖"调用方解释器恰好装着依赖" ——
+    这两条都让 CI 上的行为与我本地不同，而我一开始把它记成了 12 条协议 FAIL。
+    """
     env = dict(os.environ)
     env["PYTHONPATH"] = root + os.pathsep + env.get("PYTHONPATH", "")
     env["PYTHONUTF8"] = "1"
@@ -70,26 +77,38 @@ def run_cli(root, args, stdin=None, env_extra=None, timeout=120):
     if env_extra:
         env.update(env_extra)
     try:
-        p = subprocess.run([sys.executable, "-m", "phocinae_cli"] + args,
-                           input=stdin, capture_output=True, timeout=timeout, env=env)
+        p = subprocess.run([PY, "-c", code] + list(args),
+                           input=stdin, capture_output=True, timeout=timeout,
+                           env=env, cwd=root)
         return p.returncode, (p.stdout + p.stderr).decode("utf-8", "replace")
     except subprocess.TimeoutExpired:
         return None, "(timeout)"
+
+
+def run_cli(root, args, stdin=None, env_extra=None, timeout=120):
+    """跑 `python -m phocinae_cli <args>`。"""
+    import shlex
+    code = ("import runpy, sys; sys.argv = ['phocinae'] + %r; "
+            "runpy.run_module('phocinae_cli', run_name='__main__', alter_sys=True)"
+            % (list(args),))
+    return run_py(root, code, stdin=stdin, env_extra=env_extra, timeout=timeout)
 
 
 def main():
     ver, root, wheel = fetch("phocinae-cli")
     print("phocinae-cli %s (from PyPI, unpacked)\n" % ver)
 
-    # 依赖检查：CLI 需要 typer/rich/httpx
-    rc, out = run_cli(root, ["--help"])
-    if rc is None or "ModuleNotFoundError" in out:
-        mod = "?"
-        for line in out.split("\n"):
-            if "ModuleNotFoundError" in line:
-                mod = line.strip()
-        skip("the whole CLI contract", "this interpreter lacks a dependency: %s" % mod[:70])
-        print("\n  %d check(s) skipped; nothing was verified" % 1)
+    # 跑任何用例之前先确认这个解释器能导入刚解包的包。导入不了就 SKIP ——
+    # "环境不对"不是协议缺陷，把它记成 12 条 FAIL 会把注意力引到错误的方向。
+    print("  interpreter : %s" % PY)
+    print("  unpacked at : %s" % root)
+    rc, out = run_py(root, "import phocinae_cli, typer, rich, httpx; "
+                           "print('deps ok')")
+    if "deps ok" not in out:
+        why = out.strip().split("\n")[-1][:100]
+        skip("the whole CLI contract",
+             "this interpreter cannot import the package or its dependencies: %s" % why)
+        print("  nothing was verified (this is a SKIP, not a defect report)")
         return 0
 
     LIVE = os.environ.get("PHOC_SERVER", "http://127.0.0.1:8155")
