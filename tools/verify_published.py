@@ -64,15 +64,31 @@ def check(name, cond, detail=""):
     return bool(cond)
 
 
+def _get_json(url):
+    """GET JSON，显式要求不缓存。
+
+    踩过的坑：本工具在 guard 0.1.5 已经上线后仍打印 `phocinae-guard 0.1.4` ——
+    urllib 走的是带缓存的路径，拿到的是上一版的 JSON。报告里的版本号错了，
+    整份验证的可信度就没了（到底验的是哪一版？），所以这里强制 no-cache。
+    """
+    req = urllib.request.Request(url, headers={
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+        "User-Agent": "phocinae-verify-published",
+    })
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
 def latest_version(project):
-    d = json.load(urllib.request.urlopen(PYPI % project, timeout=60))
+    d = _get_json(PYPI % project)
     return d["info"]["version"], d
 
 
 def download_wheel(project, version=None):
     ver, d = latest_version(project)
     if version and version != ver:
-        d = json.load(urllib.request.urlopen(PYPI % project, timeout=60))
+        d = _get_json(PYPI % project)
     files = d["releases"].get(version or ver) or d["urls"]
     whl = [f for f in files if f["filename"].endswith(".whl")]
     if not whl:
