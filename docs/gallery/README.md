@@ -344,4 +344,58 @@ Click the ▶ toggle under each entry to expand its embedded demo GIF.
 - Thresholds shown in S04/S15/S21 are demo values; the shipped guard's thresholds are documented in [deployment.md](../deployment.md)
 - In-frame numbers match [BENCHMARKS.md](../../BENCHMARKS.md); limitations (e.g. JevBench 0.5455, 58.4% gate not passed) are disclosed in [MODEL_CARD.md](../../MODEL_CARD.md)
 
+## Demo → plugin coverage
+
+A demo is a **capability illustration**; it is not the same thing as a tool you can drop
+into a workflow. The table below says, for each of the 27 demos, whether a published
+plugin implements it, whether it was measured and the verdict was *do not ship*, or
+whether it is still unmeasured. Verify with `python tools/audit_gallery_coverage.py`,
+which queries PyPI and npm rather than trusting the repositories.
+
+| Status | Count | Demos |
+|---|---|---|
+| **Implemented by a published plugin** | 5 | S01 S02 S03 S04 S05 (the command-approval family) |
+| **Measured, below the bar → not shipped** | 21 | S07 S09 S13 S14 S15 S16 S17 S18 S19 S20 S21 S22 S23 S06 G26 S24 S10 S11 G25 S08 S12 |
+| **Measured, and it holds** | 1 | G27 (no silent allow when the service is unreachable) |
+| **Not yet measured** | 0 | — (all 27 are accounted for) |
+
+The "below the bar" entries rest on re-runnable labelled-set measurements, not opinion:
+
+| Demos | Script | Result |
+|---|---|---|
+| S09 S20 context screening | `measure-screen.mjs` | a block containing the actual fix scored 0.323 (droppable); a nursery rhyme scored 0.691 |
+| S01 S13 S14 S19 S21 classification | `feasibility-matrix.mjs` | all below their bar; **the command gate alone manages only 55%** |
+| S18 invoice arithmetic | `measure-deterministic-first.mjs` | model **0/6**; plain arithmetic **6/6** |
+| S07 S16 tool/skill routing | `measure-routing.mjs` | 8-way routing **2/12** against a random baseline of 1.5; 33-point position bias |
+| S17 weekly-report gate | `measure-quality-gate.mjs` | **3/12 against 6/12 for doing nothing** — worse than no gate |
+| S22 option-shuffle stability | `measure-variance-vs-order.mjs` | model is fully deterministic, yet rotating the options changes **4/12** decisions; flip rate 0.333 vs a stated 0.0217 |
+| S23 bilingual parity | `measure-bilingual.mjs` | **58% of decisions change with the language**; EN 42%, ZH 67% (the gap between them is not established at n=12) |
+| S15 expense pre-approval | `measure-expense-approval.mjs` | policy checks **14/14 with no model calls**; the model rejects **8/8** clean claims |
+| S06 / G26 escalation gate | `measure-escalation-savings.mjs` | the mechanism reproduces (confidence separates right from wrong, 0.583 vs 0.445); the magnitude does not (escalates 68.8% against a stated 55% saving) |
+| S24 S10 S11 G25 latency | `measure-latency.mjs` | CPU p50 **15.1 ms**, faster than the stated 21.0 ms on an RTX 5090; but latency scales with request size and microbatch amortisation is **13%**, not the 67% implied |
+| S12 snake | `measure-snake.mjs` | greedy 46 food, random 10, **model 7** — the only measurement below the random baseline |
+| S08 Chinese domain | answered from existing evidence | "runs locally with no outbound call" holds (it is a precondition of every measurement here); 0.855 falls inside the 95% CI of the Chinese sample already on record |
+| G27 fail-closed | `measure_failclosed.py` | **13/13 assertions**: unreachable / HTTP 500 / missing fields all deny the grey zone with a readable reason, while whitelisted commands still pass offline |
+
+Full write-ups with raw output: [Phocinae/dsh-phocinae-screen](https://github.com/Phocinae/dsh-phocinae-screen)
+(marked `private`, so npm refuses to publish it — it exists to publish the negative results).
+The Chinese edition, [README_cn.md](./README_cn.md), carries the same numbers plus the
+per-family commentary; this English table is the summary and the counts are kept identical
+by `tools/audit_bilingual_sync.py`.
+
+In one sentence: **in these decision domains the model's discrimination is not good enough
+to support a plugin that reaches a conclusion on the user's behalf.** The same stance
+already appears in the model card's disclosed limitations and in `phocinae-guard` shipping
+with L1 off by default.
+
+> **Two further notes.** The latency family (S24 / S10 / S11 / G25) claims latency rather
+> than decision quality, so it is counted separately: the model is genuinely fast — CPU
+> p50 15.1 ms — but latency is a function of the request, and the microbatch saving is far
+> smaller than stated.
+>
+> **G27 is the only claim that passes outright**, and it is independent of decision
+> quality because it measures *degradation behaviour* rather than accuracy. Even if the
+> model got every judgement wrong, refusing instead of guessing when the service is
+> unavailable would still hold.
+
 Checksums: see [SHA256SUMS](./SHA256SUMS).
