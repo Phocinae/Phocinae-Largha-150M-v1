@@ -270,6 +270,12 @@ def main():
             NOTES.append(msg)
             continue
         print("  top-level --help: %d chars" % len(help_text))
+        # 把**实际拿到的文本**打出来。这里用 repr 的前 400 字符：CR/LF、控制字符、
+        # 以及中文码点都会原样可见。我为了同一个空探测在本地猜了四轮（顶层/子命令、
+        # 列宽、转义、ANSI），都复现不出来 —— 那就让 CI 自己说话。
+        if "--" not in help_text or len(flags_of(help_text)) == 0:
+            print("  !! no --flag found in the help text; first 400 chars (repr):")
+            print("     %r" % help_text[:400])
         table = collect_flags(py, root, entry, kind, cmdname, help_text)
         all_flags = set()
         for v in table.values():
