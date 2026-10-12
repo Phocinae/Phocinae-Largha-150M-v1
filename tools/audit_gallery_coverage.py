@@ -30,8 +30,15 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 GALLERY = os.path.join(REPO, "docs", "gallery", "README_cn.md")
-SCREEN_DOCS = os.path.join(
-    r"D:\Projects\phociane-project\_work\staging\dsh-phocinae-screen", "docs")
+# 这两个路径指向**别的仓库**，只在本机开发时存在。CI 上一定没有，所以它们
+# 必须是可配置的，且缺失时按 SKIP 处理而不是 FAIL —— 写死本机路径会让 CI 上
+# 出现 38 条"文件不存在"，而报出来的路径本身就是 Windows 路径，一眼能看出
+# 是环境假设错了，却混在真断言里让人分不清。
+#
+#   PHOC_SCREEN_DOCS   dsh-phocinae-screen 的 docs/（测量与结论文档）
+#   PHOC_GUARD_REPO    phocinae-guard 的 checkout（用于 shipped 族的本地核对）
+SCREEN_DOCS = os.environ.get("PHOC_SCREEN_DOCS", "")
+GUARD_REPO = os.environ.get("PHOC_GUARD_REPO", "")
 
 # demo -> 状态。三种状态，含义必须清楚：
 #   shipped    有已发布的插件实现它（下面 SHIPPED 给出渠道与包名）
@@ -191,6 +198,11 @@ def main():
         check("%s is classified measured" % demo, STATUS.get(demo) == "measured",
               STATUS.get(demo))
         found = None
+        if not SCREEN_DOCS and not os.path.isfile(os.path.join(HERE,
+                                                              os.path.basename(script))):
+            skip("%s: evidence file %s" % (demo, script),
+                 "no local harness checkout to look in")
+            continue
         for cand in (os.path.join(SCREEN_DOCS, script),
                      os.path.join(HERE, os.path.basename(script)),
                      os.path.join(SCREEN_DOCS, os.path.basename(script))):
@@ -212,15 +224,22 @@ def main():
                 "FEASIBILITY-failclosed.md",
                 "FEASIBILITY-snake.md",
                 "FEASIBILITY-zh-zero-escalate.md"):
+        if not SCREEN_DOCS:
+            skip("conclusion doc %s" % doc,
+                 "PHOC_SCREEN_DOCS not set (the harness repo is a separate checkout)")
+            continue
         p = os.path.join(SCREEN_DOCS, doc)
         check("conclusion doc %s exists" % doc, os.path.isfile(p), p)
 
     # 4) 声明为 shipped 的 demo 必须有对应插件仓库在本地
     for demo in sorted(SHIPPED):
         if demo in ("S01", "S02", "S03", "S04", "S05"):
+            if not GUARD_REPO:
+                skip("%s: guard repo checkout" % demo,
+                     "PHOC_GUARD_REPO not set (separate checkout)")
+                continue
             check("%s: the guard repo checkout is present" % demo,
-                  os.path.isfile(r"D:\Projects\phociane-project\_work\repos"
-                                 r"\phocinae-guard\guard.py"))
+                  os.path.isfile(os.path.join(GUARD_REPO, "guard.py")))
 
     # 5) gallery README 里那张表必须与本脚本算出的数一致。
     #    加这条是因为它真的发生过：S17 测完之后本脚本算得 measured=10，而文档里
@@ -258,14 +277,24 @@ def main():
         for f in FAILS:
             print("  - %s" % f)
         return 1
-    if SKIPS:
-        print("audit_gallery_coverage: the coverage claim holds")
-        print("  NOTE %d registry lookup(s) skipped: unreachable from this network."
-              % len(SKIPS))
-        print("  \"not checked\" is not \"checked and fine\" - run this where the"
-              " registries are reachable.")
-        return 0
     print("audit_gallery_coverage: the coverage claim holds")
+    if SKIPS:
+        # 分两类报告。第一版把**所有** SKIP 都说成"registry unreachable"，
+        # 而 CI 上实际的 38 条是"没有本地测量仓"—— 一条**说错原因**的提示
+        # 比没有提示更糟：它会让人去查网络。
+        net = [x for x in SKIPS if "registry" in x.lower()]
+        local = [x for x in SKIPS if x not in net]
+        if net:
+            print("  NOTE %d registry lookup(s) skipped: unreachable from this network."
+                  % len(net))
+            print("       \"not checked\" is not \"checked and fine\" - run this where the"
+                  " registries are reachable.")
+        if local:
+            print("  NOTE %d assertion(s) skipped: they need a local checkout that is not"
+                  " here." % len(local))
+            print("       Set PHOC_SCREEN_DOCS (the harness repo's docs/) and"
+                  " PHOC_GUARD_REPO (the")
+            print("       phocinae-guard checkout) to execute them. SKIP is not PASS.")
     print("  shipped=%d measured=%d unmeasured=%d"
           % (counts.get("shipped", 0), counts.get("measured", 0),
              counts.get("unmeasured", 0)))
