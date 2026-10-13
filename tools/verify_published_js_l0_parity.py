@@ -67,9 +67,14 @@ def main():
         "w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX, b: m.L0_BLACKLIST}));"
         % json.dumps(pkgdir))
     p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
-    out = (p.stdout + p.stderr).decode("utf-8", "replace").strip()
+    # Parse stdout only. On CI, Node writes a deprecation warning to stderr
+    # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two streams
+    # made `out.startswith("{")` fail there while passing locally, where Node is quiet.
+    out = p.stdout.decode("utf-8", "replace").strip()
+    err = p.stderr.decode("utf-8", "replace").strip()
     if p.returncode != 0 or not out.startswith("{"):
-        check("the published package exposes the L0 arrays", False, out[-250:])
+        check("the published package exposes the L0 arrays", False,
+              (out[-160:] + " | stderr: " + err[-160:]))
         print()
         print("verify_published_js_l0_parity: FAILED (could not read the arrays)")
         return 1

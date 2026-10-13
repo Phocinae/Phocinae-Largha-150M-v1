@@ -94,9 +94,15 @@ def main():
                  "console.log('EXPORTS=' + Object.keys(m).sort().join(','));"
                  % json.dumps(os.path.join(ex, "package")))
         p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
-        out = (p.stdout + p.stderr).decode("utf-8", "replace").strip()
+        # Parse stdout only. On CI Node writes a deprecation warning to stderr
+        # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two
+        # streams made the JSON parse fail there while passing locally, where Node is
+        # quiet. stderr is kept for the failure message instead.
+        out = p.stdout.decode("utf-8", "replace").strip()
+        err = p.stderr.decode("utf-8", "replace").strip()
         ok = p.returncode == 0 and "EXPORTS=" in out
-        check("the published package can be require()d by Node", ok, out[-200:])
+        check("the published package can be require()d by Node", ok,
+              (out[-160:] + " | stderr: " + err[-160:]))
         if ok:
             names_line = [l for l in out.split("\n") if l.startswith("EXPORTS=")][0]
             print("    %s" % names_line[:160])
