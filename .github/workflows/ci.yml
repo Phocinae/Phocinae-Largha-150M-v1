@@ -157,6 +157,13 @@ jobs:
           repository: Phocinae/dsh-phocinae
           path: siblings/repos/dsh-phocinae
 
+      - name: Check out phocinae-js
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/phocinae-js
+          path: siblings/staging/phocinae-js
+
       # Keep the guard example-config checkout: it is what the guard contract suite reads,
       # and PHOC_GUARD_REPO points at it.
       - name: Check out phocinae-guard for its example config
