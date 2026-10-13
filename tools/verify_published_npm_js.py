@@ -102,35 +102,31 @@ def main():
     for label, path in targets:
         print("    %-22s %s" % (label, path))
 
-    # 在 Node 里 require 一次（离线）
+    # Import the published entry point with a real ES-module file.
+    #
+    # Four earlier attempts all tried to transport a specifier into `node -e`, and all four
+    # failed on a runner while passing here: a Windows backslash ended up in a file URL, then
+    # characters Node called "encoded", then ERR_INVALID_MODULE_SPECIFIER twice - the last
+    # time with an absolute path in the message even though the string being set was
+    # "./dist/index.js". The problem was never how the string was carried; `node -e` has no
+    # file path, so its resolution base differs from a real module's.
+    #
+    # A file next to the package, importing "./dist/index.js", is the most ordinary ESM
+    # resolution there is. Nothing has to survive transport.
     node = shutil.which("node") or shutil.which("node.exe")
     if not node:
-        print("SKIP node is not on PATH; cannot require() the package")
+        print("SKIP node is not on PATH; cannot import the package")
     else:
-        # Node resolves a relative specifier against cwd, so the path never becomes a URL
-        # and no separator/encoding rule can be got wrong here. Two earlier attempts to
-        # build a file:// URL both failed on runners and both passed locally.
-        # Also learned from CI:
-        #   * `require()` with a bare absolute path is rejected (ERR_INVALID_MODULE_SPECIFIER),
-        #     so import the package through an ES module;
-        #   * the file URL must not contain backslashes, so build it with Path.as_uri() in
-        #     Python rather than concatenating in JavaScript - the Windows path separator
-        #     survived the concatenation and made the URL invalid on non-Windows runners.
         pkg_root = os.path.join(ex, "package")
-        entry_spec = "./dist/index.js"
-        # The specifier travels in an environment variable. Written inline it was rewritten
-        # somewhere between here and Node: CI reported
-        #   ERR_INVALID_MODULE_SPECIFIER Invalid module "/home/runner/..."
-        # i.e. an absolute path reached import(), which requires a file:// URL. An environment
-        # variable crosses no quoting or shell layer, so what is set here is what Node reads.
-        probe = (
-            "import(process.env.PHOC_ENTRY).then(m => {"
-            "  console.log('EXPORTS=' + Object.keys(m).sort().join(','));"
-            "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-            "  process.exit(1); });")
-        env = dict(os.environ, PHOC_ENTRY=entry_spec)
-        p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120,
-                           cwd=pkg_root, env=env)
+        probe_file = os.path.join(pkg_root, "__phoc_probe.mjs")
+        with io.open(probe_file, "w", encoding="utf-8") as fh:
+            fh.write(
+                "import('./dist/index.js').then(m => {\n"
+                "  console.log('EXPORTS=' + Object.keys(m).sort().join(','));\n"
+                "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' '\n"
+                "  + e.message); process.exit(1); });\n")
+        p = subprocess.run([node, "__phoc_probe.mjs"], capture_output=True,
+                           timeout=120, cwd=pkg_root)
         # Parse stdout only. On CI Node writes a deprecation warning to stderr
         # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two
         # streams made the JSON parse fail there while passing locally, where Node is

@@ -104,26 +104,24 @@ def main():
     pkgdir = os.path.join(ex, "package")
     print("  @phocinae/js %s unpacked\n" % ver)
 
-    # 用 Node 读出已发布包里的三个数组（这才是**装出来的东西**）
+    # Read the three arrays out of the published package with a real ES-module file.
+    # Four earlier attempts tried to transport a specifier into `node -e` and all four failed
+    # on a runner while passing locally; `node -e` has no file path, so its resolution base
+    # differs from a real module's. A probe file next to the package needs no transport.
     node = shutil.which("node") or shutil.which("node.exe")
     if not node:
         print("SKIP node not on PATH")
         return 0
-    # Same approach as above: a relative specifier resolved by Node against cwd, so no URL
-    # is built here at all.
-    pkg_root = pkgdir
-    entry_spec = "./dist/index.js"
-    # The specifier travels in an environment variable; see the note in
-    # verify_published_npm_js.py for why writing it inline is not reliable.
-    probe = (
-        "import(process.env.PHOC_ENTRY).then(m => {"
-        "  console.log(JSON.stringify({w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX,"
-        " b: m.L0_BLACKLIST}));"
-        "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-        "  process.exit(1); });")
-    env = dict(os.environ, PHOC_ENTRY=entry_spec)
-    p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120,
-                       cwd=pkg_root, env=env)
+    probe_file = os.path.join(pkgdir, "__phoc_probe.mjs")
+    with io.open(probe_file, "w", encoding="utf-8") as fh:
+        fh.write(
+            "import('./dist/index.js').then(m => {\n"
+            "  console.log(JSON.stringify({w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX,\n"
+            "    b: m.L0_BLACKLIST}));\n"
+            "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' '\n"
+            "  + e.message); process.exit(1); });\n")
+    p = subprocess.run([node, "__phoc_probe.mjs"], capture_output=True,
+                       timeout=120, cwd=pkgdir)
     # Parse stdout only. On CI, Node writes a deprecation warning to stderr
     # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two streams
     # made `out.startswith("{")` fail there while passing locally, where Node is quiet.
