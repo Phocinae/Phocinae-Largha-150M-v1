@@ -20,6 +20,17 @@ import os
 import re
 import sys
 
+
+def _np(rel):
+    """Normalise a relative path written with Windows separators.
+
+    The README list below was written as `repos\\phocinae-guard\\README.md`. On Linux a
+    backslash is an ordinary filename character, so every one of them was reported as missing
+    and the audit found no claim to check at all. Rather than rewrite each entry, translate
+    the separators here.
+    """
+    return rel.replace("\\", "/").replace("/", os.sep)
+
 def _work_root():
     """Directory holding the sibling checkouts, or the CWD as a last resort."""
     env = os.environ.get("PHOC_WORK")
@@ -60,16 +71,16 @@ if not GUARD_TABLE or not os.path.isfile(GUARD_TABLE):
     if _env and os.path.isfile(os.path.join(_env, "l0_table.json")):
         GUARD_TABLE = os.path.join(_env, "l0_table.json")
 
-READMES = [
-    os.path.join(W, r"repos\phocinae-guard\README.md"),
-    os.path.join(W, r"repos\phocinae-mcp\README.md"),
-    os.path.join(W, r"repos\phocinae-server\README.md"),
-    os.path.join(W, r"staging\phocinae-cli\README.md"),
-    os.path.join(W, r"staging\phocinae-js\README.md"),
-    os.path.join(W, r"repos\dsh-phocinae\README.md"),
-    os.path.join(W, r"repos\codebuddy-phocinae\README.md"),
-    os.path.join(W, r"repos\workbuddy-phocinae\README.md"),
-]
+READMES = [_np(x) for x in [
+    os.path.join(W, _np(r"repos\phocinae-guard\README.md")),
+    os.path.join(W, _np(r"repos\phocinae-mcp\README.md")),
+    os.path.join(W, _np(r"repos\phocinae-server\README.md")),
+    os.path.join(W, _np(r"staging\phocinae-cli\README.md")),
+    os.path.join(W, _np(r"staging\phocinae-js\README.md")),
+    os.path.join(W, _np(r"repos\dsh-phocinae\README.md")),
+    os.path.join(W, _np(r"repos\codebuddy-phocinae\README.md")),
+    os.path.join(W, _np(r"repos\workbuddy-phocinae\README.md")),
+]]
 
 # 三种写法都要认：`40 条精确白名单` / `31 条前缀白名单` / `26 条黑名单正则`
 PATTERNS = [
