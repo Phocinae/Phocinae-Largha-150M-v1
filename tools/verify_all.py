@@ -125,6 +125,14 @@ SUITES = [
          script="tools/audit_mcp_tool_schemas_vs_docs.py",
          why="MCP 工具 schema 与 README 工具表是否逐字段一致"),
 
+    dict(name="published-npm-js", py="server",
+         script="tools/verify_published_npm_js.py",
+         why="从 npm 下载已发布的 @phocinae/js，检查入口齐全且能被 Node require()"),
+
+    dict(name="published-js-l0-parity", py="server",
+         script="tools/verify_published_js_l0_parity.py",
+         why="已发布的 JS 包里 L0 三张表是否与 guard 逐条一致（手抄表出过两次事故）"),
+
     dict(name="readme-examples", py="cli",
          script="tools/audit_readme_examples.py",
          why="四个包 README 示例里的每个 --flag 是否真实存在"),
