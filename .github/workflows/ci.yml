@@ -164,6 +164,30 @@ jobs:
           repository: Phocinae/phocinae-js
           path: siblings/staging/phocinae-js
 
+      # gallery-coverage reads the 27 demo descriptions from this repository's docs/.
+      - name: Check out dsh-phocinae-screen
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/dsh-phocinae-screen
+          path: siblings/staging/dsh-phocinae-screen
+
+      # plugin-manifests compares the manifests, versions and entry points of all three plugin
+      # repositories, so it needs each of them rather than just one.
+      - name: Check out codebuddy-phocinae
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/codebuddy-phocinae
+          path: siblings/repos/codebuddy-phocinae
+
+      - name: Check out workbuddy-phocinae
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/workbuddy-phocinae
+          path: siblings/repos/workbuddy-phocinae
+
       # Keep the guard example-config checkout: it is what the guard contract suite reads,
       # and PHOC_GUARD_REPO points at it.
       - name: Check out phocinae-guard for its example config
