@@ -24,9 +24,31 @@ import tempfile
 import urllib.request
 
 W = r"D:\Projects\phociane-project\_work"
-SCRATCH = os.path.join(W, ".tmp", "npm-verify")
-FAILS = []
+def _scratch_root():
+    """A writable scratch directory, never this machine's absolute path.
 
+    `os.path.join(W, ".tmp", ...)` with a hard-coded W produced
+    `<runner>/.../D:\\Projects\\phociane-project\\_work/.tmp/...` on Linux, because
+    `D:\\...` is a *relative* path there. The unpacked tree then had a malformed path, which
+    is what every symptom traced back to: backslashes in a file URL, "encoded" characters, and
+    finally `Invalid module "/home/runner/...D:%5CProjects%5C..."`.
+    """
+    cands = []
+    if os.environ.get("PHOC_SCRATCH"):
+        cands.append(os.environ["PHOC_SCRATCH"])
+    cands.append(os.path.join(tempfile.gettempdir(), ".phocinae-verify"))
+    cands.append(os.path.join(os.getcwd(), ".phocinae-verify"))
+    for d in cands:
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".w")
+            with open(probe, "w") as fh:
+                fh.write("x")
+            os.remove(probe)
+            return d
+        except OSError:
+            continue
+    return os.getcwd()
 
 def describe(out, err, limit=700):
     """Enough of both streams to identify a Node failure.
@@ -48,6 +70,10 @@ def check(name, cond, detail=""):
     print(("  PASS " if cond else "  FAIL ") + name + ("" if cond else "  " + str(detail)))
     if not cond:
         FAILS.append(name)
+
+
+SCRATCH = os.path.join(_scratch_root(), "npm-verify")
+FAILS = []
 
 
 def main():

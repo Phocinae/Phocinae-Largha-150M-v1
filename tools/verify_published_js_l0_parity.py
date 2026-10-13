@@ -24,6 +24,33 @@ import tempfile
 import urllib.request
 
 W = r"D:\Projects\phociane-project\_work"
+def _scratch_root():
+    """A writable scratch directory, never this machine's absolute path.
+
+    `os.path.join(W, ".tmp", ...)` with a hard-coded W produced
+    `<runner>/.../D:\\Projects\\phociane-project\\_work/.tmp/...` on Linux, because
+    `D:\\...` is a *relative* path there. Everything downstream then saw a malformed path:
+    the file URL contained backslashes, Node called the characters encoded, and finally
+    import() reported `Invalid module "/home/runner/...D:%5CProjects%5C..."`. Four rounds were
+    spent on how the specifier was transported before this line of the log was read.
+    """
+    cands = []
+    if os.environ.get("PHOC_SCRATCH"):
+        cands.append(os.environ["PHOC_SCRATCH"])
+    cands.append(os.path.join(tempfile.gettempdir(), ".phocinae-verify"))
+    cands.append(os.path.join(os.getcwd(), ".phocinae-verify"))
+    for d in cands:
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".w")
+            with open(probe, "w") as fh:
+                fh.write("x")
+            os.remove(probe)
+            return d
+        except OSError:
+            continue
+    return os.getcwd()
+
 def describe(out, err, limit=700):
     """Enough of both streams to identify a Node failure.
 
@@ -68,7 +95,7 @@ def _guard_table():
 
 
 GUARD_TABLE = _guard_table()
-SCRATCH = os.path.join(W, ".tmp", "npm-verify")
+SCRATCH = os.path.join(_scratch_root(), "npm-verify")
 FAILS = []
 
 
