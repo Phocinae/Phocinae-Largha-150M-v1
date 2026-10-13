@@ -291,6 +291,27 @@ def main():
         if v != "PASS":
             print("  %-4s %-24s %s" % (v, spec["name"], detail))
 
+    # Print the failing suites' own output here. Writing it only to a log file is fine
+    # locally and useless on a runner, where the file is inside the job's filesystem and
+    # the summary is all anyone sees. Two debugging round-trips were spent discovering
+    # that; a gate nobody can read the reason for is not a gate.
+    for spec, v, detail in results:
+        if v != "FAIL":
+            continue
+        logp = os.path.join(logdir, spec["name"] + ".log")
+        print()
+        print("=" * 70)
+        print("FAILED SUITE: %s  (%s)" % (spec["name"], detail))
+        print("=" * 70)
+        try:
+            body = io.open(logp, encoding="utf-8", errors="replace").read()
+        except OSError as e:
+            print("  (could not read %s: %s)" % (logp, e))
+            continue
+        tail = [l for l in body.split("\n") if l.strip()][-40:]
+        for l in tail:
+            print("  " + l[:160])
+
     if n_fail:
         print()
         print("verify_all: FAILED — see %s" % logdir)
