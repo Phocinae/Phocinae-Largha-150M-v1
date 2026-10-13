@@ -98,34 +98,6 @@ jobs:
           # protocol failures rather than one environment mismatch.
           PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
         run: python tools/check_cli_documented_contract.py
-
-      # Every pre-release check in one place, so the set cannot silently shrink to whatever
-      # someone remembers to run. Suites whose checkouts are absent here are reported as
-      # SKIP with the reason; a run in which nothing executes fails outright.
-      - name: verify_all (the whole pre-release set, one command)
-        env:
-          PYTHONUTF8: '1'
-          PHOC_CLI_PYTHON: ${{ steps.pypath.outputs.path }}
-          PHOC_SERVER_PYTHON: ${{ steps.pypath.outputs.path }}
-          PHOC_GUARD_REPO: .phoc-guard
-          # GitHub nests checkouts one level below the workspace: this repository lands in
-          # $GITHUB_WORKSPACE/Phocinae-Largha-150M-v1, while the sibling clones are placed
-          # under $GITHUB_WORKSPACE/repos and /staging. verify_all locates its work root by
-          # walking up from the repository, which therefore never reaches them - so it is
-          # told where they are instead of guessing.
-          PHOC_WORK: ${{ github.workspace }}/siblings
-        run: python tools/verify_all.py
-
-      # NOT run here: tools/audit_doc_claims_have_tests.py compares the four package
-      # repositories against each other, and this job checks out only this one. Pointed at
-      # an empty tree it would find no targets and report success having compared nothing —
-      # the same shape of false pass this workflow exists to avoid. Run it where the four
-      # sibling checkouts are present.
-
-      # Downloads each released wheel from PyPI, unpacks it and exercises it the way a
-      # user would. This is the check that caught three defects which were invisible in
-      # the source tree (a wheel missing its allowlist, a stale hand-copied table, and a
-      # Windows-only `python3` assumption).
       - name: Published artifacts behave as installed
         env:
           PYTHONUTF8: '1'
@@ -192,6 +164,35 @@ jobs:
         with:
           repository: Phocinae/phocinae-guard
           path: .phoc-guard
+      - name: verify_all (the whole pre-release set, one command)
+        env:
+          PYTHONUTF8: '1'
+          PHOC_CLI_PYTHON: ${{ steps.pypath.outputs.path }}
+          PHOC_SERVER_PYTHON: ${{ steps.pypath.outputs.path }}
+          PHOC_GUARD_REPO: .phoc-guard
+          # The sibling clones live in $GITHUB_WORKSPACE/siblings/{repos,staging}.
+          # verify_all locates its work root by walking up from this repository, which cannot
+          # reach a sibling directory, so it is told where to look. Note this step must stay
+          # after the checkouts above: an earlier revision had it before them and the suites
+          # silently skipped, which is the failure this whole workflow is meant to catch.
+          PHOC_WORK: ${{ github.workspace }}/siblings
+        run: python tools/verify_all.py
+
+      # NOT run here: tools/audit_doc_claims_have_tests.py compares the four package
+      # repositories against each other, and this job checks out only this one. Pointed at
+      # an empty tree it would find no targets and report success having compared nothing —
+      # the same shape of false pass this workflow exists to avoid. Run it where the four
+      # sibling checkouts are present.
+
+      # Downloads each released wheel from PyPI, unpacks it and exercises it the way a
+      # user would. This is the check that caught three defects which were invisible in
+      # the source tree (a wheel missing its allowlist, a stale hand-copied table, and a
+      # Windows-only `python3` assumption).
+
+
+      # Every pre-release check in one place, so the set cannot silently shrink to whatever
+      # someone remembers to run. Suites whose checkouts are absent here are reported as
+      # SKIP with the reason; a run in which nothing executes fails outright.
 
       # Exit codes, the two invariants (only allow passes; --confirm cannot override deny),
       # the fail-closed behaviour with no service, the JSON-by-default output, the audit
