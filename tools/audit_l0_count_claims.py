@@ -50,7 +50,15 @@ WORK = _work_root()
 
 
 W = WORK or os.getcwd()
-GUARD_TABLE = os.path.join(W, r"repos\phocinae-guard\l0_table.json")
+# Built with _wp so the platform separator is used: os.path.join with a literal
+# backslash inside the second argument does not convert it, so on Linux this was a
+# filename that literally contained a backslash and never existed.
+GUARD_TABLE = _wp("repos", "phocinae-guard", "l0_table.json")
+if not GUARD_TABLE or not os.path.isfile(GUARD_TABLE):
+    # Also accept the environment override used by the other tools.
+    _env = os.environ.get("PHOC_GUARD_REPO")
+    if _env and os.path.isfile(os.path.join(_env, "l0_table.json")):
+        GUARD_TABLE = os.path.join(_env, "l0_table.json")
 
 READMES = [
     os.path.join(W, r"repos\phocinae-guard\README.md"),
@@ -74,6 +82,10 @@ FAILS = []
 
 
 def main():
+    if not GUARD_TABLE or not os.path.isfile(GUARD_TABLE):
+        print("SKIP the guard checkout is not available here, so the counts cannot "
+              "be compared (nothing was verified)")
+        return 0
     with io.open(GUARD_TABLE, encoding="utf-8") as fh:
         table = json.load(fh)
     actual = {k: len(table[k]) for k in ("whitelist", "whitelist_prefix", "blacklist")}
