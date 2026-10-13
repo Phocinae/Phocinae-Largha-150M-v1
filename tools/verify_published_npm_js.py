@@ -16,6 +16,7 @@ npm 包同理：`files` 里写了 `dist`，但真发出来的 tarball 到底有�
 import io
 import json
 import os
+import pathlib
 import shutil
 import subprocess
 import tarfile
@@ -90,17 +91,18 @@ def main():
     if not node:
         print("SKIP node is not on PATH; cannot require() the package")
     else:
-        # `require()` with a bare absolute path fails on Node 22 with
-        # ERR_INVALID_MODULE_SPECIFIER; it wants a file:// URL. Import the package through
-        # an ES module instead, which works on every Node this project supports.
+        # Two Node 22 requirements, both learned from CI:
+        #   * `require()` with a bare absolute path is rejected (ERR_INVALID_MODULE_SPECIFIER),
+        #     so import the package through an ES module;
+        #   * the file URL must not contain backslashes, so build it with Path.as_uri() in
+        #     Python rather than concatenating in JavaScript - the Windows path separator
+        #     survived the concatenation and made the URL invalid on non-Windows runners.
+        entry_url = (pathlib.Path(ex) / "package" / "dist" / "index.js").as_uri()
         probe = (
-            "const {pathToFileURL} = require('node:url');"
-            "const p = %s;"
-            "import(pathToFileURL(p + '/dist/index.js').href).then(m => {"
+            "import(%s).then(m => {"
             "  console.log('EXPORTS=' + Object.keys(m).sort().join(','));"
             "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-            "  process.exit(1); });"
-            % json.dumps(os.path.join(ex, "package")))
+            "  process.exit(1); });" % json.dumps(entry_url))
         p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
         # Parse stdout only. On CI Node writes a deprecation warning to stderr
         # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two

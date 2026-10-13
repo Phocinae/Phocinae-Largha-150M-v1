@@ -15,6 +15,7 @@
 import io
 import json
 import os
+import pathlib
 import re
 import shutil
 import subprocess
@@ -92,15 +93,15 @@ def main():
     if not node:
         print("SKIP node not on PATH")
         return 0
-    # Same Node 22 caveat as above: import through a file:// URL rather than require().
+    # Same two Node 22 requirements as above: an ES-module import, with the file URL built
+    # by Path.as_uri() in Python so no backslash ever reaches the URL.
+    entry_url = (pathlib.Path(pkgdir) / "dist" / "index.js").as_uri()
     probe = (
-        "const {pathToFileURL} = require('node:url');"
-        "import(pathToFileURL(%s + '/dist/index.js').href).then(m => {"
+        "import(%s).then(m => {"
         "  console.log(JSON.stringify({w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX,"
         " b: m.L0_BLACKLIST}));"
         "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-        "  process.exit(1); });"
-        % json.dumps(pkgdir))
+        "  process.exit(1); });" % json.dumps(entry_url))
     p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
     # Parse stdout only. On CI, Node writes a deprecation warning to stderr
     # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two streams
