@@ -183,9 +183,9 @@ SUITES = [
          why="三个插件仓的清单/版本/入口文件与 README 声称"),
 
     dict(name="tool-server-override", py="server",
-         script=os.path.join(WORK, "tools", "verify_tool_server_override.py"),
+         script="tools/verify_tool_server_override.py",
          in_work=True,
-         needs=[os.path.join(WORK, "tools", "verify_tool_server_override.py")],
+         
          why="四个 MCP 工具是否都接受每次调用的 server 覆盖"),
 ]
 
