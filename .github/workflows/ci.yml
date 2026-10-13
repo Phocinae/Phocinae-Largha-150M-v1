@@ -136,9 +136,51 @@ jobs:
           PHOC_CHECK_PYTHON: ${{ steps.pypath.outputs.path }}
         run: python tools/check_server_documented_api.py
 
-      # guard.conf.example.json ships in the repository rather than the wheel (the README
-      # has you copy it from a checkout), so the guard check needs that checkout to verify
-      # that the config file is actually read. Without it the config assertions skip.
+      # The sibling checkouts several suites compare against. They are placed so that
+      # verify_all's own locator finds them: it walks up looking for a directory containing
+      # both `repos/` and `staging/`, and each checkout lands under `repos/`. Without these
+      # six suites skipped on every run - they had only ever been exercised on my machine,
+      # which is the "checked somewhere else" problem this workflow exists to remove.
+      #
+      # continue-on-error keeps a network hiccup while cloning a sibling from turning the
+      # whole job red: the suites that need a missing checkout report SKIP, not FAIL.
+      - name: Check out the sibling repositories
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/phocinae-guard
+          path: repos/phocinae-guard
+
+      - name: Check out phocinae-mcp
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/phocinae-mcp
+          path: repos/phocinae-mcp
+
+      - name: Check out phocinae-server
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/phocinae-server
+          path: repos/phocinae-server
+
+      - name: Check out phocinae-cli
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/phocinae-cli
+          path: staging/phocinae-cli
+
+      - name: Check out the plugin repositories
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: Phocinae/dsh-phocinae
+          path: repos/dsh-phocinae
+
+      # Keep the guard example-config checkout: it is what the guard contract suite reads,
+      # and PHOC_GUARD_REPO points at it.
       - name: Check out phocinae-guard for its example config
         uses: actions/checkout@v4
         with:

@@ -24,6 +24,28 @@ import tempfile
 import urllib.request
 
 W = r"D:\Projects\phociane-project\_work"
+def _safe_extractall(tar, dest):
+    """Extract a tarball without the 3.14 deprecation warning and without path escapes.
+
+    Without an explicit filter, Python before 3.12 extracts member paths verbatim, so a
+    crafted archive can write outside `dest`. These are tarballs downloaded from npm, which is
+    exactly the situation the filter exists for. `filter="data"` is available from 3.12; older
+    interpreters get the members checked by hand.
+    """
+    try:
+        tar.extractall(dest, filter="data")
+        return
+    except TypeError:
+        pass  # Python < 3.12: no filter kwarg
+    base = os.path.abspath(dest)
+    for m in tar.getmembers():
+        target = os.path.abspath(os.path.join(base, m.name))
+        if not (target == base or target.startswith(base + os.sep)):
+            raise RuntimeError("refusing to extract %r outside %r" % (m.name, dest))
+        if m.issym() or m.islnk():
+            raise RuntimeError("refusing to extract link %r" % m.name)
+    tar.extractall(dest)
+
 def _scratch_root():
     """A writable scratch directory, never this machine's absolute path.
 
@@ -127,7 +149,7 @@ def main():
             shutil.copyfileobj(r, o)
     ex = tempfile.mkdtemp(prefix="l0js-", dir=SCRATCH)
     with tarfile.open(tgz) as t:
-        t.extractall(ex)
+        _safe_extractall(t, ex)
     pkgdir = os.path.join(ex, "package")
     print("  @phocinae/js %s unpacked\n" % ver)
 
