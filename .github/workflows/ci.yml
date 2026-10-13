@@ -108,6 +108,12 @@ jobs:
           PHOC_CLI_PYTHON: ${{ steps.pypath.outputs.path }}
           PHOC_SERVER_PYTHON: ${{ steps.pypath.outputs.path }}
           PHOC_GUARD_REPO: .phoc-guard
+          # GitHub nests checkouts one level below the workspace: this repository lands in
+          # $GITHUB_WORKSPACE/Phocinae-Largha-150M-v1, while the sibling clones are placed
+          # under $GITHUB_WORKSPACE/repos and /staging. verify_all locates its work root by
+          # walking up from the repository, which therefore never reaches them - so it is
+          # told where they are instead of guessing.
+          PHOC_WORK: ${{ github.workspace }}
         run: python tools/verify_all.py
 
       # NOT run here: tools/audit_doc_claims_have_tests.py compares the four package
@@ -149,35 +155,35 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Phocinae/phocinae-guard
-          path: repos/phocinae-guard
+          path: ../repos/phocinae-guard
 
       - name: Check out phocinae-mcp
         continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: Phocinae/phocinae-mcp
-          path: repos/phocinae-mcp
+          path: ../repos/phocinae-mcp
 
       - name: Check out phocinae-server
         continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: Phocinae/phocinae-server
-          path: repos/phocinae-server
+          path: ../repos/phocinae-server
 
       - name: Check out phocinae-cli
         continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: Phocinae/phocinae-cli
-          path: staging/phocinae-cli
+          path: ../staging/phocinae-cli
 
       - name: Check out the plugin repositories
         continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: Phocinae/dsh-phocinae
-          path: repos/dsh-phocinae
+          path: ../repos/dsh-phocinae
 
       # Keep the guard example-config checkout: it is what the guard contract suite reads,
       # and PHOC_GUARD_REPO points at it.
