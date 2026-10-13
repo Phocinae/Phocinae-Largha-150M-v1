@@ -90,9 +90,17 @@ def main():
     if not node:
         print("SKIP node is not on PATH; cannot require() the package")
     else:
-        probe = ("const m = require(%s);"
-                 "console.log('EXPORTS=' + Object.keys(m).sort().join(','));"
-                 % json.dumps(os.path.join(ex, "package")))
+        # `require()` with a bare absolute path fails on Node 22 with
+        # ERR_INVALID_MODULE_SPECIFIER; it wants a file:// URL. Import the package through
+        # an ES module instead, which works on every Node this project supports.
+        probe = (
+            "const {pathToFileURL} = require('node:url');"
+            "const p = %s;"
+            "import(pathToFileURL(p + '/dist/index.js').href).then(m => {"
+            "  console.log('EXPORTS=' + Object.keys(m).sort().join(','));"
+            "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
+            "  process.exit(1); });"
+            % json.dumps(os.path.join(ex, "package")))
         p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
         # Parse stdout only. On CI Node writes a deprecation warning to stderr
         # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two
@@ -101,7 +109,7 @@ def main():
         out = p.stdout.decode("utf-8", "replace").strip()
         err = p.stderr.decode("utf-8", "replace").strip()
         ok = p.returncode == 0 and "EXPORTS=" in out
-        check("the published package can be require()d by Node", ok,
+        check("the published package can be imported by Node", ok,
               (out[-160:] + " | stderr: " + err[-160:]))
         if ok:
             names_line = [l for l in out.split("\n") if l.startswith("EXPORTS=")][0]

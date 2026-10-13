@@ -23,7 +23,34 @@ import tempfile
 import urllib.request
 
 W = r"D:\Projects\phociane-project\_work"
-GUARD_TABLE = os.path.join(W, r"repos\phocinae-guard\l0_table.json")
+def _guard_table():
+    """Locate the guard's l0_table.json, or return "" when it is not available.
+
+    The path used to be built from a hard-coded D:\... work root, so on a runner the file
+    open raised FileNotFoundError and the suite failed rather than skipping - even though
+    verify_all's `needs` gate routes the same path and therefore never protected it.
+    Returning "" lets the suite report SKIP, which is what "the checkout is not here" means.
+    """
+    cands = []
+    env = os.environ.get("PHOC_GUARD_REPO")
+    if env:
+        cands.append(os.path.join(env, "l0_table.json"))
+    env = os.environ.get("PHOC_WORK")
+    if env:
+        cands.append(os.path.join(env, "repos", "phocinae-guard", "l0_table.json"))
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = here
+    for _ in range(6):
+        cands.append(os.path.join(d, "repos", "phocinae-guard", "l0_table.json"))
+        cands.append(os.path.join(d, "phocinae-guard", "l0_table.json"))
+        d = os.path.dirname(d)
+    for c in cands:
+        if c and os.path.isfile(c):
+            return c
+    return ""
+
+
+GUARD_TABLE = _guard_table()
 SCRATCH = os.path.join(W, ".tmp", "npm-verify")
 FAILS = []
 
@@ -35,6 +62,10 @@ def check(name, cond, detail=""):
 
 
 def main():
+    if not GUARD_TABLE:
+        print("SKIP the guard checkout is not available here, so the "
+              "comparison cannot be made (nothing was verified)")
+        return 0
     guard = json.load(io.open(GUARD_TABLE, encoding="utf-8"))
     print("  guard l0_table.json: whitelist=%d prefix=%d blacklist=%d\n"
           % (len(guard["whitelist"]), len(guard["whitelist_prefix"]),
@@ -61,10 +92,14 @@ def main():
     if not node:
         print("SKIP node not on PATH")
         return 0
+    # Same Node 22 caveat as above: import through a file:// URL rather than require().
     probe = (
-        "const m = require(%s);"
-        "console.log(JSON.stringify({"
-        "w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX, b: m.L0_BLACKLIST}));"
+        "const {pathToFileURL} = require('node:url');"
+        "import(pathToFileURL(%s + '/dist/index.js').href).then(m => {"
+        "  console.log(JSON.stringify({w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX,"
+        " b: m.L0_BLACKLIST}));"
+        "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
+        "  process.exit(1); });"
         % json.dumps(pkgdir))
     p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
     # Parse stdout only. On CI, Node writes a deprecation warning to stderr
