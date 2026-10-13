@@ -113,14 +113,17 @@ def main():
     # is built here at all.
     pkg_root = pkgdir
     entry_spec = "./dist/index.js"
+    # The specifier travels in an environment variable; see the note in
+    # verify_published_npm_js.py for why writing it inline is not reliable.
     probe = (
-        "import(%s).then(m => {"
+        "import(process.env.PHOC_ENTRY).then(m => {"
         "  console.log(JSON.stringify({w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX,"
         " b: m.L0_BLACKLIST}));"
         "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-        "  process.exit(1); });" % json.dumps(entry_spec))
+        "  process.exit(1); });")
+    env = dict(os.environ, PHOC_ENTRY=entry_spec)
     p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120,
-                       cwd=pkg_root)
+                       cwd=pkg_root, env=env)
     # Parse stdout only. On CI, Node writes a deprecation warning to stderr
     # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two streams
     # made `out.startswith("{")` fail there while passing locally, where Node is quiet.

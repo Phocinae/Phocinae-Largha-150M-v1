@@ -118,13 +118,19 @@ def main():
         #     survived the concatenation and made the URL invalid on non-Windows runners.
         pkg_root = os.path.join(ex, "package")
         entry_spec = "./dist/index.js"
+        # The specifier travels in an environment variable. Written inline it was rewritten
+        # somewhere between here and Node: CI reported
+        #   ERR_INVALID_MODULE_SPECIFIER Invalid module "/home/runner/..."
+        # i.e. an absolute path reached import(), which requires a file:// URL. An environment
+        # variable crosses no quoting or shell layer, so what is set here is what Node reads.
         probe = (
-            "import(%s).then(m => {"
+            "import(process.env.PHOC_ENTRY).then(m => {"
             "  console.log('EXPORTS=' + Object.keys(m).sort().join(','));"
             "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-            "  process.exit(1); });" % json.dumps(entry_spec))
+            "  process.exit(1); });")
+        env = dict(os.environ, PHOC_ENTRY=entry_spec)
         p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120,
-                           cwd=pkg_root)
+                           cwd=pkg_root, env=env)
         # Parse stdout only. On CI Node writes a deprecation warning to stderr
         # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two
         # streams made the JSON parse fail there while passing locally, where Node is
