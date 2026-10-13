@@ -28,6 +28,22 @@ SCRATCH = os.path.join(W, ".tmp", "npm-verify")
 FAILS = []
 
 
+def describe(out, err, limit=700):
+    """Enough of both streams to identify a Node failure.
+
+    Node puts the error code and the sentence that explains it at the START of stderr, so
+    keeping only the tail hid the useful part: CI showed "imported from /home/runner/..."
+    and nothing about why. Keep the head and the tail of each stream.
+    """
+    def clip(s):
+        s = s.strip()
+        if len(s) <= limit:
+            return s
+        h = limit // 2
+        return s[:h] + " ...[snip]... " + s[-h:]
+
+    return "stdout=" + clip(out) + " || stderr=" + clip(err)
+
 def check(name, cond, detail=""):
     print(("  PASS " if cond else "  FAIL ") + name + ("" if cond else "  " + str(detail)))
     if not cond:
@@ -117,7 +133,7 @@ def main():
         err = p.stderr.decode("utf-8", "replace").strip()
         ok = p.returncode == 0 and "EXPORTS=" in out
         check("the published package can be imported by Node", ok,
-              (out[-160:] + " | stderr: " + err[-160:]))
+              describe(out, err))
         if ok:
             names_line = [l for l in out.split("\n") if l.startswith("EXPORTS=")][0]
             print("    %s" % names_line[:160])
