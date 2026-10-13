@@ -93,16 +93,18 @@ def main():
     if not node:
         print("SKIP node not on PATH")
         return 0
-    # Same two Node 22 requirements as above: an ES-module import, with the file URL built
-    # by Path.as_uri() in Python so no backslash ever reaches the URL.
-    entry_url = (pathlib.Path(pkgdir) / "dist" / "index.js").as_uri()
+    # Same approach as above: a relative specifier resolved by Node against cwd, so no URL
+    # is built here at all.
+    pkg_root = pkgdir
+    entry_spec = "./dist/index.js"
     probe = (
         "import(%s).then(m => {"
         "  console.log(JSON.stringify({w: m.L0_WHITELIST, p: m.L0_WHITELIST_PREFIX,"
         " b: m.L0_BLACKLIST}));"
         "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-        "  process.exit(1); });" % json.dumps(entry_url))
-    p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
+        "  process.exit(1); });" % json.dumps(entry_spec))
+    p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120,
+                       cwd=pkg_root)
     # Parse stdout only. On CI, Node writes a deprecation warning to stderr
     # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two streams
     # made `out.startswith("{")` fail there while passing locally, where Node is quiet.

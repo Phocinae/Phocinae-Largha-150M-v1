@@ -91,19 +91,24 @@ def main():
     if not node:
         print("SKIP node is not on PATH; cannot require() the package")
     else:
-        # Two Node 22 requirements, both learned from CI:
+        # Node resolves a relative specifier against cwd, so the path never becomes a URL
+        # and no separator/encoding rule can be got wrong here. Two earlier attempts to
+        # build a file:// URL both failed on runners and both passed locally.
+        # Also learned from CI:
         #   * `require()` with a bare absolute path is rejected (ERR_INVALID_MODULE_SPECIFIER),
         #     so import the package through an ES module;
         #   * the file URL must not contain backslashes, so build it with Path.as_uri() in
         #     Python rather than concatenating in JavaScript - the Windows path separator
         #     survived the concatenation and made the URL invalid on non-Windows runners.
-        entry_url = (pathlib.Path(ex) / "package" / "dist" / "index.js").as_uri()
+        pkg_root = os.path.join(ex, "package")
+        entry_spec = "./dist/index.js"
         probe = (
             "import(%s).then(m => {"
             "  console.log('EXPORTS=' + Object.keys(m).sort().join(','));"
             "}).catch(e => { console.error('IMPORT_FAILED: ' + e.code + ' ' + e.message);"
-            "  process.exit(1); });" % json.dumps(entry_url))
-        p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120)
+            "  process.exit(1); });" % json.dumps(entry_spec))
+        p = subprocess.run([node, "-e", probe], capture_output=True, timeout=120,
+                           cwd=pkg_root)
         # Parse stdout only. On CI Node writes a deprecation warning to stderr
         # ("[DEP0040] The `punycode` module is deprecated"), and concatenating the two
         # streams made the JSON parse fail there while passing locally, where Node is
