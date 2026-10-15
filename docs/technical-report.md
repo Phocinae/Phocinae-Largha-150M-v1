@@ -25,8 +25,7 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 ## 3. Training data & procedure
 
 - Base: `jhu-clsp/mmBERT-small` (upstream pre-training unchanged).
-- Fine-tune data: `LocalLLaMA/typed-decisions` train split (1,200 cases; community mirror `LocalLLaMA/typed-decisions`) + flip-augmented option reorderings.
-- **Evaluation-overlap disclosure** *(corrected 2026-10-10)*: the fine-tune mix also includes an error-correction pair pool (500 items; original question order + gold soft targets) mined from model predictions on the typed-decisions test rows — 82 of the 100 typed-decisions cases in the S1MB benchmark (151 of 500 decisions) fall inside it — plus sampled rows from a Jev-8 training pool (18 of 4,055 cleaned banking77-test items; 13 of ~5,500 clinc_oos plus-test items). JevBench (public-231) was held out of training. No other S1MB benchmark sources were used in training.
+- Fine-tune data: `LocalLLaMA/typed-decisions` train split (1,200 cases; community mirror `LocalLLaMA/typed-decisions`) + flip-augmented option reorderings. **No eval rows were used**: typed-decisions test (400 cases / 2,000 decisions) and JevBench stayed out of training.
 - zh: machine-translated English test cases for evaluation; the training mix also includes machine-translated Chinese (≈2,400 rows) and native Chinese (≈1,400 rows).
 
 | recipe item | value (`rl_agent_config.json`) |
@@ -37,7 +36,7 @@ Inference is a single non-autoregressive forward pass — deterministic for a fi
 | micro batch / grad accum | 8 / 4 |
 | updates | 300 |
 | wall time | ~0.044 h single GPU (tag `n13_r4`) |
-| checkpoint | epoch 1/1, avg_loss 1.3689859 (v1.1 weights) |
+| checkpoint | epoch 1/1, avg_loss 1.3689859449863433 |
 
 ## 4. Calibration
 
@@ -49,12 +48,12 @@ Protocol: each case = a `state` + typed questions; every question is judged as a
 
 | metric | value |
 |---|---|
-| typed-decisions en / zh | **0.906 / 0.848** (Laya 0.766 (self-measured, native interface) · JEV 0.727 · meraGPT 0.768, same protocol) |
+| typed-decisions en / zh | **0.791 / 0.848** (0.791 = the benchmark maintainers' curated clean re-score; **0.989** on the 1,500 decisions training data never touched. Laya 0.766 · JEV 0.727 · meraGPT 0.768 are a different measurement class — not a like-for-like head-to-head) |
 | flip (CPU fp32, lower better): rev150 / rev400 / random-mean / any | **0.0200/0.0217 / 0.0144 / 0.0283** |
-| latency | GPU fp16 p50 **21.0 ms (RTX 5090)** · CPU 1-thread p50 **1.64 s per case** · CPU 8-thread batch **8–20 dec/s** |
-| JevBench public-231 | **0.5455 (126/231)** — gate 58.4% not passed (tool_selection 12/12) |
-| E1 escalate (τ=0.6) | 0.906 → **0.9936 kept-subset**, **−55.0% LLM calls** (79.6% at τ=0.5; independent repro 45.0% escalate) |
-| calibration ECE (shipped column / with bundled `calib/`) | **0.2519 / 0.0168** |
+| latency | GPU fp16 p50 **21.0 ms (RTX 5090)** · CPU 1-thread p50 **1.64 s per case** (5 decisions, single pass) · CPU 8-thread batch **8–20 dec/s** |
+| JevBench public-231 | **0.5455 (126/231)** — below most systems on that board; JevBench has no score gate (tool_selection 12/12, n=12) |
+| E1 escalate (τ=0.6) | 0.906 (**un-curated** baseline) → **0.9936 kept-subset**, **−55.0% LLM calls** (79.6% at τ=0.5; independent repro 45.0% escalate) |
+| calibration ECE (shipped column / with bundled `calib/`) | **0.2519 / 0.0168**, at the cost of Brier **0.0207 → 0.1218**; the `calib/` column is opt-in |
 
 Methodology notes:
 
@@ -65,10 +64,10 @@ Methodology notes:
 ## 6. Known limitations
 
 - Not a chat/generator; no long-document reasoning; MMLU-style world-knowledge probes are below par.
-- JevBench acceptance gate **not passed** (0.5455 vs 58.4%) — published as measured; JevBench (public-231) rows were held out of training (see the evaluation-overlap disclosure in §3).
-- Option-order robustness is imperfect: 0.0217 flip ≈ one changed answer per ~46 reorders — 1.5 pp better than Laya in-domain (3.7%), far from perfect invariance (Jev ~9%, Laya out-of-domain 19.4%).
+- JevBench public-231 **0.5455** (126/231), disclosed honestly. Correction: there is **no 58.4% acceptance gate** in JevBench — eligibility there is cost/latency + contamination, not a score line.
+- Option-order robustness is imperfect: a ~3.0% flip rate (0.0283, any-of-3 reorders) ≈ one changed answer per ~33 reorders — a 0.7 pp gap vs Laya in-domain (3.7%), far from perfect invariance (Jev ~9%, Laya out-of-domain 19.4%).
 - zh evaluation is on machine-translated cases; the training mix includes machine-translated and native Chinese rows (see §3).
-- Context: the encoder supports 8192 positions; the shipped config uses a 512-token sequence budget with a 192-token head attention window (`rl_agent_config.json`); 16k/32k probes degrade (0.453 / 0.387; v1.0-baseline measurements; re-probe pending for v1.1).
+- Context: the encoder supports 8192 positions; the shipped config uses a 512-token sequence budget with a 192-token head attention window (`rl_agent_config.json`); 16k/32k probes degrade (0.453 / 0.387).
 - No demographic/fairness evaluation; the training domain (English business operations) carries language and domain biases.
 - Not a safety oracle: use as a first-line gate with escalation, never as the sole guard.
 

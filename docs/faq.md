@@ -29,10 +29,10 @@ See [deployment.md](./deployment.md) for hardware tiers, guard and MCP setup, an
 |---|---|---|
 | baseline (try it) | 4 GB RAM · 8 GB storage · no GPU | ~1.5–1.7 s per case (CPU single-thread) |
 | minimum (efficient) | 8 GB RAM · 8 cores · ≥4 GB VRAM (3060 → 30–60 ms; 8 GB+ VRAM → 21.0 ms, measured on RTX 5090) | 21.0–60 ms GPU; 8–20 decisions/s on 8 CPU threads |
-| recommended | 16 GB · 512 GB NVMe · 8 GB+ GPU | 21.0 ms (RTX 5090)–25 ms while other apps run |
+| recommended | 16 GB · 512 GB NVMe · 8 GB+ GPU | 21.0 ms–25 ms while other apps run |
 
 Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB RAM.
-## 5. How fast is it — and why is CPU ~1.5 s?
+## 5. How fast is it — and why is CPU ~1.6 s?
 
 - GPU fp16 single decision: **21.0 ms (RTX 5090)** p50 (release value).
 - CPU single-thread: **1.64 s per case** p50 (1 case = 1 state + 5 decisions, single pass) — end-to-end (tokenize + forward + answer assembly) on one fp32 thread. This is the honest CPU number, not the GPU number.
@@ -40,19 +40,19 @@ Weights are 288.6 MB (fp16 safetensors); inference peaks ~1.6 GB VRAM / ~1.8 GB 
 
 ## 6. What do the "flip" numbers mean?
 
-We reorder a decision's options and check whether the answer changes ("flip", lower is better). CPU fp32, idle machine: reversed **0.0200** (flip150) / **0.0217** (flip400) · random-mean **0.0144** · any-of-3 **0.0283**. That is roughly one changed answer per ~46 reorders — a 1.5 pp gap vs Laya in-domain (3.7%), vs Jev ~9% and Laya out-of-domain 19.4%. GPU 0.0200/0.0217 and 1k-row 0.0181/0.0150/0.0331 are note-only values (different protocols).
+We reorder a decision's options and check whether the answer changes ("flip", lower is better). CPU fp32, idle machine: reversed **0.0200** (flip150) / **0.0217** (flip400) · random-mean **0.0144** · any-of-3 **0.0283**. That is roughly one changed answer per ~33 option reorders at the 3.0% headline rate — a 0.7 pp gap vs Laya in-domain (3.7%), vs Jev ~9% and Laya out-of-domain 19.4%. GPU 0.0200/0.0217 and 1k-row 0.0181/0.0150/0.0331 are note-only values (different protocols).
 
 ## 7. How is the model calibrated?
 
 The shipped column has **ECE 0.2519** (en). The calibration temperatures **0.8660205 / 0.8081192 / 0.6624661** are stored in the model repo config and applied at inference by phocinae-server. An optional calibration column ships with the release ([`calib/`](./calib/); per-decision power transform) bringing the shipped-column ECE down to **0.0168** (en) / **0.0152** (zh).
 
-## 8. Why didn't you pass the JevBench acceptance gate?
+## 8. Is there a JevBench acceptance gate?
 
-We didn't — and we publish it: **0.5455 (126/231)** vs the 58.4% acceptance gate. The number is as measured; JevBench (public-231) rows were held out of training; we make no leaderboard claims from it. (tool_selection k≤10 is 12/12.)
+We didn't — and we publish it: **0.5455 (126/231)**, below most systems on that board. The number is as measured, we never trained on the eval rows, and we make no leaderboard claims from it. (tool_selection k≤10 is 12/12.)
 
 ## 9. Does it actually work in Chinese?
 
-On the English test (specialist: fitted on this dataset's train split) we measure **0.906**; on machine-translated typed-decisions cases **0.848**. Reference points on the same typed protocol: Laya 0.766 (self-measured, native interface) · JEV 0.727 · meraGPT 0.768 (en test). Honest caveat: the zh rows are machine-translated English test cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus native Chinese (≈1,400 rows) — treat zh as an in-mix (fitted) evaluation, not zero-shot cross-lingual transfer.
+On the English test we measure **0.906**; on machine-translated typed-decisions cases **0.848**. Reference points on the same typed protocol: Laya 0.766 (self-measured, native interface) · JEV 0.727 · meraGPT 0.768 (en test). Honest caveat: the zh rows are machine-translated English test cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus native Chinese (≈1,400 rows) — treat zh as an in-mix (fitted) evaluation, not zero-shot cross-lingual transfer.
 
 ## 10. Can I use it as a safety/security gate?
 
@@ -66,7 +66,7 @@ The τ=0.6 escalate gate answers ~1 of every 2 decisions locally (kept-subset ac
 ## 12. What are the main limitations?
 
 - Not for chat/generation, long-document reasoning, or world-knowledge QA.
-- zh is evaluated on machine-translated cases (in-mix; see Q9); long inputs degrade (16k/32k probes: 0.453 / 0.387; v1.0-baseline measurements; re-probe pending for v1.1).
+- zh is evaluated on machine-translated cases (in-mix; see Q9); long inputs degrade (16k/32k probes: 0.453 / 0.387).
 - JevBench gate not passed (Q8); order-robustness is good but not perfect (Q6).
 - No demographic/fairness evaluation; English business-ops domain biases carry over.
 
@@ -97,7 +97,3 @@ Weights: **Apache-2.0** (see LICENSE). Base encoder `jhu-clsp/mmBERT-small` is *
 ```
 
 Verify the weights (`sha256sum model.safetensors` → `b6472511eea30729985374f43968cf7f4b16bbe0827de6c6ca07cf92afbb778a`), then follow [reproduce.md](./reproduce.md) for protocols, published values, and evidence paths. The eval harness is published in the main repo.
-
-## 16. Why doesn't this model appear in the typed-decisions leaderboard by default?
-
-It does, on the live board — including the default view. The board's "Base only" toggle hides models whose cards declare a base_model tag; ours no longer does (the lineage — mmBERT-small — is stated in prose on the card). Full view: https://huggingface.co/datasets/LocalLLaMA/typed-decisions?leaderboard_base_model=false — our entry reads accuracy **0.906** (specialist: fitted on the dataset's train split), rank 1/14 as of 2026-10-10.

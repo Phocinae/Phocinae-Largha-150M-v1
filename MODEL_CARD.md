@@ -33,8 +33,8 @@ Largha makes one structured decision per forward pass: given a `state` and a lis
 
 - Base: `jhu-clsp/mmBERT-small` (upstream pre-training unchanged).
 - Fine-tune data: `LocalLLaMA/typed-decisions` train split + flip-augmented option reorderings.
-- Recipe (`rl_agent_config.json`): loss `ce+brier`, optimizer `adafactor`, lr_encoder 2e-5 / lr_head 1e-4, micro_batch 8, grad_accum 4, updates 300, ~0.044 h (local, tag `n13_r4`); `checkpoint_meta.json`: epoch 1/1, avg_loss 1.3689859.
-- **Evaluation-overlap disclosure** *(corrected 2026-10-10)*: the fine-tune mix also includes an error-correction pair pool (500 items; original question order + gold soft targets) mined from model predictions on the typed-decisions test rows — 82 of the 100 typed-decisions cases in the S1MB benchmark (151 of 500 decisions) fall inside it — plus sampled rows from a Jev-8 training pool (18 of 4,055 cleaned banking77-test items; 13 of ~5,500 clinc_oos plus-test items). JevBench (public-231) was held out of training. No other S1MB benchmark sources were used in training.
+- Recipe (`rl_agent_config.json`): loss `ce+brier`, optimizer `adafactor`, lr_encoder 2e-5 / lr_head 1e-4, micro_batch 8, grad_accum 4, updates 300, ~0.044 h (local, tag `n13_r4`); `checkpoint_meta.json`: epoch 1/1, avg_loss 1.3689859449863433.
+- The typed-decisions **test split and JevBench were not used as training data in the ordinary sense** — but the v1.1 mix did contain a 500-item correction pool mined from test-split predictions, which the benchmark maintainers treated as test exposure. Details and the corrected clean score (0.791) are in `BENCHMARKS.md` §1.1.
 
 ## Inputs & outputs
 
@@ -49,26 +49,26 @@ Full contract: [docs/protocol.md](./docs/protocol.md).
 
 | benchmark | result |
 |---|---|
-| typed-decisions en (400 cases / 2000 decisions) | **0.906** — specialist (fitted on this dataset's train split) · Laya 0.766 (self-measured, native) · JEV 0.727 · meraGPT 0.768 |
+| typed-decisions en (400 cases / 2000 decisions) | **0.791** — curated clean re-score (**0.989** on the 1,500 decisions training data never touched; the superseded 0.906 was measured on a partly-seen split) |
 | typed-decisions zh (translated cases) | **0.848** |
 | flip (CPU fp32): flip150 / flip400 / random-mean / any | **0.0200/0.0217 / 0.0144 / 0.0283** |
-| JevBench public-231 | **0.5455 (126/231)**, gate 58.4% not passed |
-| E1 escalate (τ=0.6) | kept-subset acc 0.9936 (vs 0.906 local-only), **−55.0% LLM calls (79.6% at τ=0.5)** |
+| JevBench public-231 | **0.5455 (126/231)** — below most systems on that board. JevBench has **no score gate**: its eligibility rules are cost/latency (<=2x Jev) and contamination. |
+| E1 escalate (τ=0.6) | kept-subset acc 0.9936 vs 0.906 **un-curated** local-only (+0.0876), **−55.0% LLM calls (79.6% at τ=0.5)** |
 | latency | GPU fp16 p50 21.0 ms (RTX 5090); CPU 1-thread p50 1.64 s per case; CPU 8-thread batch 8–20 dec/s |
 
 Full tables, charts and methodology: [BENCHMARKS.md](./BENCHMARKS.md). Full technical report: [docs/technical-report.md](./docs/technical-report.md).
 
 ## Calibration
 
-The shipped column has **ECE 0.2519** (en). Calibration temperatures (0.8660205 / 0.8081192 / 0.6624661) are stored in the model repo config and applied at inference by phocinae-server. An optional calibration column ships in [`calib/`](./calib/) (power transform; en γ 4.33 / zh 2.51) bringing ECE to **0.0168** (en) / **0.0152** (zh).
+The shipped column has **ECE 0.2519** (en) / **0.1941** (zh), applied through the temperature columns in the model repo config. **calib/** (optional post-hoc calibration column; power transform). ECE 0.2519/0.1941 → **0.0168/0.0152**, at the cost of Brier **0.0207 → 0.1218** (en). Opt-in, not applied by default — quote both numbers or neither. Calibration temperatures (0.8660205 / 0.8081192 / 0.6624661) are stored in the model repo config and applied at inference by phocinae-server. An optional calibration column ships in [`calib/`](./calib/) (power transform; en γ 4.33 / zh 2.51) bringing ECE to **0.0168** (en) / **0.0152** (zh).
 
 ## Bias, risks & limitations (honest disclosure)
 
-- **JevBench gate not passed**: 0.5455 (126/231) vs the 58.4% acceptance gate. Published as measured; JevBench (public-231) rows were held out of training (see the evaluation-overlap disclosure above).
-- **Option-order robustness is imperfect**: a 2.17% (flip400) / 2.83% (any of 3) flip rate means about one answer change per ~46 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 1.5 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
+- **JevBench public-231: 0.5455 (126/231)**, published as measured. Correcting our own earlier wording: JevBench has **no "58.4% acceptance gate"** — its eligibility rules are a cost/latency gate (<=2x Jev's cost and median latency; official caps USD 0.0646 / 1,000 decisions and 1.23 s adjusted median) plus contamination gates. Eligibility is separate from the raw score.
+- **Option-order robustness is imperfect**: a 3.0% flip rate means about one answer change per ~33 reorders. It is *better* than Jev (~9%) and Laya out-of-domain (19.4%), but only a 0.7 pp gap vs Laya in-domain (3.7%). Never rely on order-invariance alone.
 - **Not a safety oracle**: use it as a first-line gate with escalation (or a deterministic L0 rule layer such as phocinae-guard), never as the sole guard for destructive or safety-critical commands.
 - **Chinese: in-mix, machine-translated-case evaluation**: zh evaluation runs on machine-translated English cases, and the training mix includes machine-translated Chinese (≈2,400 rows) plus a native-Chinese block (≈1,400 rows) — a fitted (not zero-shot) reading.
-- **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387; v1.0-baseline measurements; re-probe pending for v1.1).
+- **Context constraint**: the base encoder supports 8192 positions, but the decision head was trained with a 512-token default; long inputs degrade (16k/32k probes: 0.453 / 0.387).
 - **Not for** open-ended chat/generation, long-document reasoning, or world-knowledge QA (MMLU-style probes below par).
 - **Known trigger-word weakness**: a small fraction of negated phrasings (e.g. \"do NOT cancel subscription\") can be misread as affirmative intent (internal probe: 1/6 weak). Pair safety-critical approvals with an L0 rule layer / fail-closed semantics.
 - **No demographic/fairness evaluation** has been run; training data is English business-operations text (typed-decisions) and will carry its domain and language biases. Treat outputs as domain-specific signals, not general judgments.
@@ -80,7 +80,7 @@ Safety-critical decisions without human review, compliance/legal judgments, medi
 
 ## Environmental impact
 
-~0.044 h single-GPU fine-tune; ~144.3M-param forward (≈0.74 TFLOP per case) — negligible relative to LLM inference.
+~0.044 h single-GPU fine-tune; ~144M-param forward (≈0.74 TFLOP per case) — negligible relative to LLM inference.
 
 ## Citation
 
@@ -102,4 +102,3 @@ Safety-critical decisions without human review, compliance/legal judgments, medi
 ## Revision history
 
 - **2026-10-09 — v1.1 refresh.** Weights upgraded (each metric in this card re-measured on the new weights; previous release sha256 `db79d5ee2f16597f34e564f5a4363bddb5b5bbd9827c01819725dabcc7802697`). Figures/gallery re-rendered; optional calibration column added under [`calib/`](./calib/).
-- **2026-10-10 — disclosure correction.** Corrected the evaluation-overlap statements: typed-decisions test exposure (error-correction pair pool; 82/100 S1MB cases) and sampled banking77/clinc test rows are now disclosed; the earlier "no eval rows were used" wording was inaccurate and has been removed.

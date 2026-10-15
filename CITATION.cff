@@ -10,8 +10,8 @@ authors:
 license: Apache-2.0
 repository-code: "https://github.com/Phocinae/Phocinae-Largha-150M-v1"
 url: "https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1"
-date-released: 2026-10-08
-version: v1
+date-released: 2026-10-09
+version: v1.1
 keywords:
   - typed decision model
   - system 1

@@ -18,7 +18,7 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 
 ### typed-decisions
 - en: 400 cases × 5 questions = 2000 decisions; each judged independently (state + typed question).
-- Frozen: en accuracy **0.906**, zh (translated) **0.848**.
+- Headline: en **0.791** (the benchmark maintainers' curated clean re-score; **0.989** on the 1,500 decisions untouched by training data) · zh **0.848** (in-mix, fitted). The superseded **0.906** was measured on a partly-seen split — see `BENCHMARKS.md` §1.1.
 
 ### Option-order flip
 - Reorder the options of a decision; a flip = the answer changed.
@@ -32,14 +32,14 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 - CPU 8-thread batch **8–20 decisions/s** (b=1 → 19.7, b=32 → 8.4); 2000-row mega-batch 6.8–8.5 decisions/s.
 
 ### JevBench public-231
-- micro **0.5455 = 126/231**; acceptance gate 58.4% (not passed, disclosed); tiers easy 0.9167 (44/48) / original 0.5000 (36/72) / hard 0.4144 (46/111); family-macro 0.5226; tool_selection k≤10 **12/12**.
+- micro **0.5455 = 126/231** (disclosed; JevBench has no score gate — eligibility is cost/latency + contamination); tiers easy 0.9167 (44/48) / original 0.5000 (36/72) / hard 0.4144 (46/111); family-macro 0.5226; tool_selection k≤10 **12/12**.
 
 ### Escalate routing (E1, τ=0.6)
-- Local acc **0.906** → kept-subset **0.9936** (+0.0876) with 45.0% of decisions escalated to an external LLM (**−55.0% LLM calls; 79.6% at τ=0.5**). Independent reproductions: local **0.9055** (en) / **0.848** (zh) — CPU fp32 re-runs — vs official 0.906 / 0.848; shown side by side, disagreements stated.
+- Local acc **0.906** (**un-curated** baseline) → kept-subset **0.9936** (+0.0876) with 45.0% of decisions escalated to an external LLM (**−55.0% LLM calls; 79.6% at τ=0.5**). Independent reproductions: local **0.9055** (en) / **0.848** (zh) — CPU fp32 re-runs — vs official 0.906 / 0.848; shown side by side, disagreements stated.
 
 ### Calibration
 - Shipped column ECE **0.2519** (en) / **0.1941** (zh). Calibration temperatures in the model repo config: **0.8660 / 0.8081 / 0.6625** (choice/score/noul).
-- A bundled recalibration column (`calib/`, recommended γ 4.33 en / 2.51 zh) reaches **0.0168** (en) / **0.0152** (zh); apply it as a post-hoc transform on the reported probabilities.
+- A bundled recalibration column (`calib/`, recommended γ 4.33 en / 2.51 zh) reaches **0.0168** (en) / **0.0152** (zh); apply it as a post-hoc transform on the reported probabilities. **It is opt-in and not applied by default, and it sharpens the distribution: Brier goes 0.0207 → 0.1218 (en) / 0.0333 → 0.0961 (zh). Quote the ECE and the Brier cost together or neither.**
 
 ## Environment
 
@@ -57,4 +57,4 @@ All published numbers were measured on the shipped weights (`model.safetensors`,
 
 - The eval four-piece (row sets, seeds, scripts, environment) ships with the repository (`datasets/` + this document); raw training evidence dumps (per-decision prediction JSONs, exact commit hashes) follow in a second release.
 - GPU numbers are fp16; local CPU re-runs may differ by a flip or two (fp16↔fp32 noise) — the published main table is the CPU fp32 double-reproduced set.
-- zh is a translated protocol; treat zh numbers as cross-lingual transfer evidence, not native-language eval.
+- zh is an **in-mix (fitted)** protocol on English rows machine-translated into Chinese (the training mix includes ≈2,400 machine-translated and ≈1,400 native Chinese rows). It is **not** zero-shot cross-lingual transfer, and it is not evidence that Chinese is a strength of this model.
