@@ -1,14 +1,20 @@
 # Phocinae/Phocinae-Largha-150M-v1 — .eval_results/typed-decisions.yaml
 # Submitted: 2026-10-09 (v1.1 weights). Scorer conventions verified against the
 # benchmark's Uniform reference row (KL 0.444 / Brier 0.238 reproduced exactly).
+# 2026-10-15: the reported accuracy was changed from 0.906 to the clean re-score
+# 0.791, so that the auto-populated board matches the benchmark maintainers'
+# curated Table 2. The 0.906 lineage was measured on a test split the fine-tune
+# mix had partly seen; the maintainer's note on this ("the Hub's auto-populated
+# board reads each model repo's own eval results, so that entry is up to the
+# submitters") is in the dataset discussion #25.
 # After push, verify: GET https://huggingface.co/api/datasets/LocalLLaMA/typed-decisions/leaderboard
 
 - dataset:
     id: LocalLLaMA/typed-decisions
     task_id: accuracy
     revision: e039ebffcc280174dd354227424fb2b249f191de
-  value: 0.906
-  date: '2026-10-09'
+  value: 0.791
+  date: '2026-10-15'
   source:
     url: https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1/blob/main/BENCHMARKS.md
     name: Phocinae self-host eval (BENCHMARKS.md)
