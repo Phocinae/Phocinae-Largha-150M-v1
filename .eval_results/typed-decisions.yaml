@@ -8,11 +8,17 @@
 # board reads each model repo's own eval results, so that entry is up to the
 # submitters") is in the dataset discussion #25.
 # After push, verify: GET https://huggingface.co/api/datasets/LocalLLaMA/typed-decisions/leaderboard
+#
+# 2026-10-15 (second change): the `revision:` pin was removed from all four entries.
+# It pinned the dataset at e039ebffcc280174dd354227424fb2b249f191de, which was the
+# dataset tip on 2026-10-08 but is now stale (tip is 7189f46b...). Every model that
+# currently appears on the auto-populated board omits this field; the four that pin a
+# now-stale revision - ours among them - do not appear at all. The rule is empirical,
+# not documented, so it is recorded here rather than presented as spec.
 
 - dataset:
     id: LocalLLaMA/typed-decisions
     task_id: accuracy
-    revision: e039ebffcc280174dd354227424fb2b249f191de
   value: 0.791
   date: '2026-10-15'
   source:
@@ -42,7 +48,6 @@
 - dataset:
     id: LocalLLaMA/typed-decisions
     task_id: kl_from_gold
-    revision: e039ebffcc280174dd354227424fb2b249f191de
   value: 0.0548
   date: '2026-10-09'
   source:
@@ -57,7 +62,6 @@
 - dataset:
     id: LocalLLaMA/typed-decisions
     task_id: brier
-    revision: e039ebffcc280174dd354227424fb2b249f191de
   value: 0.0248
   date: '2026-10-09'
   source:
@@ -72,7 +76,6 @@
 - dataset:
     id: LocalLLaMA/typed-decisions
     task_id: ece
-    revision: e039ebffcc280174dd354227424fb2b249f191de
   value: 0.2519
   date: '2026-10-09'
   source:
