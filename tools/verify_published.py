@@ -90,6 +90,8 @@ import time
 import urllib.request
 import zipfile
 
+from http_retry import download as download_file
+
 PYPI = "https://pypi.org/pypi/%s/json"
 BENIGN = ["git status", "ls -la", "pwd", "npm test", "python -m pytest -q"]
 DANGEROUS = ["rm -rf /", "sudo rm -rf /etc", "mkfs.ext4 /dev/sda1",
@@ -162,8 +164,7 @@ def download_wheel(project, version=None):
     f = whl[0]
     dest = os.path.join(_scratch("pubverify-"),
                        f["filename"])
-    with urllib.request.urlopen(f["url"], timeout=300) as r, open(dest, "wb") as out:
-        shutil.copyfileobj(r, out)
+    download_file(f["url"], dest)
     return version or ver, dest
 
 

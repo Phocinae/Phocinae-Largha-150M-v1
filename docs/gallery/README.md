@@ -2,6 +2,27 @@
 
 合成引擎：`make_gifs.py`（S01/S06/S22）+ `make_gifs_batch2.py`（S02-S05、S07-S12）+ `make_gifs_batch3.py`（S13-S21、S23、S24）+ `make_gifs_batch4.py`（存量 11 张达标升级：S01/S02/S04-S11/S22）。纯 PIL 逐帧，零依赖可复现；800×450、循环播放、首帧=结论卡+数字钩子、尾帧=一句话结论。所有帧内数字遵循 `00_定案口径表_20261008.md`（旧口径命名与数字一律禁用；21.0ms（RTX 5090） / 0.906 / 0.848 / 0.9936（kept-subset）/ −55.0%（τ=0.6）/ −79.6%（τ=0.5）/ 144.3M（对外 150M 级）/ CPU 批 8–20 决策/s / flip 0.0217 为定案值）。
 
+## Representative demos
+
+Six of the 27, embedded below; the full index and per-GIF numbers are in the table
+that follows. All are 800×450, loop forever, first frame = conclusion card, last
+frame = one-line takeaway.
+
+<div align="center">
+  <img src="./S06_escalate_savings.gif" width="640"/>
+  <p>−55.0% LLM calls (79.6% at τ=0.5); kept-subset accuracy 0.906 (un-curated baseline) → 0.9936</p>
+  <img src="./S01_rmrf_gate.gif" width="640"/>
+  <p>Command gate: rm -rf blocked in 21.0 ms (RTX 5090)</p>
+  <img src="./S07_tool_routing.gif" width="640"/>
+  <p>Tool routing: 12/12 tool selection</p>
+  <img src="./S24_quickstart.gif" width="640"/>
+  <p>Three lines to run: pip install → serve → one decision</p>
+  <img src="./S23_bilingual.gif" width="640"/>
+  <p>Bilingual decisions: typed acc en 0.791 (curated) / zh 0.848 (in-mix)</p>
+  <img src="./S13_event_triage.gif" width="640"/>
+  <p>Real-time event triage inside a 30 fps frame budget</p>
+</div>
+
 | 场景 | 文件 | 核心数字（口径） | 达标状态（2026-10-08 批次4 复核） |
 |---|---|---|---|
 | S01 | S01_rmrf_gate.gif | p(deny)=0.96 · 21.0ms（RTX 5090）（合成 mock，真录待 P0） | ✅ 9 帧 · 131KB · 800×450 · loop=0 |

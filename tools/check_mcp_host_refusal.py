@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 # 显式的 scratch 目录，不用 tempfile.gettempdir()。
 #
@@ -73,18 +74,48 @@ BOOT = ("import sys; sys.path.insert(0, %r); "
         "from phocinae_mcp.server import main; sys.exit(main())")
 
 
+# On this WSL network, files.pythonhosted.org intermittently resets the TLS
+# handshake. A transient reset made this security check look like a product
+# failure (the real error was several frames down in an SSL traceback). Retry a
+# few times with backoff; a persistent failure still raises and still fails.
+def _get(req, timeout=60, attempts=4):
+    last = None
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:                     # noqa: BLE001
+            last = e
+            if attempt + 1 < attempts:
+                time.sleep(1.5 * (attempt + 1))
+    raise last
+
+
+def _download(url, dest, timeout=300, attempts=4):
+    last = None
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as r, open(dest, "wb") as o:
+                shutil.copyfileobj(r, o)
+            return
+        except Exception as e:                     # noqa: BLE001
+            last = e
+            if attempt + 1 < attempts:
+                time.sleep(1.5 * (attempt + 1))
+    raise last
+
+
 def fetch_wheel(project):
     req = urllib.request.Request("https://pypi.org/pypi/%s/json" % project,
                                  headers={"User-Agent": "phocinae",
                                           "Cache-Control": "no-cache"})
-    d = json.loads(urllib.request.urlopen(req, timeout=60).read().decode())
+    d = json.loads(_get(req, timeout=60).decode())
     ver = d["info"]["version"]
     whl = [f for f in (d["releases"].get(ver) or d["urls"])
            if f["filename"].endswith(".whl")][0]
     root = _scratch("hostrefuse-x-")
     dest = os.path.join(root, whl["filename"])
-    with urllib.request.urlopen(whl["url"], timeout=300) as r, open(dest, "wb") as o:
-        shutil.copyfileobj(r, o)
+    _download(whl["url"], dest)
     ex = _scratch("hostrefuse-")
     with zipfile.ZipFile(dest) as z:
         z.extractall(ex)

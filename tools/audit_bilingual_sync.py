@@ -64,11 +64,20 @@ HEADING = re.compile(r"^(#{1,4})\s+(.*)$", re.M)
 IMG_SRC = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.I)
 MD_IMG = re.compile(r"!\[[^\]]*\]\(([^)]+)\)")
 
-# 两边都该有、且数字必须相同的计数行
+# 两边都该有、且数字必须相同的计数行。
+# 2026-10-15 的文档把标签改成了 "Shipped plugin implementation" /
+# "Measured, not shipped"；旧正则只认更早的两个英文写法，于是把现有行
+# "看不见"，报成 one-sided —— 又是"规则没命中 vs 东西不存在"那个形状。
+# 这里同时接受新旧写法，并补上另外两行：四行都该在两边出现且数字相同。
 COUNT_ROWS = [
-    (r"\|\s*\*\*(?:Implemented by a published plugin|已发布插件实现)\*\*\s*\|\s*(\d+)",
-     "shipped"),
-    (r"\|\s*\*\*(?:Not yet measured|尚未测量)\*\*\s*\|\s*(\d+)", "unmeasured"),
+    (r"\|\s*\*\*(?:Shipped plugin implementation|Implemented by a published plugin"
+     r"|已发布插件实现)\*\*\s*\|\s*(\d+)", "shipped"),
+    (r"\|\s*\*\*(?:Measured, not shipped|已测量，判定不达标[^|*]*)\*\*\s*\|\s*(\d+)",
+     "measured-not-shipped"),
+    (r"\|\s*\*\*(?:Measured, viable|已测量，成立)\*\*\s*\|\s*(\d+)",
+     "measured-viable"),
+    (r"\|\s*\*\*(?:Not measured|Not yet measured|尚未测量)\*\*\s*\|\s*(\d+)",
+     "unmeasured"),
 ]
 
 
@@ -82,16 +91,31 @@ def parse(path):
     return s, headings, local
 
 
+def _default_root():
+    """Where the paired READMEs live.
+
+    Preferred: the sibling checkout under ``<work>/repos/...`` (the local layout).
+    Fallback: the repository this tool lives in.  In CI the main repository is the
+    checkout itself, not a sibling; the old single default therefore found no pair,
+    printed "no real drift" and exited 0 — a green step that checked nothing.
+    """
+    cand = _wp("repos", "Phocinae-Largha-150M-v1")
+    if cand and os.path.isdir(cand):
+        return cand
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
 def main():
-    roots = sys.argv[1:] or [
-        _wp("repos", "Phocinae-Largha-150M-v1")]
+    roots = sys.argv[1:] or [_default_root()]
     fails = 0
     warned = 0
+    checked = 0
     for root in roots:
         for a, b in PAIRS:
             pa, pb = os.path.join(root, a), os.path.join(root, b)
             if not (os.path.isfile(pa) and os.path.isfile(pb)):
                 continue
+            checked += 1
             sa, ha, ia = parse(pa)
             sb, hb, ib = parse(pb)
             problems, notes = [], []
@@ -132,11 +156,19 @@ def main():
                 warned += 1
 
     print()
+    if checked == 0:
+        # "一个 pair 都没找到" 不是通过。旧版在这里返回 0，CI 因此绿了
+        # 很久而什么都没查 —— 本项目的头号失败形状。
+        print("audit_bilingual_sync: FAILED — no paired README was found under %s; "
+              "this is not a pass" % ", ".join(roots))
+        return 1
     if fails:
-        print("audit_bilingual_sync: FAILED (%d pair(s) with real drift)" % fails)
+        print("audit_bilingual_sync: FAILED (%d of %d pair(s) with real drift)"
+              % (fails, checked))
         return 1
     print("audit_bilingual_sync: no real drift in paired READMEs"
-          + (" (%d pair(s) noted for review)" % warned if warned else ""))
+          " (%d pair(s) checked" % checked
+          + (", %d noted for review)" % warned if warned else ")"))
     return 0
 
 

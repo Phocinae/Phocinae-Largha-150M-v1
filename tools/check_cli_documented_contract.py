@@ -25,6 +25,8 @@ import tempfile
 import urllib.request
 import zipfile
 
+from http_retry import download, get_bytes
+
 def _scratch_root():
     """一个**可移植**的 scratch 目录。
 
@@ -73,15 +75,14 @@ def fetch(project):
     req = urllib.request.Request("https://pypi.org/pypi/%s/json" % project,
                                  headers={"User-Agent": "phocinae",
                                           "Cache-Control": "no-cache"})
-    d = json.loads(urllib.request.urlopen(req, timeout=60).read().decode())
+    d = json.loads(get_bytes(req, timeout=60).decode())
     ver = d["info"]["version"]
     whl = [f for f in (d["releases"].get(ver) or d["urls"])
            if f["filename"].endswith(".whl")][0]
     os.makedirs(SCRATCH, exist_ok=True)
     root = tempfile.mkdtemp(prefix="cli-contract-x-", dir=SCRATCH)
     dest = os.path.join(root, whl["filename"])
-    with urllib.request.urlopen(whl["url"], timeout=300) as r, open(dest, "wb") as o:
-        shutil.copyfileobj(r, o)
+    download(whl["url"], dest)
     ex = tempfile.mkdtemp(prefix="cli-contract-", dir=SCRATCH)
     with zipfile.ZipFile(dest) as z:
         z.extractall(ex)

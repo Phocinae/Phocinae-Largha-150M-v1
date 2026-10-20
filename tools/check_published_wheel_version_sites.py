@@ -24,6 +24,8 @@ import ast
 import urllib.request
 import zipfile
 
+from http_retry import download, get_bytes
+
 PROJECTS = ["phocinae-guard", "phocinae-mcp", "phocinae-server", "phocinae-cli"]
 FAILS = []
 
@@ -79,7 +81,7 @@ def main():
             req = urllib.request.Request("https://pypi.org/pypi/%s/json" % project,
                                          headers={"User-Agent": "phocinae",
                                                   "Cache-Control": "no-cache"})
-            d = json.loads(urllib.request.urlopen(req, timeout=60).read().decode())
+            d = json.loads(get_bytes(req, timeout=60).decode())
         except Exception as e:                          # noqa: BLE001
             print("SKIP %-18s PyPI unreachable (%s)" % (project, type(e).__name__))
             continue
@@ -94,8 +96,7 @@ def main():
         p = os.path.join(SCRATCH, f["filename"])
         if not os.path.isfile(p):
             try:
-                with urllib.request.urlopen(f["url"], timeout=300) as r, open(p, "wb") as o:
-                    shutil.copyfileobj(r, o)
+                download(f["url"], p)
             except Exception as e:                      # noqa: BLE001
                 print("SKIP %-18s could not download the wheel (%s)" % (project, type(e).__name__))
                 continue

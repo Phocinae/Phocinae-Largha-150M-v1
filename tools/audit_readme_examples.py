@@ -27,6 +27,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 import zipfile
 
@@ -67,19 +68,57 @@ PACKAGES = {
     "phocinae-server": ("phocinae", "phocinae.main", "module"),
 }
 
+# `phocinae.main` ignores argv and starts the server; uvicorn owns the flags.
+# Probing it with `--help` made the suite wait for the 120 s subprocess timeout
+# and then report "timed out". Its README examples are HTTP/uvicorn invocations,
+# so a flag check does not apply. Say that instead of burning two minutes and
+# starting a model server as a side effect.
+NO_FLAG_CHECK = {
+    "phocinae-server": "README examples are HTTP/uvicorn invocations; "
+                       "phocinae.main has no --help",
+}
+
+
+# See tools/check_mcp_host_refusal.py: intermittent TLS resets on this network
+# used to turn a verification into a red traceback. Retry, then fail as before.
+def _get(req, timeout=60, attempts=4):
+    last = None
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:                     # noqa: BLE001
+            last = e
+            if attempt + 1 < attempts:
+                time.sleep(1.5 * (attempt + 1))
+    raise last
+
+
+def _download(url, dest, timeout=300, attempts=4):
+    last = None
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as r, open(dest, "wb") as o:
+                shutil.copyfileobj(r, o)
+            return
+        except Exception as e:                     # noqa: BLE001
+            last = e
+            if attempt + 1 < attempts:
+                time.sleep(1.5 * (attempt + 1))
+    raise last
+
 
 def fetch(project):
     req = urllib.request.Request("https://pypi.org/pypi/%s/json" % project,
                                  headers={"User-Agent": "phocinae",
                                           "Cache-Control": "no-cache"})
-    d = json.loads(urllib.request.urlopen(req, timeout=60).read().decode())
+    d = json.loads(_get(req, timeout=60).decode())
     ver = d["info"]["version"]
     whl = [f for f in (d["releases"].get(ver) or d["urls"])
            if f["filename"].endswith(".whl")][0]
     root = tempfile.mkdtemp(prefix="ex-x-", dir=SCRATCH)
     dest = os.path.join(root, whl["filename"])
-    with urllib.request.urlopen(whl["url"], timeout=300) as r, open(dest, "wb") as o:
-        shutil.copyfileobj(r, o)
+    _download(whl["url"], dest)
     ex = tempfile.mkdtemp(prefix="ex-", dir=SCRATCH)
     with zipfile.ZipFile(dest) as z:
         z.extractall(ex)
@@ -261,6 +300,12 @@ def main():
             skip = "%s: no METADATA description" % project
             print("SKIP " + skip)
             SKIPS.append(skip)
+            continue
+
+        if project in NO_FLAG_CHECK:
+            msg = "%s: %s" % (project, NO_FLAG_CHECK[project])
+            print("SKIP " + msg)
+            SKIPS.append(msg)
             continue
 
         help_text, why = run_help(py, root, entry or "", kind)

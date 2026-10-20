@@ -30,6 +30,8 @@ import urllib.error
 import urllib.request
 import zipfile
 
+from http_retry import download, get_bytes
+
 def _scratch_root():
     """一个**可移植**的 scratch 目录。
 
@@ -78,15 +80,14 @@ def fetch(project):
     req = urllib.request.Request("https://pypi.org/pypi/%s/json" % project,
                                  headers={"User-Agent": "phocinae",
                                           "Cache-Control": "no-cache"})
-    d = json.loads(urllib.request.urlopen(req, timeout=60).read().decode())
+    d = json.loads(get_bytes(req, timeout=60).decode())
     ver = d["info"]["version"]
     whl = [f for f in (d["releases"].get(ver) or d["urls"])
            if f["filename"].endswith(".whl")][0]
     os.makedirs(SCRATCH, exist_ok=True)
     root = tempfile.mkdtemp(prefix="srv-api-x-", dir=SCRATCH)
     dest = os.path.join(root, whl["filename"])
-    with urllib.request.urlopen(whl["url"], timeout=300) as r, open(dest, "wb") as o:
-        shutil.copyfileobj(r, o)
+    download(whl["url"], dest)
     ex = tempfile.mkdtemp(prefix="srv-api-", dir=SCRATCH)
     with zipfile.ZipFile(dest) as z:
         z.extractall(ex)
@@ -110,9 +111,24 @@ def start_server(root, py, port, env_extra=None):
     env["PHOC_HOST"] = "127.0.0.1"
     if env_extra:
         env.update(env_extra)
+    # Keep the contract check about the API, not about torch.compile. Engine
+    # warmup triggers torch.compile on CUDA; on WSL2 that spawned 20 inductor
+    # workers and pushed the whole suite to 179.7 s — 0.3 s under the readiness
+    # budget. The compiler is a performance feature with its own benchmark;
+    # disabling dynamo here keeps startup bounded and the result deterministic.
+    # Set PHOC_TEST_ALLOW_COMPILE=1 to exercise the compile path on purpose.
+    if os.environ.get("PHOC_TEST_ALLOW_COMPILE") != "1":
+        env.setdefault("TORCHDYNAMO_DISABLE", "1")
     p = subprocess.Popen([py, "-m", "phocinae.main"], env=env, cwd=root,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for _ in range(60):
+    # 30 s was too short on a CPU/CUDA host: measured load_engine() = 36.7 s on
+    # WSL2 (phocinae-server 0.1.8, torch 2.14, device=cuda), so this suite failed
+    # with "connection refused" while the server was still loading.  180 s is a
+    # readiness budget, not a product contract; override with
+    # PHOC_SERVER_READY_TIMEOUT on a slower machine.
+    ready_timeout = float(os.environ.get("PHOC_SERVER_READY_TIMEOUT", "180"))
+    deadline = time.time() + ready_timeout
+    while time.time() < deadline:
         time.sleep(0.5)
         try:
             with urllib.request.urlopen("http://127.0.0.1:%d/health" % port,
@@ -122,6 +138,10 @@ def start_server(root, py, port, env_extra=None):
         except Exception:                          # noqa: BLE001
             if p.poll() is not None:
                 return None
+    msg = ("server did not answer /health within %.0fs (still running; "
+           "model load can exceed 30s on CPU)" % ready_timeout)
+    print("  FAIL " + msg)
+    FAILS.append(msg)
     return p
 
 
